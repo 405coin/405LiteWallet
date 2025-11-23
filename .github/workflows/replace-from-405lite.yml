@@ -27,9 +27,10 @@ jobs:
 
       - name: Remove git leftovers inside archive content
         run: |
-          find new_content -name ".git" -type d -exec rm -rf {} + || true
-          find new_content -name ".gitmodules" -type f -exec rm -f {} + || true
-          find new_content -name ".gitignore" -type f -exec rm -f {} + || true
+          # удаляем и файлы, и директории .git
+          find new_content -name ".git" -exec rm -rf {} + || true
+          # убираем .gitmodules (субмодули)
+          find new_content -name ".gitmodules" -type f -delete || true
 
       - name: Wipe repo (keep .git and .github)
         run: |
@@ -41,12 +42,18 @@ jobs:
         run: |
           cp -a new_content/. .
           rm -rf new_content
-          rm -f 405Lite.zip
+          rm -f 405Lite.zip || true
+
+      - name: Cleanup nested .git after copy
+        run: |
+          find . -path "./.git" -prune -o -name ".git" -exec rm -rf {} + || true
+          find . -name ".gitmodules" -type f -delete || true
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
+          git status
           git add -A
           git commit -m "Update repo from 405Lite.zip" || echo "Nothing to commit"
 
