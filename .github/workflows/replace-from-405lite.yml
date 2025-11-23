@@ -1,0 +1,50 @@
+name: Replace repo from 405Lite.zip
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "405Lite.zip"
+
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+
+    env:
+      GH_PAT: ${{ secrets.GH_PAT }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Extract 405Lite.zip to temp dir
+        run: |
+          mkdir new_content
+          unzip 405Lite.zip -d new_content
+
+      - name: Wipe repo (keep .git and .github)
+        run: |
+          shopt -s extglob
+          rm -rf !(.git|.github|new_content)
+          shopt -u extglob
+
+      - name: Move files from ZIP into repo
+        run: |
+          cp -a new_content/. .
+          rm -rf new_content
+          rm -f 405Lite.zip
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add -A
+          git commit -m "Replace repo from 405Lite.zip" || echo "Nothing to commit"
+
+      - name: Push changes
+        run: |
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git
+          git push origin HEAD:master
