@@ -20,44 +20,41 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
-      - name: Extract 405Lite.zip to temp dir
+      - name: Extract 405Lite.zip
         run: |
           mkdir new_content
           unzip 405Lite.zip -d new_content
 
-      - name: Remove git leftovers inside archive content
+      - name: Remove git leftovers
         run: |
-          # удаляем и файлы, и директории .git
-          find new_content -name ".git" -exec rm -rf {} + || true
-          # убираем .gitmodules (субмодули)
-          find new_content -name ".gitmodules" -type f -delete || true
+          find new_content -name ".git" -exec rm -rf {} +
+          find new_content -name ".gitmodules" -type f -delete
 
-      - name: Wipe repo (keep .git and .github)
+      - name: Wipe repo
         run: |
           shopt -s extglob
           rm -rf !(.git|.github|new_content)
           shopt -u extglob
 
-      - name: Move files from ZIP into repo
+      - name: Move files
         run: |
           cp -a new_content/. .
           rm -rf new_content
           rm -f 405Lite.zip || true
 
-      - name: Cleanup nested .git after copy
+      - name: Cleanup nested git dirs
         run: |
-          find . -path "./.git" -prune -o -name ".git" -exec rm -rf {} + || true
-          find . -name ".gitmodules" -type f -delete || true
+          find . -path "./.git" -prune -o -name ".git" -exec rm -rf {} +
+          find . -name ".gitmodules" -type f -delete
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
-          git status
           git add -A
           git commit -m "Update repo from 405Lite.zip" || echo "Nothing to commit"
 
-      - name: Push changes
+      - name: Push
         run: |
           git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git
           git push origin HEAD:master
