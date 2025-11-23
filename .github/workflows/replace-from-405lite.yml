@@ -25,6 +25,12 @@ jobs:
           mkdir new_content
           unzip 405Lite.zip -d new_content
 
+      - name: Remove git leftovers inside archive content
+        run: |
+          find new_content -name ".git" -type d -exec rm -rf {} + || true
+          find new_content -name ".gitmodules" -type f -exec rm -f {} + || true
+          find new_content -name ".gitignore" -type f -exec rm -f {} + || true
+
       - name: Wipe repo (keep .git and .github)
         run: |
           shopt -s extglob
@@ -42,7 +48,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add -A
-          git commit -m "Replace repo from 405Lite.zip" || echo "Nothing to commit"
+          git commit -m "Update repo from 405Lite.zip" || echo "Nothing to commit"
 
       - name: Push changes
         run: |
