@@ -23,22 +23,22 @@ from electrum.lnutil import LnFeatures
 logger = get_logger(__name__)
 
 
-# Configuration parameters
+                          
 IS_TESTNET = False
-TIMEOUT = 5  # for Lightning peer connections
-WORKERS = 30  # number of workers that concurrently fetch results for feature comparison
+TIMEOUT = 5                                  
+WORKERS = 30                                                                            
 NODES_PER_WORKER = 50
-VERBOSITY = ''  # for debugging set '*', otherwise ''
-FLAG = LnFeatures.OPTION_UPFRONT_SHUTDOWN_SCRIPT_OPT  # chose the 'opt' flag
-PRESYNC = False  # should we sync the graph or take it from an already synced database?
+VERBOSITY = ''                                       
+FLAG = LnFeatures.OPTION_UPFRONT_SHUTDOWN_SCRIPT_OPT                        
+PRESYNC = False                                                                        
 
 
 config = SimpleConfig({"testnet": IS_TESTNET, "verbosity": VERBOSITY})
 configure_logging(config)
 
 loop, stopping_fut, loop_thread = create_and_start_event_loop()
-# avoid race condition when starting network, in debug starting the asyncio loop
-# takes some time
+                                                                                
+                 
 time.sleep(2)
 
 if IS_TESTNET:
@@ -47,13 +47,13 @@ daemon = Daemon(config, listen_jsonrpc=False)
 network = daemon.network
 assert network.asyncio_loop.is_running()
 
-# create empty wallet
+                     
 wallet_dir = os.path.dirname(config.get_wallet_path())
 wallet_path = os.path.join(wallet_dir, "ln_features_wallet_main")
 if not os.path.exists(wallet_path):
     create_new_wallet(path=wallet_path, config=config)
 
-# open wallet
+             
 wallet = daemon.load_wallet(wallet_path, password=None, upgrade=True)
 
 
@@ -68,9 +68,9 @@ async def worker(work_queue: asyncio.Queue, results_queue: asyncio.Queue, flag):
             return
         work = await work_queue.get()
 
-        # only check non-onion addresses
-        addr = None  # type: Optional[NetAddress]
-        for a in work['addrs']:  # type: NetAddress
+                                        
+        addr = None                              
+        for a in work['addrs']:                    
             if not str(a.host).endswith(".onion"):
                 addr = a
         if not addr:
@@ -107,15 +107,15 @@ async def node_flag_stats(opt_flag: LnFeatures, presync: False):
     try:
         await wallet.lnworker.channel_db.data_loaded.wait()
 
-        # optionally presync graph (not reliable)
+                                                 
         if presync:
             network.start_gossip()
 
-            # wait for the graph to be synchronized
+                                                   
             while True:
                 await asyncio.sleep(5)
 
-                # logger.info(wallet.network.lngossip.get_sync_progress_estimate())
+                                                                                   
                 cur, tot, pct = wallet.network.lngossip.get_sync_progress_estimate()
                 print(f"graph sync progress {cur}/{tot} ({pct}%) channels")
                 if pct >= 100:
@@ -124,12 +124,12 @@ async def node_flag_stats(opt_flag: LnFeatures, presync: False):
         with wallet.lnworker.channel_db.lock:
             nodes = wallet.lnworker.channel_db._nodes.copy()
 
-        # check how many nodes advertise opt/req flag in the gossip
+                                                                   
         n_opt = 0
         n_req = 0
         print(f"analyzing {len(nodes.keys())} nodes")
 
-        # 1. statistics on graph
+                                
         req_flag = LnFeatures(opt_flag >> 1)
         for n, nv in nodes.items():
             features = LnFeatures(nv.features)
@@ -138,17 +138,17 @@ async def node_flag_stats(opt_flag: LnFeatures, presync: False):
             if features & req_flag:
                 n_req += 1
 
-        # analyze numbers
+                         
         print(
             f"opt: {n_opt} ({100 * n_opt/len(nodes)}%) "
             f"req: {n_req} ({100 * n_req/len(nodes)}%)")
 
-        # 2. compare announced and actual feature set
-        # put nodes into a work queue
+                                                     
+                                     
         work_queue = asyncio.Queue()
         results_queue = asyncio.Queue()
 
-        # fill up work
+                      
         for n, nv in nodes.items():
             addrs = wallet.lnworker.channel_db._addresses[n]
             await work_queue.put({'pk': n, 'addrs': addrs, 'features': nv.features})
@@ -157,7 +157,7 @@ async def node_flag_stats(opt_flag: LnFeatures, presync: False):
             await asyncio.gather(*tasks)
         except Exception as e:
             print(e)
-        # analyze results
+                         
         n_true = 0
         n_false = 0
         n_tot = 0

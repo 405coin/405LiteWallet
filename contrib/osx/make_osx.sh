@@ -2,14 +2,14 @@
 
 set -e
 
-# Parameterize
+
 PYTHON_VERSION=3.12.10
-PY_VER_MAJOR="3.12"  # as it appears in fs paths
+PY_VER_MAJOR="3.12"
 PACKAGE=Electrum
 GIT_REPO=https://github.com/spesmilo/electrum
 
 export GCC_STRIP_BINARIES="1"
-export PYTHONDONTWRITEBYTECODE=1  # don't create __pycache__/ folders with .pyc files
+export PYTHONDONTWRITEBYTECODE=1
 
 
 . "$(dirname "$0")/../build_tools_util.sh"
@@ -43,7 +43,7 @@ echo "8373e58da4ea146b3eb1c1f9834f19a319440b6b679b06050b1f9ee3237aa8e4  $CACHEDI
 sudo installer -pkg "$CACHEDIR/$PKG_FILE" -target / \
     || fail "failed to install python"
 
-# sanity check "python3" has the version we just installed.
+
 FOUND_PY_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
 if [[ "$FOUND_PY_VERSION" != "$PYTHON_VERSION" ]]; then
     fail "python version mismatch: $FOUND_PY_VERSION != $PYTHON_VERSION"
@@ -51,32 +51,32 @@ fi
 
 break_legacy_easy_install
 
-# create a fresh virtualenv
-# This helps to avoid older versions of pip-installed dependencies interfering with the build.
+
+
 VENV_DIR="$CONTRIB_OSX/build-venv"
 rm -rf "$VENV_DIR"
 python3 -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
 
-# don't add debug info to compiled C files (e.g. when pip calls setuptools/wheel calls gcc)
-# see https://github.com/pypa/pip/issues/6505#issuecomment-526613584
-# note: this does not seem sufficient when cython is involved (although it is on linux, just not on mac... weird.)
-#       see additional "strip" pass on built files later in the file.
+
+
+
+
 export CFLAGS="-g0"
 
-# Do not build universal binaries. The default on macos 11+ and xcode 12+ is "-arch arm64 -arch x86_64"
-# but with that e.g. "hid.cpython-310-darwin.so" is not reproducible as built by clang.
+
+
 export ARCHFLAGS="-arch x86_64"
 
 info "Installing build dependencies"
-# note: re pip installing from PyPI,
-#       we prefer compiling C extensions ourselves, instead of using binary wheels,
-#       hence "--no-binary :all:" flags. However, we specifically allow
-#       - PyQt6, as it's harder to build from source
-#       - cryptography, as it's harder to build from source
-#       - the whole of "requirements-build-base.txt", which includes pip and friends, as it also includes "wheel",
-#         and I am not quite sure how to break the circular dependence there (I guess we could introduce
-#         "requirements-build-base-base.txt" with just wheel in it...)
+
+
+
+
+
+
+
+
 python3 -m pip install --no-build-isolation --no-dependencies --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -Ir ./contrib/deterministic-build/requirements-build-base.txt \
     || fail "Could not install build dependencies (base)"
@@ -90,7 +90,7 @@ brew install autoconf automake libtool gettext coreutils pkgconfig
 info "Building PyInstaller."
 PYINSTALLER_REPO="https://github.com/pyinstaller/pyinstaller.git"
 PYINSTALLER_COMMIT="306d4d92580fea7be7ff2c89ba112cdc6f73fac1"
-# ^ tag "v6.13.0"
+
 (
     if [ -f "$CACHEDIR/pyinstaller/PyInstaller/bootloader/Darwin-64bit/runw" ]; then
         info "pyinstaller already built, skipping"
@@ -102,20 +102,20 @@ PYINSTALLER_COMMIT="306d4d92580fea7be7ff2c89ba112cdc6f73fac1"
     rm -rf pyinstaller
     mkdir pyinstaller
     cd pyinstaller
-    # Shallow clone
+
     git init
     git remote add origin $PYINSTALLER_REPO
     git fetch --depth 1 origin $PYINSTALLER_COMMIT
     git checkout -b pinned "${PYINSTALLER_COMMIT}^{commit}"
     rm -fv PyInstaller/bootloader/Darwin-*/run* || true
-    # add reproducible randomness. this ensures we build a different bootloader for each commit.
-    # if we built the same one for all releases, that might also get anti-virus false positives
+
+
     echo "const char *electrum_tag = \"tagged by Electrum@$ELECTRUM_COMMIT_HASH\";" >> ./bootloader/src/pyi_main.c
     pushd bootloader
-    # compile bootloader
+
     python3 ./waf all CFLAGS="-static"
     popd
-    # sanity check bootloader is there:
+
     [[ -e "PyInstaller/bootloader/Darwin-64bit/runw" ]] || fail "Could not find runw in target dir!"
 )
 info "Installing PyInstaller."
@@ -131,8 +131,8 @@ pyinstaller --version
 rm -rf ./dist
 
 info "resetting git submodules."
-# note: --force is less critical in other build scripts, but as the mac build is not doing a fresh clone,
-#       it is very useful here for reproducibility
+
+
 git submodule update --init --force
 
 info "preparing electrum-locale."
@@ -142,7 +142,7 @@ info "preparing electrum-locale."
         brew link --force gettext
     fi
     "$CONTRIB/locale/build_cleanlocale.sh"
-    # we want the binary to have only compiled (.mo) locale files; not source (.po) files
+
     rm -r "$PROJECT_ROOT/electrum/locale/locale"/*/electrum.po
 )
 
@@ -172,7 +172,7 @@ fi
 cp -f "$DLL_TARGET_DIR/libusb-1.0.dylib" "$PROJECT_ROOT/electrum/" || fail "Could not copy libusb dylib"
 
 
-# opt out of compiling C extensions
+
 export YARL_NO_EXTENSIONS=1
 export PROPCACHE_NO_EXTENSIONS=1
 
@@ -199,19 +199,19 @@ python3 -m pip install --no-build-isolation --no-dependencies --no-binary :all: 
 info "Building $PACKAGE..."
 python3 -m pip install --no-build-isolation --no-dependencies \
     --cache-dir "$PIP_CACHE_DIR" --no-warn-script-location . > /dev/null || fail "Could not build $PACKAGE"
-# pyinstaller needs to be able to "import electrum_ecc", for which we need libsecp256k1:
-# (or could try "pip install -e" instead)
+
+
 cp "$DLL_TARGET_DIR"/libsecp256k1.*.dylib "$VENV_DIR/lib/python$PY_VER_MAJOR/site-packages/electrum_ecc/"
 
-# strip debug symbols of some compiled libs
-# - hidapi (hid.cpython-39-darwin.so) in particular is not reproducible without this
+
+
 find "$VENV_DIR/lib/python$PY_VER_MAJOR/site-packages/" -type f -name '*.so' -print0 \
     | xargs -0 -t strip -x
 
 info "Faking timestamps..."
 find . -exec touch -t '200101220000' {} + || true
 
-# note: no --dirty, as we have dirtied electrum/locale/ ourselves.
+
 VERSION=$(git describe --tags --always)
 
 info "Building binary"

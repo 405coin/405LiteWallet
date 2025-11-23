@@ -32,12 +32,12 @@ class QETxDetails(QObject, QtEventListener):
         self.register_callbacks()
         self.destroyed.connect(lambda: self.on_destroy())
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._txid = ''
         self._rawtx = ''
         self._label = ''
 
-        self._tx = None  # type: Optional[Transaction]
+        self._tx = None                               
 
         self._status = ''
         self._amount = QEAmount()
@@ -298,13 +298,13 @@ class QETxDetails(QObject, QtEventListener):
             self._tx = self._wallet.wallet.db.get_transaction(self._txid)
             assert self._tx is not None, f'unknown txid "{self._txid}"'
 
-        #self._logger.debug(repr(self._tx.to_json()))
+                                                     
 
         self._logger.debug('adding info from wallet')
         self._tx.add_info_from_wallet(self._wallet.wallet)
         if not self._tx.is_complete() and self._tx.is_missing_info_from_network():
             Network.run_from_another_thread(
-                self._tx.add_info_from_network(self._wallet.wallet.network, timeout=10))  # FIXME is this needed?...
+                self._tx.add_info_from_network(self._wallet.wallet.network, timeout=10))                            
 
         sm = self._wallet.wallet.lnworker.swap_manager if self._wallet.wallet.lnworker else None
 
@@ -320,7 +320,7 @@ class QETxDetails(QObject, QtEventListener):
         self._outputs = list(map(lambda x: {
             'address': x.get_ui_address_str(),
             'value': QEAmount(amount_sat=x.value),
-            'short_id': '',  # TODO
+            'short_id': '',        
             'is_mine': self._wallet.wallet.is_mine(x.get_ui_address_str()),
             'is_change': self._wallet.wallet.is_change(x.get_ui_address_str()),
             'is_billing': self._wallet.wallet.is_billing_address(x.get_ui_address_str()),
@@ -332,8 +332,8 @@ class QETxDetails(QObject, QtEventListener):
 
         self._logger.debug(repr(txinfo))
 
-        # can be None if outputs unrelated to wallet seed,
-        # e.g. to_local local_force_close commitment CSV-locked p2wsh script
+                                                          
+                                                                            
         if txinfo.amount is None:
             self._amount.satsInt = 0
         else:
@@ -365,8 +365,8 @@ class QETxDetails(QObject, QtEventListener):
                 self._sighash_danger = self._wallet.wallet.check_sighash(self._tx)
 
         if self._wallet.wallet.lnworker:
-            # Calling wallet.get_full_history here is inefficient.
-            # We should probably pass the tx_item to the constructor.
+                                                                  
+                                                                     
             full_history = self._wallet.wallet.get_full_history()
             item = full_history.get('group:' + self._txid)
             self._lnamount.satsInt = int(item['ln_value'].value) if item else 0
@@ -414,7 +414,7 @@ class QETxDetails(QObject, QtEventListener):
         self._sign(broadcast=False)
 
     def _sign(self, broadcast):
-        # TODO: connecting/disconnecting signal handlers here is hmm
+                                                                    
         try:
             if broadcast:
                 self._wallet.broadcastSucceeded.disconnect(self.onBroadcastSucceeded)
@@ -429,8 +429,8 @@ class QETxDetails(QObject, QtEventListener):
         else:
             self._wallet.sign(self._tx, on_success=self.on_signed_tx)
 
-        # side-effect: signing updates self._tx
-        # we rely on this for broadcast
+                                               
+                                       
 
     def on_signed_tx(self, tx: Transaction):
         self._logger.debug('on_signed_tx')
@@ -498,8 +498,8 @@ class QETxDetails(QObject, QtEventListener):
         self._wallet.wallet.adb.remove_transaction(txid)
         self._wallet.wallet.save_db()
 
-        # NOTE: from here, the tx/txid is unknown and all properties are invalid.
-        # UI should close TxDetails and avoid interacting with this qetxdetails instance.
+                                                                                 
+                                                                                         
         self._tx = None
 
     @pyqtSlot()

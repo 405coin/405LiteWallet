@@ -7,21 +7,21 @@ from .jade_error import JadeError
 logger = logging.getLogger(__name__)
 
 
-#
-# Low-level Serial backend interface to Jade
-# Calls to send and receive bytes over the interface.
-# Intended for use via JadeInterface wrapper.
-#
-# Either:
-#  a) use via JadeInterface.create_serial() (see JadeInterface)
-# (recommended)
-# or:
-#  b) use JadeSerialImpl() directly, and call connect() before
-#     using, and disconnect() when finished,
-# (caveat cranium)
-#
+ 
+                                            
+                                                     
+                                             
+ 
+         
+                                                               
+               
+     
+                                                              
+                                            
+                  
+ 
 class JadeSerialImpl:
-    # Used when searching for devices that might be a Jade/compatible hw
+                                                                        
     JADE_DEVICE_IDS = [
             (0x10c4, 0xea60), (0x1a86, 0x55d4), (0x0403, 0x6001),
             (0x1a86, 0x7523), (0x303a, 0x4001), (0x303a, 0x1001)]
@@ -59,7 +59,7 @@ class JadeSerialImpl:
             except serial.serialutil.SerialException:
                 raise JadeError(1, "Unable to open port", self.device)
 
-        # Ensure RTS and DTR are not set (as this can cause the hw to reboot)
+                                                                             
         self.ser.setRTS(False)
         self.ser.setDTR(False)
 
@@ -68,13 +68,13 @@ class JadeSerialImpl:
     def disconnect(self):
         assert self.ser is not None
 
-        # Ensure RTS and DTR are not set (as this can cause the hw to reboot)
-        # and then close the connection
+                                                                             
+                                       
         self.ser.setRTS(False)
         self.ser.setDTR(False)
         self.ser.close()
 
-        # Reset state
+                     
         self.ser = None
 
     def write(self, bytes_):

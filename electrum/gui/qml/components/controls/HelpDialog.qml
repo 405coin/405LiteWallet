@@ -11,7 +11,7 @@ ElDialog {
     property string text
     property string heading
 
-    z: 1 // raise z so it also covers dialogs using overlay as parent
+    z: 1 
 
     anchors.centerIn: parent
 

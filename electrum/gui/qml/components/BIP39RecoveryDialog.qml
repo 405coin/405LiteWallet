@@ -20,7 +20,7 @@ ElDialog {
 
     needsSystemBarPadding: false
 
-    z: 1 // raise z so it also covers wizard dialog
+    z: 1 
 
     anchors.centerIn: parent
 

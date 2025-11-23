@@ -46,16 +46,16 @@ class Plugin(TrustedCoinPlugin):
         self.logger.debug(f'init_qml hook called, gui={str(type(app))}')
         self._app = app
         wizard = QEDaemon.instance.newWalletWizard
-        # important: TrustedcoinPluginQObject needs to be parented, as keeping a ref
-        # in the plugin is not enough to avoid gc
-        # Note: storing the trustedcoin qt helper in the plugin is different from the desktop client,
-        # which stores the helper in the wizard object. As the mobile client only shows a single wizard
-        # at a time, this is ok for now.
+                                                                                    
+                                                 
+                                                                                                     
+                                                                                                       
+                                        
         self.so = TrustedcoinPluginQObject(self, wizard, self._app)
-        # extend wizard
+                       
         self.extend_wizard(wizard)
 
-    # wizard support functions
+                              
 
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         super().extend_wizard(wizard)
@@ -91,7 +91,7 @@ class Plugin(TrustedCoinPlugin):
                 'gui': '../../../../plugins/trustedcoin/qml/Terms',
             },
             'trustedcoin_keystore_unlock': {
-                # TODO when QML can import external wallet files
+                                                                
             },
             'trustedcoin_show_confirm_otp': {
                 'gui': '../../../../plugins/trustedcoin/qml/ShowConfirmOTP',
@@ -99,7 +99,7 @@ class Plugin(TrustedCoinPlugin):
         }
         wizard.navmap_merge(views)
 
-    # running wallet functions
+                              
 
     def prompt_user_for_otp(self, wallet, tx, on_success, on_failure):
         self.logger.debug('prompt_user_for_otp')
@@ -122,7 +122,7 @@ class Plugin(TrustedCoinPlugin):
         except UserFacingException as e:
             self.on_failure(_('Invalid one-time password.'))
         except TrustedCoinException as e:
-            if e.status_code == 400:  # invalid OTP
+            if e.status_code == 400:               
                 self.on_failure(_('Invalid one-time password.'))
             else:
                 self.on_failure(_('Service Error') + ':\n' + str(e))

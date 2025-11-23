@@ -1,6 +1,6 @@
-# Copyright (C) 2021 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+
+
+
 
 from typing import TYPE_CHECKING
 
@@ -35,7 +35,7 @@ class _BaseRBFDialog(TxEditor):
 
         self.old_fee = self.old_tx.get_fee()
         self.old_tx_size = tx.estimated_size()
-        self.old_fee_rate = old_fee_rate = self.old_fee / self.old_tx_size  # sat/vbyte
+        self.old_fee_rate = old_fee_rate = self.old_fee / self.old_tx_size
 
         output_value = sum([txo.value for txo in tx.outputs() if not txo.is_mine])
         if output_value == 0:
@@ -49,7 +49,7 @@ class _BaseRBFDialog(TxEditor):
             output_value=output_value,
         )
 
-        self.fee_e.setFrozen(True)  # disallow setting absolute fee for now, as wallet.bump_fee can only target feerate
+        self.fee_e.setFrozen(True)
         new_fee_rate = self.old_fee_rate + max(1, self.old_fee_rate // 20)
         self.feerate_e.setAmount(new_fee_rate)
         self.update()
@@ -82,7 +82,7 @@ class _BaseRBFDialog(TxEditor):
         grid.addWidget(HelpLabel(_("Fee target") + ": ", self.fee_combo.help_msg), 4, 0)
         grid.addLayout(self.fee_target_hbox, 4, 1, 1, 3)
         grid.setColumnStretch(4, 1)
-        # locktime
+
         grid.addWidget(self.locktime_label, 5, 0)
         grid.addWidget(self.locktime_e, 5, 1, 1, 2)
         return grid

@@ -44,23 +44,23 @@ class ElectrumGui(BaseElectrumGui, Logger):
         BaseElectrumGui.__init__(self, config=config, daemon=daemon, plugins=plugins)
         Logger.__init__(self)
 
-        # uncomment to debug plugin and import tracing
-        # os.environ['QML_IMPORT_TRACE'] = '1'
-        # os.environ['QT_DEBUG_PLUGINS'] = '1'
+                                                      
+                                              
+                                              
 
         os.environ['QT_ANDROID_DISABLE_ACCESSIBILITY'] = '1'
 
-        # set default locale to en_GB. This is for l10n (e.g. number formatting, number input etc),
-        # but not for i18n, which is handled by the Translator
-        # this can be removed once the backend wallet is fully l10n aware
+                                                                                                   
+                                                              
+                                                                         
         QLocale.setDefault(QLocale('en_GB'))
 
         self.logger.info(f"Qml GUI starting up... Qt={QT_VERSION_STR}, PyQt={PYQT_VERSION_STR}")
         self.logger.info("CWD=%s" % os.getcwd())
-        # Uncomment this call to verify objects are being properly
-        # GC-ed when windows are closed
-        #plugins.add_jobs([DebugMem([Abstract_Wallet, SPV, Synchronizer,
-        #                            ElectrumWindow], interval=5)])
+                                                                  
+                                       
+                                                                        
+                                                                   
 
         if hasattr(Qt, "AA_ShareOpenGLContexts"):
             QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
@@ -75,16 +75,16 @@ class ElectrumGui(BaseElectrumGui, Logger):
         self.translator = ElectrumTranslator()
         self.app.installTranslator(self.translator)
 
-        # timer
+               
         self.timer = QTimer(self.app)
         self.timer.setSingleShot(False)
-        self.timer.setInterval(500)  # msec
-        self.timer.timeout.connect(lambda: None)  # periodically enter python scope
+        self.timer.setInterval(500)        
+        self.timer.timeout.connect(lambda: None)                                   
 
-        # hook for crash reporter
+                                 
         Exception_Hook.maybe_setup(slot=self.app.appController.crash)
 
-        # Initialize any QML plugins
+                                    
         run_hook('init_qml', self.app)
         self.app.engine.load('electrum/gui/qml/components/main.qml')
 

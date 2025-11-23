@@ -1,9 +1,9 @@
 #!/bin/sh
-# Copyright (c) 2014-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#
-# This script is based on https://github.com/bitcoin/bitcoin/blob/194b9b8792d9b0798fdb570b79fa51f1d1f5ebaf/contrib/macdeploy/detached-sig-apply.sh
+
+
+
+
+
 
 export LC_ALL=C
 set -e

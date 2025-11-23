@@ -42,7 +42,7 @@ def needs_test_with_all_aes_implementations(func):
     NOTE: this is inherently sequential;
     tests running in parallel would break things
     """
-    if FAST_TESTS:  # if set, only run tests once, using fastest implementation
+    if FAST_TESTS:                                                             
         return func
     has_cryptodome = crypto.HAS_CRYPTODOME
     has_cryptography = crypto.HAS_CRYPTOGRAPHY
@@ -52,13 +52,13 @@ def needs_test_with_all_aes_implementations(func):
             try:
                 if has_pyaes:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = False, False, True
-                    await func(*args, **kwargs)  # pyaes
+                    await func(*args, **kwargs)         
                 if has_cryptodome:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = True, False, False
-                    await func(*args, **kwargs)  # cryptodome
+                    await func(*args, **kwargs)              
                 if has_cryptography:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = False, True, False
-                    await func(*args, **kwargs)  # cryptography
+                    await func(*args, **kwargs)                
             finally:
                 crypto.HAS_CRYPTODOME = has_cryptodome
                 crypto.HAS_CRYPTOGRAPHY = has_cryptography
@@ -68,13 +68,13 @@ def needs_test_with_all_aes_implementations(func):
             try:
                 if has_pyaes:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = False, False, True
-                    func(*args, **kwargs)  # pyaes
+                    func(*args, **kwargs)         
                 if has_cryptodome:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = True, False, False
-                    func(*args, **kwargs)  # cryptodome
+                    func(*args, **kwargs)              
                 if has_cryptography:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY, crypto.HAS_PYAES) = False, True, False
-                    func(*args, **kwargs)  # cryptography
+                    func(*args, **kwargs)                
             finally:
                 crypto.HAS_CRYPTODOME = has_cryptodome
                 crypto.HAS_CRYPTOGRAPHY = has_cryptography
@@ -89,7 +89,7 @@ def needs_test_with_all_chacha20_implementations(func):
     NOTE: this is inherently sequential;
     tests running in parallel would break things
     """
-    if FAST_TESTS:  # if set, only run tests once, using fastest implementation
+    if FAST_TESTS:                                                             
         return func
     has_cryptodome = crypto.HAS_CRYPTODOME
     has_cryptography = crypto.HAS_CRYPTOGRAPHY
@@ -98,10 +98,10 @@ def needs_test_with_all_chacha20_implementations(func):
             try:
                 if has_cryptodome:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY) = True, False
-                    await func(*args, **kwargs)  # cryptodome
+                    await func(*args, **kwargs)              
                 if has_cryptography:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY) = False, True
-                    await func(*args, **kwargs)  # cryptography
+                    await func(*args, **kwargs)                
             finally:
                 crypto.HAS_CRYPTODOME = has_cryptodome
                 crypto.HAS_CRYPTOGRAPHY = has_cryptography
@@ -110,10 +110,10 @@ def needs_test_with_all_chacha20_implementations(func):
             try:
                 if has_cryptodome:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY) = True, False
-                    func(*args, **kwargs)  # cryptodome
+                    func(*args, **kwargs)              
                 if has_cryptography:
                     (crypto.HAS_CRYPTODOME, crypto.HAS_CRYPTOGRAPHY) = False, True
-                    func(*args, **kwargs)  # cryptography
+                    func(*args, **kwargs)                
             finally:
                 crypto.HAS_CRYPTODOME = has_cryptodome
                 crypto.HAS_CRYPTOGRAPHY = has_cryptography
@@ -149,19 +149,19 @@ def disable_ecdsa_r_value_grinding(func):
 class Test_bitcoin(ElectrumTestCase):
 
     def test_libsecp256k1_is_available(self):
-        # we want the unit testing framework to test with libsecp256k1 available.
+                                                                                 
         self.assertTrue(bool(ecc._libsecp256k1))
 
     def test_pycryptodomex_is_available(self):
-        # we want the unit testing framework to test with pycryptodomex available.
+                                                                                  
         self.assertTrue(bool(crypto.HAS_CRYPTODOME))
 
     def test_cryptography_is_available(self):
-        # we want the unit testing framework to test with cryptography available.
+                                                                                 
         self.assertTrue(bool(crypto.HAS_CRYPTOGRAPHY))
 
     def test_pyaes_is_available(self):
-        # we want the unit testing framework to test with pyaes available.
+                                                                          
         self.assertTrue(bool(crypto.HAS_PYAES))
 
     @needs_test_with_all_aes_implementations
@@ -176,19 +176,19 @@ class Test_bitcoin(ElectrumTestCase):
 
         Pub = pvk*G
         pubkey_c = Pub.get_public_key_bytes(True)
-        #pubkey_u = point_to_ser(Pub,False)
+                                           
         addr_c = public_key_to_p2pkh(pubkey_c)
 
-        #print "Private key            ", '%064x'%pvk
+                                                     
         eck = ecc.ECPrivkey.from_secret_scalar(pvk)
 
-        #print "Compressed public key  ", pubkey_c.encode('hex')
+                                                                
         enc = crypto.ecies_encrypt_message(ecc.ECPubkey(pubkey_c), message)
         dec = crypto.ecies_decrypt_message(eck, enc)
         self.assertEqual(message, dec)
 
-        #print "Uncompressed public key", pubkey_u.encode('hex')
-        #enc2 = EC_KEY.encrypt_message(message, pubkey_u)
+                                                                
+                                                         
         dec2 = crypto.ecies_decrypt_message(eck, enc)
         self.assertEqual(message, dec2)
 
@@ -207,10 +207,10 @@ class Test_bitcoin(ElectrumTestCase):
         msg2 = b'Electrum'
 
         sig1 = self.sign_message_with_wif_privkey(
-            'L1TnU2zbNaAqMoVh65Cyvmcjzbrj41Gs9iTLcWbpJCMynXuap6UN', msg1)  # compressed pubkey
+            'L1TnU2zbNaAqMoVh65Cyvmcjzbrj41Gs9iTLcWbpJCMynXuap6UN', msg1)                     
         addr1 = '15hETetDmcXm1mM4sEf7U2KXC9hDHFMSzz'
         sig2 = self.sign_message_with_wif_privkey(
-            '5Hxn5C4SQuiV6e62A1MtZmbSeQyrLFhu5uYks62pU5VBUygK2KD', msg2)  # uncompressed pubkey
+            '5Hxn5C4SQuiV6e62A1MtZmbSeQyrLFhu5uYks62pU5VBUygK2KD', msg2)                       
         addr2 = '1GPHVTY8UD9my6jyP4tb2TYJwUbDetyNC6'
 
         sig1_b64 = base64.b64encode(sig1)
@@ -236,13 +236,13 @@ class Test_bitcoin(ElectrumTestCase):
 
     def test_signmessage_segwit_witness_v0_address(self):
         msg = b'Electrum'
-        # p2wpkh-p2sh
+                     
         sig1 = self.sign_message_with_wif_privkey("p2wpkh-p2sh:L1cgMEnShp73r9iCukoPE3MogLeueNYRD9JVsfT1zVHyPBR3KqBY", msg)
         addr1 = "3DYoBqQ5N6dADzyQjy9FT1Ls4amiYVaqTG"
         self.assertEqual(base64.b64encode(sig1), b'HyFaND+87TtVbRhkTfT3mPNBCQcJ32XXtNZGW8sFldJsNpOPCegEmdcCf5Thy18hdMH88GLxZLkOby/EwVUuSeA=')
         self.assertTrue(bitcoin.verify_usermessage_with_address(addr1, sig1, msg))
         self.assertFalse(bitcoin.verify_usermessage_with_address(addr1, sig1, b'heyheyhey'))
-        # p2wpkh
+                
         sig2 = self.sign_message_with_wif_privkey("p2wpkh:L1cgMEnShp73r9iCukoPE3MogLeueNYRD9JVsfT1zVHyPBR3KqBY", msg)
         addr2 = "bc1qq2tmmcngng78nllq2pvrkchcdukemtj56uyue0"
         self.assertEqual(base64.b64encode(sig2), b'HyFaND+87TtVbRhkTfT3mPNBCQcJ32XXtNZGW8sFldJsNpOPCegEmdcCf5Thy18hdMH88GLxZLkOby/EwVUuSeA=')
@@ -262,7 +262,7 @@ class Test_bitcoin(ElectrumTestCase):
         sig2 = bytes.fromhex("28b55d7600d9e9a7e2a49155ddf3cfdb8e796c207faab833010fa41fb7828889bc47cf62348a7aaa0923c0832a589fab541e8f12eb54fb711c90e2307f0f66b194")
         self.assertTrue(bitcoin.verify_usermessage_with_address(address=addr1, sig65=sig1, message=msg))
         self.assertTrue(bitcoin.verify_usermessage_with_address(address=addr2, sig65=sig2, message=msg))
-        # if there is type information in the header of the sig (first byte), enforce that:
+                                                                                           
         sig1_wrongtype = bytes.fromhex("27744de4516fac5c140808015664516a32fead94de89775cec7e24dbc24fe133075ac09301c4cc8e197bea4b6481661d5b8e9bf19d8b7b8a382ecdb53c2ee0750d")
         sig2_wrongtype = bytes.fromhex("24b55d7600d9e9a7e2a49155ddf3cfdb8e796c207faab833010fa41fb7828889bc47cf62348a7aaa0923c0832a589fab541e8f12eb54fb711c90e2307f0f66b194")
         self.assertFalse(bitcoin.verify_usermessage_with_address(address=addr1, sig65=sig1_wrongtype, message=msg))
@@ -328,8 +328,8 @@ class Test_bitcoin(ElectrumTestCase):
             enc = crypto.pw_encode(payload, password, version=version)
             with self.assertRaises(InvalidPassword):
                 crypto.pw_decode(enc, wrong_password, version=version)
-        # sometimes the PKCS7 padding gets removed cleanly,
-        # but then UnicodeDecodeError gets raised (internally):
+                                                           
+                                                               
         enc = 'smJ7j6ccr8LnMOlx98s/ajgikv9s3R1PQuG3GyyIMmo='
         with self.assertRaises(InvalidPassword):
             crypto.pw_decode(enc, wrong_password, version=1)
@@ -426,7 +426,7 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(_op_push(0x12345678), bfh('4e78563412'))
 
     def test_script_num_to_hex(self):
-        # test vectors from https://github.com/btcsuite/btcd/blob/fdc2bc867bda6b351191b5872d2da8270df00d13/txscript/scriptnum.go#L77
+                                                                                                                                    
         self.assertEqual(script_num_to_bytes(127), bfh('7f'))
         self.assertEqual(script_num_to_bytes(-127), bfh('ff'))
         self.assertEqual(script_num_to_bytes(128), bfh('8000'))
@@ -441,7 +441,7 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(script_num_to_bytes(-32768), bfh('008080'))
 
     def test_push_script(self):
-        # https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#push-operators
+                                                                                       
         self.assertEqual(push_script(b""), bytes([opcodes.OP_0]))
         self.assertEqual(push_script(b'\x07'), bytes([opcodes.OP_7]))
         self.assertEqual(push_script(b'\x10'), bytes([opcodes.OP_16]))
@@ -455,7 +455,7 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(push_script(520 * b'\x42'), bytes([opcodes.OP_PUSHDATA2]) + bfh('0802' + 520 * '42'))
 
     def test_add_number_to_script(self):
-        # https://github.com/bitcoin/bips/blob/master/bip-0062.mediawiki#numbers
+                                                                                
         self.assertEqual(add_number_to_script(0), bytes([opcodes.OP_0]))
         self.assertEqual(add_number_to_script(7), bytes([opcodes.OP_7]))
         self.assertEqual(add_number_to_script(16), bytes([opcodes.OP_16]))
@@ -478,25 +478,25 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(add_number_to_script(2147483647), bfh('04ffffff7f'))
 
     def test_address_to_script(self):
-        # bech32/bech32m native segwit
-        # test vectors from BIP-0173
-        # note: the ones that are commented out have been invalidated by BIP-0350
+                                      
+                                    
+                                                                                 
         self.assertEqual(address_to_script('BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4').hex(), '0014751e76e8199196d454941c45d1b3a323f1433bd6')
         self.assertEqual(address_to_script('tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7', net=constants.BitcoinTestnet).hex(), '00201863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262')
         self.assertEqual(address_to_script('tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy', net=constants.BitcoinTestnet).hex(), '0020000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433')
-        # self.assertEqual(address_to_script('bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx'), '5128751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6')
-        # self.assertEqual(address_to_script('BC1SW50QA3JX3S'), '6002751e')
-        # self.assertEqual(address_to_script('bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj'), '5210751e76e8199196d454941c45d1b3a323')
+                                                                                                                                                                                                                   
+                                                                           
+                                                                                                                             
 
-        # bech32/bech32m native segwit
-        # test vectors from BIP-0350
+                                      
+                                    
         self.assertEqual(address_to_script('bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y').hex(), '5128751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6')
         self.assertEqual(address_to_script('BC1SW50QGDZ25J').hex(), '6002751e')
         self.assertEqual(address_to_script('bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs').hex(), '5210751e76e8199196d454941c45d1b3a323')
         self.assertEqual(address_to_script('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0').hex(), '512079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798')
         self.assertEqual(address_to_script('tb1pqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesf3hn0c', net=constants.BitcoinTestnet).hex(), '5120000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433')
 
-        # invalid addresses (from BIP-0173)
+                                           
         for net in [constants.BitcoinMainnet, constants.BitcoinTestnet]:
             self.assertFalse(is_address('tc1qw508d6qejxtdg4y5r3zarvary0c5xw7kg3g4ty', net=net))
             self.assertFalse(is_address('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5', net=net))
@@ -509,7 +509,7 @@ class Test_bitcoin(ElectrumTestCase):
             self.assertFalse(is_address('tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv', net=net))
             self.assertFalse(is_address('bc1gmk9yu', net=net))
 
-        # invalid addresses (from BIP-0350)
+                                           
         for net in [constants.BitcoinMainnet, constants.BitcoinTestnet]:
             self.assertFalse(is_address('tc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq5zuyut', net=net))
             self.assertFalse(is_address('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd', net=net))
@@ -527,19 +527,19 @@ class Test_bitcoin(ElectrumTestCase):
             self.assertFalse(is_address('tb1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vpggkg4j', net=net))
             self.assertFalse(is_address('bc1gmk9yu', net=net))
 
-        # bech32(m) mixed case:
+                               
         bech32_mixed_case1 = 'BC1QW508D6QEJXTDG4Y5R3zarvary0c5xw7kv8f3t4'
         self.assertFalse(is_address(bech32_mixed_case1))
         self.assertTrue(is_address(bech32_mixed_case1.lower()))
         self.assertTrue(is_address(bech32_mixed_case1.upper()))
 
-        # base58 P2PKH
+                      
         self.assertEqual(address_to_script('14gcRovpkCoGkCNBivQBvw7eso7eiNAbxG').hex(), '76a91428662c67561b95c79d2257d2a93d9d151c977e9188ac')
         self.assertEqual(address_to_script('1BEqfzh4Y3zzLosfGhw1AsqbEKVW6e1qHv').hex(), '76a914704f4b81cadb7bf7e68c08cd3657220f680f863c88ac')
         self.assertEqual(address_to_script('mutXcGt1CJdkRvXuN2xoz2quAAQYQ59bRX', net=constants.BitcoinTestnet).hex(), '76a9149da64e300c5e4eb4aaffc9c2fd465348d5618ad488ac')
         self.assertEqual(address_to_script('miqtaRTkU3U8rzwKbEHx3g8FSz8GJtPS3K', net=constants.BitcoinTestnet).hex(), '76a914247d2d5b6334bdfa2038e85b20fc15264f8e5d2788ac')
 
-        # base58 P2SH
+                     
         self.assertEqual(address_to_script('35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUCQMJbT').hex(), 'a9142a84cf00d47f699ee7bbc1dea5ec1bdecb4ac15487')
         self.assertEqual(address_to_script('3PyjzJ3im7f7bcV724GR57edKDqoZvH7Ji').hex(), 'a914f47c8954e421031ad04ecd8e7752c9479206b9d387')
         self.assertEqual(address_to_script('2N3LSvr3hv5EVdfcrxg2Yzecf3SRvqyBE4p', net=constants.BitcoinTestnet).hex(), 'a9146eae23d8c4a941316017946fc761a7a6c85561fb87')
@@ -547,34 +547,34 @@ class Test_bitcoin(ElectrumTestCase):
 
 
     def test_address_to_payload(self):
-        # bech32 P2WPKH
+                       
         self.assertEqual(
             address_to_payload('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4'),
             (OnchainOutputType.WITVER0_P2WPKH, bytes.fromhex('751e76e8199196d454941c45d1b3a323f1433bd6')))
 
-        # bech32 P2WSH
+                      
         self.assertEqual(
             address_to_payload('bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3'),
             (OnchainOutputType.WITVER0_P2WSH, bytes.fromhex('1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262')))
 
-        # bech32m P2TR
+                      
         self.assertEqual(
             address_to_payload('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr'),
             (OnchainOutputType.WITVER1_P2TR, bytes.fromhex('a60869f0dbcf1dc659c9cecbaf8050135ea9e8cdc487053f1dc6880949dc684c')))
 
-        # base58 P2PKH
+                      
         self.assertEqual(
             address_to_payload('14gcRovpkCoGkCNBivQBvw7eso7eiNAbxG'),
             (OnchainOutputType.P2PKH, bytes.fromhex('28662c67561b95c79d2257d2a93d9d151c977e91')))
 
-        # base58 P2SH
+                     
         self.assertEqual(
             address_to_payload('35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUCQMJbT'),
             (OnchainOutputType.P2SH, bytes.fromhex('2a84cf00d47f699ee7bbc1dea5ec1bdecb4ac154')))
 
     def test_bech32_decode(self):
-        # bech32 native segwit
-        # test vectors from BIP-0173
+                              
+                                    
         self.assertEqual(DecodedBech32(segwit_addr.Encoding.BECH32, 'a', []),
                          segwit_addr.bech32_decode('A12UEL5L'))
         self.assertEqual(DecodedBech32(segwit_addr.Encoding.BECH32, 'a', []),
@@ -615,7 +615,7 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(DecodedBech32(None, None, None),
                          segwit_addr.bech32_decode('1qzzfhee'))
 
-        # test vectors from BIP-0350
+                                    
         self.assertEqual(DecodedBech32(segwit_addr.Encoding.BECH32M, 'a', []),
                          segwit_addr.bech32_decode('A1LQFN3A'))
         self.assertEqual(DecodedBech32(segwit_addr.Encoding.BECH32M, 'a', []),
@@ -664,7 +664,7 @@ class Test_bitcoin(ElectrumTestCase):
 class Test_xprv_xpub(ElectrumTestCase):
 
     xprv_xpub = (
-        # Taken from test vectors in https://en.bitcoin.it/wiki/BIP_0032_TestVectors
+                                                                                    
         {'xprv': 'xprvA41z7zogVVwxVSgdKUHDy1SKmdb533PjDz7J6N6mV6uS3ze1ai8FHa8kmHScGpWmj4WggLyQjgPie1rFSruoUihUZREPSL39UNdE3BBDu76',
          'xpub': 'xpub6H1LXWLaKsWFhvm6RVpEL9P4KfRZSW7abD2ttkWP3SSQvnyA8FSVqNTEcYFgJS2UaFcxupHiYkro49S8yGasTvXEYBVPamhGW6cFJodrTHy',
          'xtype': 'standard'},
@@ -691,8 +691,8 @@ class Test_xprv_xpub(ElectrumTestCase):
         return xpub, xprv
 
     def test_bip32(self):
-        # see https://en.bitcoin.it/wiki/BIP_0032_TestVectors
-        # and https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Test_Vectors
+                                                             
+                                                                                         
         xpub, xprv = self._do_test_bip32("000102030405060708090a0b0c0d0e0f", "m/0'/1/2'/2/1000000000")
         self.assertEqual("xpub6H1LXWLaKsWFhvm6RVpEL9P4KfRZSW7abD2ttkWP3SSQvnyA8FSVqNTEcYFgJS2UaFcxupHiYkro49S8yGasTvXEYBVPamhGW6cFJodrTHy", xpub)
         self.assertEqual("xprvA41z7zogVVwxVSgdKUHDy1SKmdb533PjDz7J6N6mV6uS3ze1ai8FHa8kmHScGpWmj4WggLyQjgPie1rFSruoUihUZREPSL39UNdE3BBDu76", xprv)
@@ -792,71 +792,71 @@ class Test_xprv_xpub(ElectrumTestCase):
         self.assertEqual("m/0/1h/1h/5h", normalize_bip32_derivation("m/0//-1/1'///5h"))
 
     def test_is_xkey_consistent_with_key_origin_info(self):
-        ### actual data (high depth path)
+                                         
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/1'/0'/2'",
             root_fingerprint="b2768d2f"))
-        # ok to skip args
+                         
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/1'/0'/2'"))
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             root_fingerprint="b2768d2f"))
-        # path changed: wrong depth
+                                   
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/0'/2'",
             root_fingerprint="b2768d2f"))
-        # path changed: wrong child index
+                                         
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/1'/0'/3'",
             root_fingerprint="b2768d2f"))
-        # path changed: but cannot tell
+                                       
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/1'/1'/2'",
             root_fingerprint="b2768d2f"))
-        # fp changed: but cannot tell
+                                     
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "Zpub75NQordWKAkaF7utBw95GEodyxqwFdR3idtTqQtrvWkYFeiuYdg5c3Q9L9bLjPLhEahLCTjmmS2YQcXPwr6twYCEJ55k6uhE5JxRqvUowmd",
             derivation_prefix="m/48'/1'/0'/2'",
             root_fingerprint="aaaaaaaa"))
 
-        ### actual data (depth=1 path)
+                                      
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "zpub6nsHdRuY92FsMKdbn9BfjBCG6X8pyhCibNP6uDvpnw2cyrVhecvHRMa3Ne8kdJZxjxgwnpbHLkcR4bfnhHy6auHPJyDTQ3kianeuVLdkCYQ",
             derivation_prefix="m/0'",
             root_fingerprint="b2e35a7d"))
-        # path changed: wrong depth
+                                   
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "zpub6nsHdRuY92FsMKdbn9BfjBCG6X8pyhCibNP6uDvpnw2cyrVhecvHRMa3Ne8kdJZxjxgwnpbHLkcR4bfnhHy6auHPJyDTQ3kianeuVLdkCYQ",
             derivation_prefix="m/0'/0'",
             root_fingerprint="b2e35a7d"))
-        # path changed: wrong child index
+                                         
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "zpub6nsHdRuY92FsMKdbn9BfjBCG6X8pyhCibNP6uDvpnw2cyrVhecvHRMa3Ne8kdJZxjxgwnpbHLkcR4bfnhHy6auHPJyDTQ3kianeuVLdkCYQ",
             derivation_prefix="m/1'",
             root_fingerprint="b2e35a7d"))
-        # fp changed: can tell
+                              
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "zpub6nsHdRuY92FsMKdbn9BfjBCG6X8pyhCibNP6uDvpnw2cyrVhecvHRMa3Ne8kdJZxjxgwnpbHLkcR4bfnhHy6auHPJyDTQ3kianeuVLdkCYQ",
             derivation_prefix="m/0'",
             root_fingerprint="aaaaaaaa"))
 
-        ### actual data (depth=0 path)
+                                      
         self.assertTrue(bip32.is_xkey_consistent_with_key_origin_info(
             "xpub661MyMwAqRbcFWohJWt7PHsFEJfZAvw9ZxwQoDa4SoMgsDDM1T7WK3u9E4edkC4ugRnZ8E4xDZRpk8Rnts3Nbt97dPwT52CwBdDWroaZf8U",
             derivation_prefix="m",
             root_fingerprint="48adc7a0"))
-        # path changed: wrong depth
+                                   
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "xpub661MyMwAqRbcFWohJWt7PHsFEJfZAvw9ZxwQoDa4SoMgsDDM1T7WK3u9E4edkC4ugRnZ8E4xDZRpk8Rnts3Nbt97dPwT52CwBdDWroaZf8U",
             derivation_prefix="m/0",
             root_fingerprint="48adc7a0"))
-        # fp changed: can tell
+                              
         self.assertFalse(bip32.is_xkey_consistent_with_key_origin_info(
             "xpub661MyMwAqRbcFWohJWt7PHsFEJfZAvw9ZxwQoDa4SoMgsDDM1T7WK3u9E4edkC4ugRnZ8E4xDZRpk8Rnts3Nbt97dPwT52CwBdDWroaZf8U",
             derivation_prefix="m",
@@ -1037,14 +1037,14 @@ class Test_keyImport(ElectrumTestCase):
             'compressed': True,
             'addr_encoding': 'bech32',
             'scripthash': '242f02adde84ebb2a7dd778b2f3a81b3826f111da4d8960d826d7a4b816cb261'},
-           # from http://bitscan.com/articles/security/spotlight-on-mini-private-keys
+                                                                                     
            {'priv': 'SzavMBLoXU6kDrqtUVmffv',
             'exported_privkey': 'p2pkh:5Kb8kLf9zgWQnogidDA76MzPL6TsZZY36hWXMssSzNydYXYB9KF',
             'pub': '04588d202afcc1ee4ab5254c7847ec25b9a135bbda0f2bc69ee1a714749fd77dc9f88ff2a00d7e752d44cbe16e1ebcf0890b76ec7c78886109dee76ccfc8445424',
             'address': '1CC3X2gu58d6wXUWMffpuzN9JAfTUWu4Kj',
             'minikey': True,
             'txin_type': 'p2pkh',
-            'compressed': False,  # this is actually ambiguous... issue #2748
+            'compressed': False,                                             
             'addr_encoding': 'base58',
             'scripthash': '5b07ddfde826f5125ee823900749103cea37808038ecead5505a766a07c34445'},
     )
@@ -1161,8 +1161,8 @@ class TestBaseEncode(ElectrumTestCase):
 class TestTaprootHelpers(ElectrumTestCase):
 
     def test_taproot_tweak_homomorphism(self):
-        # For any byte string h it holds that
-        # taproot_tweak_pubkey(pubkey_gen(seckey), h)[1] == pubkey_gen(taproot_tweak_seckey(seckey, h)).
+                                             
+                                                                                                        
         for secret_scalar in (8, 11, 99999):
             privkey = ecc.ECPrivkey.from_secret_scalar(secret_scalar)
             pubkey32 = privkey.get_public_key_bytes(compressed=True)[1:]
@@ -1172,7 +1172,7 @@ class TestTaprootHelpers(ElectrumTestCase):
                 self.assertEqual(tweaked_pubkey, ecc.ECPrivkey(tweaked_seckey).get_public_key_bytes(compressed=True)[1:])
 
     def test_taproot_output_script(self):
-        # test vectors from https://github.com/bitcoin/bips/blob/70d9b07ab80ab3c267ece48f74e4e2250226d0cc/bip-0341/wallet-test-vectors.json
+                                                                                                                                           
         test_vector_file = os.path.join(os.path.dirname(__file__), "bip-0341", "wallet-test-vectors.json")
         with open(test_vector_file, "r") as f:
             vectors = json.load(f)

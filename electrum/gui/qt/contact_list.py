@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import enum
 from typing import TYPE_CHECKING
@@ -91,7 +91,7 @@ class ContactList(MyTreeView):
             if column in self.editable_columns:
                 item = self.model().itemFromIndex(idx)
                 if item.isEditable():
-                    # would not be editable if openalias
+
                     persistent = QPersistentModelIndex(idx)
                     menu.addAction(_("Edit {}").format(column_title), lambda p=persistent: self.edit(QModelIndex(p)))
             menu.addAction(_("Pay to"), lambda: self.main_window.payto_contacts(selected_keys))
@@ -128,13 +128,13 @@ class ContactList(MyTreeView):
                 idx = self.model().index(row_count, self.Columns.NAME)
                 set_current = QPersistentModelIndex(idx)
         self.set_current_idx(set_current)
-        # FIXME refresh loses sort order; so set "default" here:
+
         self.sortByColumn(self.Columns.NAME, Qt.SortOrder.AscendingOrder)
         self.filter()
         run_hook('update_contacts_tab', self)
 
     def refresh_row(self, key, row):
-        # nothing to update here
+
         pass
 
     def get_edit_key_from_coordinate(self, row, col):

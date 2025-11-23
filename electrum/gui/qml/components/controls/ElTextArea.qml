@@ -5,10 +5,10 @@ import QtQuick.Controls.Material
 
 import org.electrum 1.0
 
-// this component adds (auto)scrolling to the bare TextArea, to make it
-// workable if text overflows the available space.
-// This unfortunately hides many signals and properties from the TextArea,
-// so add signals propagation and property aliases when needed.
+
+
+
+
 Flickable {
     id: root
 
@@ -60,7 +60,7 @@ Flickable {
             }
         }
         MouseArea {
-            // remaining area clicks focus textarea
+            
             width: parent.width
             anchors.top: edit.bottom
             anchors.bottom: parent.bottom

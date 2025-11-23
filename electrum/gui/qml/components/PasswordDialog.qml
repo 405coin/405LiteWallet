@@ -11,7 +11,7 @@ ElDialog {
     id: passworddialog
 
     title: qsTr("Enter Password")
-    iconSource: Qt.resolvedUrl('../../icons/lock.png')
+    iconSource: Qt.resolvedUrl('../../icons/lock.svg')
 
     property bool confirmPassword: false
     property string password

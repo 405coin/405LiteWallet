@@ -1,9 +1,9 @@
 #!/bin/bash
-# uploadserver is set in /etc/hosts
-#
-# env vars:
-# - ELECBUILD_UPLOADFROM
-# - SSHUSER
+
+
+
+
+
 
 set -ex
 
@@ -26,8 +26,8 @@ else
 fi
 
 
-# do not fail sftp if directory exists
-# see https://stackoverflow.com/questions/51437924/bash-shell-sftp-check-if-directory-exists-before-creating
+
+
 
 sftp -oBatchMode=no -b - "$SSHUSER@uploadserver" << !
    cd electrum-downloads-airlock
@@ -35,7 +35,7 @@ sftp -oBatchMode=no -b - "$SSHUSER@uploadserver" << !
    -chmod 777 "$VERSION"
    cd "$VERSION"
    -mput *
-   -chmod 444 *  # this prevents future re-uploads of same file
+   -chmod 444 *
    bye
 !
 

@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (2019) The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from decimal import Decimal
 from functools import partial
@@ -61,28 +61,30 @@ class TxEditor(WindowModalDialog):
             output_value: Union[int, str],
             allow_preview=True,
             batching_candidates=None,
+            allow_fee_edits=True,
     ):
 
         WindowModalDialog.__init__(self, window, title=title)
         self.main_window = window
         self.make_tx = make_tx
         self.output_value = output_value
-        self.tx = None  # type: Optional[PartialTransaction]
+        self.tx = None
         self.messages = []
-        self.error = ''   # set by side effect
+        self.error = ''
 
         self.config = window.config
         self.network = window.network
         self.fee_policy = FeePolicy(self.config.FEE_POLICY)
         self.wallet = window.wallet
+        self.allow_fee_edits = allow_fee_edits
         self.feerounding_sats = 0
         self.not_enough_funds = False
         self.no_dynfee_estimates = False
         self.needs_update = False
-        # preview is disabled for lightning channel funding
+
         self.allow_preview = allow_preview
         self.is_preview = False
-        self._base_tx = None # for batching
+        self._base_tx = None
         self.batching_candidates = batching_candidates
 
         self.locktime_e = LockTimeEdit(self)
@@ -137,11 +139,11 @@ class TxEditor(WindowModalDialog):
         self.timer.stop()
 
     def update_tx(self, *, fallback_to_zero_fee: bool = False):
-        # expected to set self.tx, self.message and self.error
+
         raise NotImplementedError()
 
     def update_fee_target(self):
-        if self.fee_slider.is_active():
+        if not self.allow_fee_edits or self.fee_slider.is_active():
             text = self.fee_policy.get_target_text()
         else:
             text = ""
@@ -195,7 +197,7 @@ class TxEditor(WindowModalDialog):
 
         def feerounding_onclick():
             text = (self.feerounding_text() + '\n\n' +
-                    _('To somewhat protect your privacy, Electrum tries to create change with similar precision to other outputs.') + ' ' +
+                    _('To somewhat protect your privacy, 405LiteWallet tries to create change with similar precision to other outputs.') + ' ' +
                     _('At most 100 satoshis might be lost due to this rounding.') + ' ' +
                     _("You can disable this setting in '{}'.").format(_('Preferences')) + '\n' +
                     _('Also, dust is not kept as change, but added to the fee.')  + '\n' +
@@ -209,29 +211,41 @@ class TxEditor(WindowModalDialog):
         self.set_feerounding_visibility(False)
 
         self.fee_hbox = fee_hbox = QHBoxLayout()
-        fee_hbox.addWidget(self.feerate_e)
+        if self.allow_fee_edits:
+            fee_hbox.addWidget(self.feerate_e)
         fee_hbox.addWidget(self.feerate_label)
         fee_hbox.addWidget(self.size_label)
-        fee_hbox.addWidget(self.fee_e)
+        if self.allow_fee_edits:
+            fee_hbox.addWidget(self.fee_e)
         fee_hbox.addWidget(self.fee_label)
         fee_hbox.addWidget(self.fiat_fee_label)
-        fee_hbox.addWidget(self.feerounding_icon)
+        if self.allow_fee_edits:
+            fee_hbox.addWidget(self.feerounding_icon)
         fee_hbox.addStretch()
 
         self.fee_target_hbox = fee_target_hbox = QHBoxLayout()
+        self.fee_target.setAlignment(Qt.AlignmentFlag.AlignLeft)
         fee_target_hbox.addWidget(self.fee_target)
-        fee_target_hbox.addWidget(self.fee_slider)
-        fee_target_hbox.addWidget(self.fee_combo)
+        fee_target_hbox.addStretch()
+        if self.allow_fee_edits:
+            fee_target_hbox.addWidget(self.fee_slider)
+            fee_target_hbox.addWidget(self.fee_combo)
         fee_target_hbox.addStretch()
 
-        # set feerate_label to same size as feerate_e
+        self.feerate_e.setReadOnly(not self.allow_fee_edits)
+        self.fee_e.setReadOnly(not self.allow_fee_edits)
+        self.fee_slider.setEnabled(self.allow_fee_edits)
+        self.fee_combo.setEnabled(self.allow_fee_edits)
+        self.feerounding_icon.setVisible(self.allow_fee_edits)
+
+
         self.feerate_label.setFixedSize(self.feerate_e.sizeHint())
         self.fee_label.setFixedSize(self.fee_e.sizeHint())
         self.fee_slider.setFixedWidth(200)
         self.fee_target.setFixedSize(self.feerate_e.sizeHint())
 
     def trigger_update(self):
-        # set tx to None so that the ok button is disabled while we compute the new tx
+
         self.tx = None
         self.messages = []
         self.error = ''
@@ -254,31 +268,31 @@ class TxEditor(WindowModalDialog):
         edit_other = self.feerate_e if edit_changed == self.fee_e else self.fee_e
         if editing_finished:
             if edit_changed.get_amount() is None:
-                # This is so that when the user blanks the fee and moves on,
-                # we go back to auto-calculate mode and put a fee back.
+
+
                 edit_changed.setModified(False)
         else:
-            # edit_changed was edited just now, so make sure we will
-            # freeze the correct fee setting (this)
+
+
             edit_other.setModified(False)
             self.fee_slider.deactivate()
-            # do not call trigger_update on editing_finished,
-            # because that event is emitted when we press OK
+
+
             self.trigger_update()
 
     def is_send_fee_frozen(self) -> bool:
-        return self.fee_e.isVisible() and self.fee_e.isModified() \
+        return self.fee_e.isVisible() and self.fee_e.isModified()\
                and (bool(self.fee_e.text()) or self.fee_e.hasFocus())
 
     def is_send_feerate_frozen(self) -> bool:
-        return self.feerate_e.isVisible() and self.feerate_e.isModified() \
+        return self.feerate_e.isVisible() and self.feerate_e.isModified()\
                and (bool(self.feerate_e.text()) or self.feerate_e.hasFocus())
 
     def feerounding_text(self):
         return (_('Additional {} satoshis are going to be added.').format(self.feerounding_sats))
 
     def set_feerounding_visibility(self, b:bool):
-        # we do not use setVisible because it affects the layout
+
         self.feerounding_icon.setIcon(read_QIcon('info.png') if b else QIcon())
         self.feerounding_icon.setEnabled(b)
 
@@ -295,7 +309,7 @@ class TxEditor(WindowModalDialog):
         return fee_policy
 
     def entry_changed(self):
-        # blue color denotes auto-filled values
+
         text = ""
         fee_color = ColorScheme.DEFAULT
         feerate_color = ColorScheme.DEFAULT
@@ -311,7 +325,7 @@ class TxEditor(WindowModalDialog):
             feerate_color = ColorScheme.BLUE
         self.fee_e.setStyleSheet(fee_color.as_stylesheet())
         self.feerate_e.setStyleSheet(feerate_color.as_stylesheet())
-        #
+
         self.needs_update = True
 
     def update_fee_fields(self):
@@ -321,7 +335,7 @@ class TxEditor(WindowModalDialog):
         if self.no_dynfee_estimates and tx:
             size = tx.estimated_size()
             self.size_label.setAmount(size)
-            #self.size_e.setAmount(size)
+
         if self.not_enough_funds or self.no_dynfee_estimates:
             if not freeze_fee:
                 self.fee_e.setAmount(None)
@@ -334,20 +348,20 @@ class TxEditor(WindowModalDialog):
         size = tx.estimated_size()
         fee = tx.get_fee()
 
-        #self.size_e.setAmount(size)
+
         self.size_label.setAmount(size)
         fiat_fee = self.main_window.format_fiat_and_units(fee)
         self.fiat_fee_label.setAmount(fiat_fee)
 
-        # Displayed fee/fee_rate values are set according to user input.
-        # Due to rounding or dropping dust in CoinChooser,
-        # actual fees often differ somewhat.
+
+
+
         if freeze_feerate or self.fee_slider.is_active():
             displayed_feerate = self.feerate_e.get_amount()
             if displayed_feerate is not None:
                 displayed_feerate = quantize_feerate(displayed_feerate)
             elif self.fee_slider.is_active():
-                # fallback to actual fee
+
                 displayed_feerate = quantize_feerate(fee / size) if fee is not None else None
                 self.feerate_e.setAmount(displayed_feerate)
             if displayed_feerate is not None:
@@ -359,19 +373,19 @@ class TxEditor(WindowModalDialog):
             if freeze_fee:
                 displayed_fee = self.fee_e.get_amount()
             else:
-                # fallback to actual fee if nothing is frozen
+
                 displayed_fee = fee
                 self.fee_e.setAmount(displayed_fee)
             displayed_fee = displayed_fee if displayed_fee else 0
             displayed_feerate = quantize_feerate(displayed_fee / size) if displayed_fee is not None else None
             self.feerate_e.setAmount(displayed_feerate)
 
-        # set fee rounding icon to empty if there is no rounding
+
         feerounding = (fee - displayed_fee) if (fee and displayed_fee is not None) else 0
         self.feerounding_sats = int(feerounding)
         self.feerounding_icon.setToolTip(self.feerounding_text())
         self.set_feerounding_visibility(abs(feerounding) >= 1)
-        # feerate_label needs to be updated from feerate_e
+
         self.update_feerate_label()
         self.update_fee_target()
 
@@ -426,8 +440,8 @@ class TxEditor(WindowModalDialog):
                 _('This may result in higher transactions fees.')
             ]))
         self.use_multi_change_menu.setEnabled(self.wallet.use_change)
-        # fixme: some of these options (WALLET_SEND_CHANGE_TO_LIGHTNING, WALLET_MERGE_DUPLICATE_OUTPUTS)
-        # only make sense when we create a new tx, and should not be visible/enabled in rbf dialog
+
+
         self.pref_menu.addConfig(self.config.cv.WALLET_MERGE_DUPLICATE_OUTPUTS, callback=self.trigger_update)
         self.pref_menu.addConfig(self.config.cv.WALLET_SPEND_CONFIRMED_ONLY, callback=self.trigger_update)
         self.pref_menu.addConfig(self.config.cv.WALLET_COIN_CHOOSER_OUTPUT_ROUNDING, callback=self.trigger_update)
@@ -443,7 +457,7 @@ class TxEditor(WindowModalDialog):
         return hbox
 
     def resize_to_fit_content(self):
-        # fixme: calling resize once is not enough...
+
         size = self.layout().sizeHint()
         self.resize(size)
         self.resize(size)
@@ -466,7 +480,7 @@ class TxEditor(WindowModalDialog):
         b = self.config.GUI_QT_TX_EDITOR_SHOW_FEE_DETAILS
         detailed = [self.feerounding_icon, self.feerate_e, self.fee_e]
         basic = [self.fee_label, self.feerate_label]
-        # first hide, then show
+
         for w in (basic if b else detailed):
             w.hide()
         for w in (detailed if b else basic):
@@ -482,7 +496,7 @@ class TxEditor(WindowModalDialog):
     def run(self):
         cancelled = not self.exec()
         self.stop_editor_updates()
-        self.deleteLater()  # see #3956
+        self.deleteLater()
         return self.tx if not cancelled else None
 
     def on_send(self):
@@ -493,7 +507,7 @@ class TxEditor(WindowModalDialog):
         self.accept()
 
     def _update_widgets(self):
-        # side effect: self.error
+
         self._update_amount_label()
         if self.not_enough_funds:
             self.error = _('Not enough funds.')
@@ -525,7 +539,7 @@ class TxEditor(WindowModalDialog):
         self._update_message()
 
     def get_messages(self):
-        # side effect: self.error
+
         messages = []
         fee = self.tx.get_fee()
         assert fee is not None
@@ -543,27 +557,27 @@ class TxEditor(WindowModalDialog):
             self.error = _('Fee estimates not available. Please set a fixed fee or feerate.')
         if self.tx.get_dummy_output(DummyAddress.SWAP):
             messages.append(_('This transaction will send funds to a submarine swap.'))
-        # warn if spending unconf
+
         if any((txin.block_height is not None and txin.block_height<=0) for txin in self.tx.inputs()):
             messages.append(_('This transaction will spend unconfirmed coins.'))
-        # warn if a reserve utxo was added
+
         if reserve_sats := self.wallet.tx_keeps_ln_utxo_reserve(self.tx, gui_spend_max=bool(self.output_value == '!')):
             reserve_str = self.main_window.config.format_amount_and_units(reserve_sats)
             messages.append(_('Could not spend max: a security reserve of {} was kept for your Lightning channels.').format(reserve_str))
-        # warn if we merge from mempool
+
         if self.is_batching():
             messages.append(_('This payment will be merged with another existing transaction.'))
-        # warn if we use multiple change outputs
+
         num_change = sum(int(o.is_change) for o in self.tx.outputs())
         num_ismine = sum(int(o.is_mine) for o in self.tx.outputs())
         if num_change > 1:
             messages.append(_('This transaction has {} change outputs.'.format(num_change)))
-        # warn if there is no ismine output, as it might be problematic to RBF the tx later.
-        # (though RBF is still possible by adding new inputs, if the wallet has more utxos)
+
+
         if num_ismine == 0:
             messages.append(_('Make sure you pay enough mining fees; you will not be able to bump the fee later.'))
 
-        # TODO: warn if we send change back to input address
+
         return messages
 
     def set_locktime(self):
@@ -595,18 +609,19 @@ class TxEditor(WindowModalDialog):
 
 
 class ConfirmTxDialog(TxEditor):
-    help_text = ''  #_('Set the mining fee of your transaction')
+    help_text = ''
 
-    def __init__(self, *, window: 'ElectrumWindow', make_tx, output_value: Union[int, str], allow_preview=True, batching_candidates=None):
+    def __init__(self, *, window: 'ElectrumWindow', make_tx, output_value: Union[int, str], allow_preview=True, batching_candidates=None, allow_fee_edits=True):
 
         TxEditor.__init__(
             self,
             window=window,
             make_tx=make_tx,
             output_value=output_value,
-            title=_("New Transaction"), # todo: adapt title for channel funding tx, swaps
-            allow_preview=allow_preview, # false for channel funding
+            title=_("New Transaction"),
+            allow_preview=allow_preview,
             batching_candidates=batching_candidates,
+            allow_fee_edits=allow_fee_edits,
         )
         self.trigger_update()
 
@@ -644,7 +659,7 @@ class ConfirmTxDialog(TxEditor):
             else:
                 return
         except NoDynamicFeeEstimates:
-            # is this still needed?
+
             self.no_dynfee_estimates = True
             self.tx = None
             try:
@@ -661,7 +676,7 @@ class ConfirmTxDialog(TxEditor):
         self.tx.set_rbf(True)
 
     def can_pay_assuming_zero_fees(self, confirmed_only: bool) -> bool:
-        # called in send_tab.py
+
         try:
             tx = self.make_tx(FixedFeePolicy(0), confirmed_only=confirmed_only, base_tx=None)
         except NotEnoughFunds:
@@ -691,7 +706,7 @@ class ConfirmTxDialog(TxEditor):
 
         grid.setColumnStretch(4, 1)
 
-        # extra fee
+
         self.extra_fee_label = QLabel(_("Additional fees") + ": ")
         self.extra_fee_label.setVisible(False)
         self.extra_fee_value = QLabel('')
@@ -700,7 +715,7 @@ class ConfirmTxDialog(TxEditor):
         grid.addWidget(self.extra_fee_label, 5, 0)
         grid.addWidget(self.extra_fee_value, 5, 1)
 
-        # locktime editor
+
         grid.addWidget(self.locktime_label, 6, 0)
         grid.addWidget(self.locktime_e, 6, 1, 1, 2)
 

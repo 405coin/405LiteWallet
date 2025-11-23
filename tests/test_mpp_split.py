@@ -1,6 +1,6 @@
 import random
 
-import electrum.mpp_split as mpp_split  # side effect for PART_PENALTY
+import electrum.mpp_split as mpp_split                                
 from electrum.lnutil import NoPathFound
 
 from . import ElectrumTestCase
@@ -11,9 +11,9 @@ PART_PENALTY = mpp_split.PART_PENALTY
 class TestMppSplit(ElectrumTestCase):
     def setUp(self):
         super().setUp()
-        # to make tests reproducible:
+                                     
         random.seed(0)
-        # key tuple denotes (channel_id, node_id)
+                                                 
         self.channels_with_funds = {
             (b"0", b"0"): (1_000_000_000, 3),
             (b"1", b"1"): (500_000_000, 2),
@@ -23,7 +23,7 @@ class TestMppSplit(ElectrumTestCase):
 
     def tearDown(self):
         super().tearDown()
-        # undo side effect
+                          
         mpp_split.PART_PENALTY = PART_PENALTY
 
     def test_suggest_splits(self):
@@ -64,13 +64,13 @@ class TestMppSplit(ElectrumTestCase):
             splits = mpp_split.suggest_splits(101_000_000, self.channels_with_funds, exclude_single_part_payments=False)
             for split in splits[:3]:
                 self.assertEqual(1, split.config.number_nonzero_channels())
-            # due to exhaustion of the smallest channel, the algorithm favors
-            # a splitting of the parts into two
+                                                                             
+                                               
             self.assertEqual(2, splits[4].config.number_parts())
 
         with self.subTest(msg="no htlc slots available"):
             channels = self.channels_with_funds.copy()
-            # set all available slots to 0
+                                          
             for chan, (amount, _slots) in channels.items():
                 channels[chan] = (amount, 0)
             with self.assertRaises(NoPathFound):
@@ -78,13 +78,13 @@ class TestMppSplit(ElectrumTestCase):
 
         with self.subTest(msg="only one channel can add htlcs"):
             channels = self.channels_with_funds.copy()
-            # set all available slots to 0 except for the first channel
+                                                                       
             for chan, (amount, _slots) in channels.items():
                 if chan != (b"0", b"0"):
                     channels[chan] = (amount, 0)
             splits = mpp_split.suggest_splits(1_000_000_000, channels, exclude_single_part_payments=True)
             for split in splits:
-                # check that the whole amount has been split on this channel
+                                                                            
                 self.assertEqual(sum(split.config[(b"0", b"0")]), 1_000_000_000)
 
         with self.subTest(msg="test exclude single channel splits"):
@@ -116,8 +116,8 @@ class TestMppSplit(ElectrumTestCase):
     def test_payment_below_min_part_size(self):
         amount = mpp_split.MIN_PART_SIZE_MSAT // 2
         splits = mpp_split.suggest_splits(amount, self.channels_with_funds, exclude_single_part_payments=False)
-        # we only get four configurations that end up spending the full amount
-        # in a single channel
+                                                                              
+                             
         self.assertEqual(4, len(splits))
 
     def test_suggest_part_penalty(self):

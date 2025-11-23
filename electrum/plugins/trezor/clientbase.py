@@ -18,10 +18,10 @@ import trezorlib.btc
 import trezorlib.device
 
 try:
-    # trezor >= 0.13.9
+                      
     from trezorlib.messages import RecoveryDeviceInputMethod
 except ImportError:
-    # Backward compatibility for trezor < 0.13.9
+                                                
     from trezorlib.messages import RecoveryDeviceType as RecoveryDeviceInputMethod
 
 
@@ -196,7 +196,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
         try:
             self.client.clear_session()
         except BaseException as e:
-            # If the device was removed it has the same effect...
+                                                                 
             self.logger.info(f"clear_session: ignoring error {e}")
 
     @runs_in_hwd_thread
@@ -262,7 +262,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
                 type=recovery_type,
                 **kwargs)
 
-    # ========= Unmodified trezorlib methods =========
+                                                      
 
     @runs_in_hwd_thread
     def sign_tx(self, *args, **kwargs):
@@ -289,7 +289,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
         with self.run_flow():
             return trezorlib.device.wipe(self.client, *args, **kwargs)
 
-    # ========= UI methods ==========
+                                     
 
     def button_request(self, br):
         message = self.msg or MESSAGES.get(br.code) or MESSAGES['default']
@@ -308,8 +308,8 @@ class TrezorClientBase(HardwareClientBase, Logger):
         pin = self.handler.get_pin(msg.format(self.device), show_strength=show_strength)
         if not pin:
             raise Cancelled
-        # check PIN length. Depends on model and firmware version
-        # https://github.com/trezor/trezor-firmware/issues/1167
+                                                                 
+                                                               
         limit = 9
         if self.get_trezor_model() == "1":
             if (1, 10, 0) <= self.client.version:

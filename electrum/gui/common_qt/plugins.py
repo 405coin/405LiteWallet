@@ -31,7 +31,7 @@ class PluginQObject(QObject):
     @pyqtProperty(bool, notify=busyChanged)
     def busy(self): return self._busy
 
-    # below only used for QML, not compatible yet with Qt
+                                                         
 
     @pyqtProperty(bool, notify=pluginEnabledChanged)
     def pluginEnabled(self): return self.plugin.is_enabled()

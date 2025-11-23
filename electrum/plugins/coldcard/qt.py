@@ -50,8 +50,8 @@ class Plugin(ColdcardPlugin, QtPluginBase):
     @only_hook_if_libraries_available
     @hook
     def wallet_info_buttons(self, main_window: 'ElectrumWindow', dialog):
-        # user is about to see the "Wallet Information" dialog
-        # - add a button if multisig wallet, and a Coldcard is a cosigner.
+                                                              
+                                                                          
         assert isinstance(main_window, ElectrumWindow), f"{type(main_window)}"
 
         buttons = []
@@ -66,7 +66,7 @@ class Plugin(ColdcardPlugin, QtPluginBase):
             if type(ks) == self.keystore_class
         ]
         if not coldcard_keystores:
-            # doesn't involve a Coldcard wallet, hide feature
+                                                             
             return
 
         btn_export = QPushButton(_("Export multisig for Coldcard as file"))
@@ -120,11 +120,11 @@ class Plugin(ColdcardPlugin, QtPluginBase):
             main_window.show_message(_("Wallet setup file '{}' exported successfully").format(name))
 
     def show_settings_dialog(self, window, keystore):
-        # When they click on the icon for CC we come here.
-        # - doesn't matter if device not connected, continue
+                                                          
+                                                            
         CKCCSettingsDialog(window, self, keystore).exec()
 
-    # insert coldcard pages in new wallet wizard
+                                                
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {
@@ -150,18 +150,18 @@ class CKCCSettingsDialog(WindowModalDialog):
         super(CKCCSettingsDialog, self).__init__(window, title)
         self.setMaximumWidth(540)
 
-        # Note: Coldcard may **not** be connected at present time. Keep working!
+                                                                                
 
         devmgr = plugin.device_manager()
-        #config = devmgr.config
-        #handler = keystore.handler
+                               
+                                   
         self.thread = thread = keystore.thread
         self.keystore = keystore
         assert isinstance(window, ElectrumWindow), f"{type(window)}"
         self.window = window
 
         def connect_and_doit():
-            # Attempt connection to device, or raise.
+                                                     
             device_id = plugin.choose_device(window, keystore)
             if not device_id:
                 raise RuntimeError("Device not connected")
@@ -191,7 +191,7 @@ class CKCCSettingsDialog(WindowModalDialog):
             ('bl_version', _("Bootloader")),
         ]
         for row_num, (member_name, label) in enumerate(rows):
-            # XXX we know xfp already, even if not connected
+                                                            
             widget = QLabel('<tt>000000000000')
             widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.TextSelectableByKeyboard)
 
@@ -202,7 +202,7 @@ class CKCCSettingsDialog(WindowModalDialog):
         body_layout.addLayout(grid)
 
         upg_btn = QPushButton(_('Upgrade'))
-        #upg_btn.setDefault(False)
+                                  
         def _start_upgrade():
             thread.add(connect_and_doit, on_success=self.start_upgrade)
         upg_btn.clicked.connect(_start_upgrade)
@@ -214,11 +214,11 @@ class CKCCSettingsDialog(WindowModalDialog):
         dialog_vbox = QVBoxLayout(self)
         dialog_vbox.addWidget(body)
 
-        # Fetch firmware/versions values and show them.
+                                                       
         thread.add(connect_and_doit, on_success=self.show_values, on_error=self.show_placeholders)
 
     def show_placeholders(self, unclear_arg):
-        # device missing, so hide lots of detail.
+                                                 
         self.xfp.setText('<tt>%s' % self.keystore.get_root_fingerprint())
         self.serial.setText('(not connected)')
         self.fw_version.setText('')
@@ -232,7 +232,7 @@ class CKCCSettingsDialog(WindowModalDialog):
         self.xfp.setText('<tt>%s' % xfp2str(dev.master_fingerprint))
         self.serial.setText('<tt>%s' % dev.serial)
 
-        # ask device for versions: allow extras for future
+                                                          
         fw_date, fw_rel, bl_rel, *rfu = client.get_version()
 
         self.fw_version.setText('<tt>%s' % fw_rel)
@@ -240,7 +240,7 @@ class CKCCSettingsDialog(WindowModalDialog):
         self.bl_version.setText('<tt>%s' % bl_rel)
 
     def start_upgrade(self, client):
-        # ask for a filename (must have already downloaded it)
+                                                              
         dev = client.dev
 
         fileName = getOpenFileName(
@@ -260,14 +260,14 @@ class CKCCSettingsDialog(WindowModalDialog):
         try:
             with open(fileName, 'rb') as fd:
 
-                # unwrap firmware from the DFU
+                                              
                 offset, size, *ignored = dfu_parse(fd)
 
                 fd.seek(offset)
                 firmware = fd.read(size)
 
             hpos = FW_HEADER_OFFSET
-            hdr = bytes(firmware[hpos:hpos + FW_HEADER_SIZE])        # needed later too
+            hdr = bytes(firmware[hpos:hpos + FW_HEADER_SIZE])                          
             magic = struct.unpack_from("<I", hdr)[0]
 
             if magic != FW_HEADER_MAGIC:
@@ -276,21 +276,21 @@ class CKCCSettingsDialog(WindowModalDialog):
             self.window.show_error("Does not appear to be a Coldcard firmware file.\n\n%s" % exc)
             return
 
-        # TODO:
-        # - detect if they are trying to downgrade; aint gonna work
-        # - warn them about the reboot?
-        # - length checks
-        # - add progress local bar
+               
+                                                                   
+                                       
+                         
+                                  
         self.window.show_message("Ready to Upgrade.\n\nBe patient. Unit will reboot itself when complete.")
 
         def doit():
             dlen, _ = dev.upload_file(firmware, verify=True)
             assert dlen == len(firmware)
 
-            # append the firmware header a second time
+                                                      
             result = dev.send_recv(CCProtocolPacker.upload(size, size+FW_HEADER_SIZE, hdr))
 
-            # make it reboot into bootloader which might install it
+                                                                   
             dev.send_recv(CCProtocolPacker.reboot())
 
         self.thread.add(doit)

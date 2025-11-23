@@ -208,7 +208,7 @@ ElDialog {
             if (!channeldetails.canClose || channeldetails.isClosing)
                 return
 
-            // init default choice
+            
             if (channeldetails.canCoopClose)
                 closetypeCoop.checked = true
             else if (channeldetails.canRequestForceClose)

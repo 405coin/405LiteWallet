@@ -32,7 +32,7 @@ Canvas {
             startR = endR
             endR = startR + 2*Math.PI*(slice.v)
 
-            // displace origin
+            
             var phi = startR + (endR - startR)/2
             var dx = Math.cos(phi) * innerOffset
             var dy = Math.sin(phi) * innerOffset
@@ -44,12 +44,12 @@ Canvas {
             ctx.arc(pcx+dx, pcy+dy, radius, startR, endR, false)
             ctx.lineTo(pcx+dx, pcy+dy)
             ctx.fill()
-            // ctx.stroke()
+            
 
             if (!showLegend)
                 continue
 
-            // displace legend
+            
             var dx = Math.cos(phi) * (radius + innerOffset + legendOffset)
             var dy = Math.sin(phi) * (radius + innerOffset + legendOffset)
             var dx2 = Math.cos(phi) * (radius + innerOffset + 2 * legendOffset)

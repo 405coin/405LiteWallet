@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import Optional, List, Dict, Sequence, Set, TYPE_CHECKING
 import enum
@@ -47,8 +47,8 @@ if TYPE_CHECKING:
 
 
 class UTXOList(MyTreeView):
-    _spend_set: Set[str]  # coins selected by the user to spend from
-    _utxo_dict: Dict[str, PartialTxInput]  # coin name -> coin
+    _spend_set: Set[str]
+    _utxo_dict: Dict[str, PartialTxInput]
 
     class Columns(MyTreeView.BaseColumnsEnum):
         OUTPOINT = enum.auto()
@@ -92,15 +92,15 @@ class UTXOList(MyTreeView):
         menu.addAction(_('Coin control'), lambda: self.add_selection_to_coincontrol())
 
         def cb():
-            self.main_window.utxo_list.refresh_all()  # for coin frozen status
-            self.main_window.update_status()  # frozen balance
+            self.main_window.utxo_list.refresh_all()
+            self.main_window.update_status()
         menu.addConfig(config.cv.WALLET_FREEZE_REUSED_ADDRESS_UTXOS, callback=cb)
         return toolbar
 
     @profiler(min_threshold=0.05)
     def update(self):
-        # not calling maybe_defer_update() as it interferes with coincontrol status bar
-        self.proxy.setDynamicSortFilter(False)  # temp. disable re-sorting after every change
+
+        self.proxy.setDynamicSortFilter(False)
         utxos = self.wallet.get_utxos()
         self._maybe_reset_coincontrol(utxos)
         self._utxo_dict = dict([(utxo.prevout.to_str(), utxo) for utxo in utxos])
@@ -133,7 +133,7 @@ class UTXOList(MyTreeView):
         self.num_coins_label.setText(_('{} unspent transaction outputs').format(len(utxos)))
 
     def update_coincontrol_bar(self):
-        # update coincontrol status bar
+
         if bool(self._spend_set):
             coins = [self._utxo_dict[x] for x in self._spend_set]
             coins = self._filter_frozen_coins(coins)
@@ -154,8 +154,8 @@ class UTXOList(MyTreeView):
         label = self.wallet.get_label_for_txid(txid) or ''
         utxo_item[self.Columns.LABEL].setText(label)
         sort_key = (
-            self.wallet.adb.tx_height_to_sort_height(utxo.block_height),  # sort by block height
-            str(utxo.short_id),                                           # order inside block (if mined), or just txid
+            self.wallet.adb.tx_height_to_sort_height(utxo.block_height),
+            str(utxo.short_id),
         )
         utxo_item[self.Columns.OUTPOINT].setData(sort_key, self.ROLE_SORT_ORDER)
         SELECTED_TO_SPEND_TOOLTIP = _('Coin selected to be spent')
@@ -191,7 +191,7 @@ class UTXOList(MyTreeView):
         return all([utxo.prevout.to_str() in self._spend_set for utxo in coins])
 
     def add_to_coincontrol(self, coins: List[PartialTxInput]):
-        assert all(utxo.prevout.to_str() in self._utxo_dict for utxo in coins) # see issue 10206
+        assert all(utxo.prevout.to_str() in self._utxo_dict for utxo in coins)
         coins = self._filter_frozen_coins(coins)
         for utxo in coins:
             self._spend_set.add(utxo.prevout.to_str())
@@ -226,25 +226,25 @@ class UTXOList(MyTreeView):
         if not bool(self._spend_set):
             return None
         utxos = [self._utxo_dict[x] for x in self._spend_set]
-        return copy.deepcopy(utxos)  # copy so that side-effects don't affect utxo_dict
+        return copy.deepcopy(utxos)
 
     def _maybe_reset_coincontrol(self, current_wallet_utxos: Sequence[PartialTxInput]) -> None:
         if not bool(self._spend_set):
             return
-        # if we spent one of the selected UTXOs, just reset selection
+
         utxo_set = {utxo.prevout.to_str() for utxo in current_wallet_utxos}
         if not all([prevout_str in utxo_set for prevout_str in self._spend_set]):
             self._spend_set.clear()
 
     def can_swap_coins(self, coins):
-        # fixme: min and max_amounts are known only after first request
+
         if self.wallet.lnworker is None:
             return False
         value = sum(x.value_sats() for x in coins)
         min_amount = self.wallet.lnworker.swap_manager.get_min_amount()
         max_amount = self.wallet.lnworker.swap_manager.client_max_amount_forward_swap()
         if min_amount is None or max_amount is None:
-            # we need to fetch data from swap server
+
             return True
         if value < min_amount:
             return False
@@ -253,7 +253,7 @@ class UTXOList(MyTreeView):
         return True
 
     def swap_coins(self, coins):
-        #self.clear_coincontrol()
+
         self.add_to_coincontrol(coins)
         self.main_window.run_swap_dialog(is_reverse=False, recv_amount_sat_or_max='!')
         self.clear_coincontrol()
@@ -265,8 +265,8 @@ class UTXOList(MyTreeView):
         return value >= MIN_FUNDING_SAT and value <= self.config.LIGHTNING_MAX_FUNDING_SAT
 
     def open_channel_with_coins(self, coins):
-        # todo : use a single dialog in new flow
-        #self.clear_coincontrol()
+
+
         self.add_to_coincontrol(coins)
         d = NewChannelDialog(self.main_window)
         d.max_button.setChecked(True)
@@ -288,7 +288,7 @@ class UTXOList(MyTreeView):
             return
         addr = self.main_window.app.clipboard().text()
         outputs = [PartialTxOutput.from_address_and_value(addr, '!')]
-        #self.clear_coincontrol()
+
         self.add_to_coincontrol(coins)
         self.main_window.send_tab.pay_onchain_dialog(outputs)
         self.clear_coincontrol()
@@ -301,7 +301,7 @@ class UTXOList(MyTreeView):
     def create_menu(self, position):
         selected = self.get_selected_outpoints()
         menu = QMenu()
-        menu.setSeparatorsCollapsible(True)  # consecutive separators are merged together
+        menu.setSeparatorsCollapsible(True)
         coins = [self._utxo_dict[name] for name in selected]
         if not coins:
             return
@@ -311,14 +311,14 @@ class UTXOList(MyTreeView):
                 return
             utxo = coins[0]
             txid = utxo.prevout.txid.hex()
-            # "Details"
+
             tx = self.wallet.adb.get_transaction(txid)
             if tx:
                 label = self.wallet.get_label_for_txid(txid)
                 menu.addAction(_("Privacy analysis"), lambda: self.main_window.show_utxo(utxo))
             cc = self.add_copy_menu(menu, idx)
             cc.addAction(_("Long Output point"), lambda: self.place_text_on_clipboard(utxo.prevout.to_str(), title="Long Output point"))
-        # fully spend
+
         menu_spend = menu.addMenu(_("Fully spend") + '…')
         m = menu_spend.addAction(_("send to address in clipboard"), lambda: self.pay_to_clipboard_address(coins))
         m.setEnabled(self.clipboard_contains_address())
@@ -326,12 +326,12 @@ class UTXOList(MyTreeView):
         m.setEnabled(self.can_open_channel(coins))
         m = menu_spend.addAction(_("in submarine swap"), lambda: self.swap_coins(coins))
         m.setEnabled(self.can_swap_coins(coins))
-        # coin control
+
         if self.are_in_coincontrol(coins):
             menu.addAction(_("Remove from coin control"), lambda: self.remove_from_coincontrol(coins))
         else:
             menu.addAction(_("Add to coin control"), lambda: self.add_to_coincontrol(coins))
-        # Freeze menu
+
         if len(coins) == 1:
             utxo = coins[0]
             addr = utxo.address
@@ -347,7 +347,7 @@ class UTXOList(MyTreeView):
             else:
                 act = menu_freeze.addAction(_("Unfreeze Address"), lambda: self.main_window.set_frozen_state_of_addresses([addr], False))
             act.setToolTip(MSG_FREEZE_ADDRESS)
-        elif len(coins) > 1:  # multiple items selected
+        elif len(coins) > 1:
             menu.addSeparator()
             addrs = [utxo.address for utxo in coins]
             is_coin_frozen = [self.wallet.is_frozen_coin(utxo) for utxo in coins]

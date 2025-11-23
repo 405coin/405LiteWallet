@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# This script can be used on Linux hosts to build native libzbar binaries.
-# sudo apt-get install pkg-config libx11-dev libx11-6 libv4l-dev libxv-dev libxext-dev libjpeg-dev
-#
-# It can also be used to cross-compile to Windows:
-# $ sudo apt-get install mingw-w64 mingw-w64-tools win-iconv-mingw-w64-dev
-# For a Windows x86 (32-bit) target, run:
-# $ GCC_TRIPLET_HOST="i686-w64-mingw32" BUILD_TYPE="wine" ./contrib/make_zbar.sh
-# Or for a Windows x86_64 (64-bit) target, run:
-# $ GCC_TRIPLET_HOST="x86_64-w64-mingw32" BUILD_TYPE="wine" ./contrib/make_zbar.sh
+
+
+
+
+
+
+
+
+
 
 ZBAR_VERSION="bb05ec54eec57f8397cb13fb9161372a281a1219"
-# ^ tag 0.23.93
+
 
 set -e
 
@@ -47,7 +47,7 @@ info "Building $pkgname..."
     fi
     if ! [ -r config.status ] ; then
         if [ "$BUILD_TYPE" = "wine" ] ; then
-            # windows target
+
             AUTOCONF_FLAGS="$AUTOCONF_FLAGS \
                 --with-x=no \
                 --enable-video=yes \
@@ -55,13 +55,13 @@ info "Building $pkgname..."
                 --with-directshow=yes \
                 --disable-dependency-tracking"
         elif [ $(uname) == "Darwin" ]; then
-            # macos target
+
             AUTOCONF_FLAGS="$AUTOCONF_FLAGS \
                 --with-x=no \
                 --enable-video=no \
                 --with-jpeg=no"
         else
-            # linux target
+
             AUTOCONF_FLAGS="$AUTOCONF_FLAGS \
                 --with-x=yes \
                 --enable-video=yes \

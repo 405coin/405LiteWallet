@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# This script prints a new "servers.json" to stdout.
-# It prunes the offline servers from the existing list (note: run with Tor proxy to keep .onions),
-# and adds new servers from provided file(s) of candidate servers.
-# A file of new candidate servers can be created via e.g.:
-# $ ./electrum/scripts/servers.py > reply.txt
+                                                    
+                                                                                                  
+                                                                  
+                                                          
+                                             
 
 import asyncio
 import sys
@@ -36,8 +36,8 @@ def get_newly_added_servers(fname1, fname2=None):
     return res_hostmap
 
 
-# testnet?
-#constants.BitcoinTestnet.set_as_network()
+          
+                                          
 config = SimpleConfig({'testnet': False})
 
 loop, stopping_fut, loop_thread = create_and_start_event_loop()
@@ -47,10 +47,10 @@ network.start()
 @log_exceptions
 async def f():
     try:
-        # prune existing servers
+                                
         old_servers_all = constants.net.DEFAULT_SERVERS
         old_servers_online = await network.prune_offline_servers(constants.net.DEFAULT_SERVERS)
-        # add new servers
+                         
         newly_added_servers = get_newly_added_servers(fname1, fname2)
         res_servers = {**old_servers_online, **newly_added_servers}
 

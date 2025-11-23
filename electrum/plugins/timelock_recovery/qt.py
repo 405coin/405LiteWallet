@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
 AGREEMENT_TEXT = "I understand that the Timelock Recovery plan will be broken if I keep using this wallet"
 MIN_LOCKTIME_DAYS = 2
-# 0xFFFF * 512 seconds = 388.36 days.
+                                     
 MAX_LOCKTIME_DAYS = 388
 
 
@@ -101,10 +101,10 @@ class Plugin(TimelockRecoveryPlugin):
 
     @hook
     def load_wallet(self, wallet, window):
-        if self._init_qt_received:  # only need/want the first signal
+        if self._init_qt_received:                                   
             return
         self._init_qt_received = True
-        # load custom fonts (note: here, and not in __init__, as it needs the QApplication to be created)
+                                                                                                         
         if get_font_id('PTMono-Regular.ttf') >= 0 and get_font_id('PTMono-Bold.ttf') >= 0:
             self.font_name = 'PT Mono'
 
@@ -123,22 +123,22 @@ class Plugin(TimelockRecoveryPlugin):
         intro_dialog = WindowModalDialog(context.main_window, "Timelock Recovery")
         intro_dialog.setContentsMargins(11, 11, 1, 1)
 
-        # Create an HBox layout.  The logo will be on the left and the rest of the dialog on the right.
+                                                                                                       
         hbox_layout = QHBoxLayout(intro_dialog)
 
-        # Create the logo label.
+                                
         logo_label = QLabel()
 
-        # Set the logo label pixmap.
+                                    
         logo_label.setPixmap(read_QPixmap_from_bytes(self.small_logo_bytes))
 
-        # Align the logo label to the top left.
+                                               
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # Create a VBox layout for the main contents of the dialog.
+                                                                   
         vbox_layout = QVBoxLayout()
 
-        # Populate the HBox layout with spacing between the two columns.
+                                                                        
         hbox_layout.addWidget(logo_label)
         hbox_layout.addSpacing(16)
         hbox_layout.addLayout(vbox_layout)
@@ -165,7 +165,7 @@ class Plugin(TimelockRecoveryPlugin):
         close_button.clicked.connect(intro_dialog.close)
         vbox_layout.addLayout(Buttons(close_button))
 
-        # Add stretches to the end of the layouts to prevent the contents from spreading when the dialog is enlarged.
+                                                                                                                     
         hbox_layout.addStretch(1)
         vbox_layout.addStretch(1)
 
@@ -210,7 +210,7 @@ class Plugin(TimelockRecoveryPlugin):
         plan_grid.setSpacing(8)
         grid_row = 0
 
-        payto_e = PayToEdit(context.main_window.send_tab) # Reuse configuration from send tab
+        payto_e = PayToEdit(context.main_window.send_tab)                                    
         payto_e.toggle_paytomany()
 
         context.timelock_days = 90
@@ -400,8 +400,8 @@ class Plugin(TimelockRecoveryPlugin):
         plan_grid.addWidget(view_cancellation_tx_button, grid_row, 4)
         grid_row += 1
 
-        plan_grid.setRowStretch(grid_row, 1)  # Make sure the grid does not stretch
-        # Create an HBox layout.  The logo will be on the left and the rest of the dialog on the right.
+        plan_grid.setRowStretch(grid_row, 1)                                       
+                                                                                                       
         hbox_layout = QHBoxLayout(plan_dialog)
 
         def on_cb_change(x):
@@ -415,19 +415,19 @@ class Plugin(TimelockRecoveryPlugin):
         logo_label.setPixmap(read_QPixmap_from_bytes(self.small_logo_bytes))
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # Create a VBox layout for the main contents of the dialog.
+                                                                   
         vbox_layout = QVBoxLayout()
         vbox_layout.addLayout(title_hbox)
         vbox_layout.addStretch(1)
         vbox_layout.addLayout(plan_grid, stretch=1)
         vbox_layout.addLayout(Buttons(next_button))
 
-        # Populate the HBox layout.
+                                   
         hbox_layout.addWidget(logo_label)
         hbox_layout.addSpacing(16)
         hbox_layout.addLayout(vbox_layout, stretch=1)
 
-        # initialize
+                    
         on_cb_change(False)
 
         return bool(plan_dialog.exec())
@@ -454,7 +454,7 @@ class Plugin(TimelockRecoveryPlugin):
         if not pi:
             return False
         if not pi.is_valid():
-            # Don't make background red - maybe the user did not complete typing yet.
+                                                                                     
             payto_e.setStyleSheet(ColorScheme.RED.as_stylesheet(True) if '\n' in pi.text.strip() else '')
             payto_e.setToolTip((pi.get_error() or "Invalid address.") if pi.text else "")
             return False
@@ -510,32 +510,32 @@ class Plugin(TimelockRecoveryPlugin):
         download_dialog.setContentsMargins(11, 11, 1, 1)
         download_dialog.resize(800, download_dialog.height())
 
-        # Create an HBox layout. The logo will be on the left and the rest of the dialog on the right.
+                                                                                                      
         hbox_layout = QHBoxLayout(download_dialog)
 
-        # Create the logo label
+                               
         logo_label = QLabel()
         logo_label.setPixmap(read_QPixmap_from_bytes(self.small_logo_bytes))
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # Create a VBox layout for the main contents
+                                                    
         vbox_layout = QVBoxLayout()
 
-        # Create and populate the grid
+                                      
         grid = QGridLayout()
         grid.setSpacing(8)
         grid.setColumnStretch(3, 1)
 
         line_number = 0
 
-        # Add Recovery Plan ID row
+                                  
         grid.addWidget(HelpLabel(
             _("Recovery Plan ID"),
             _("Unique identifier for this recovery plan"),
         ), 0, 0)
         grid.addWidget(selectable_label(context.recovery_plan_id), line_number, 1, 1, 4)
         line_number += 1
-        # Add Creation Date row
+                               
         grid.addWidget(HelpLabel(
             _("Created At"),
             _("Date and time when this recovery plan was created"),
@@ -589,7 +589,7 @@ class Plugin(TimelockRecoveryPlugin):
             line_number += 1
 
         grid.setRowStretch(line_number, 1)
-        # Create buttons
+                        
         recovery_menu = QMenu()
         action = QAction('Save as PDF', recovery_menu)
         action.triggered.connect(partial(self._save_recovery_plan_pdf, context, download_dialog))
@@ -601,7 +601,7 @@ class Plugin(TimelockRecoveryPlugin):
         recovery_button.setText(_("Save Recovery Plan"))
         recovery_button.setMenu(recovery_menu)
         recovery_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        # Save Cancellation Plan button row (if applicable)
+                                                           
         cancellation_menu = QMenu()
         action = QAction('Save as PDF', cancellation_menu)
         action.triggered.connect(partial(self._save_cancellation_plan_pdf, context, download_dialog))
@@ -613,14 +613,14 @@ class Plugin(TimelockRecoveryPlugin):
         cancellation_button.setText(_("Save Cancellation Plan"))
         cancellation_button.setMenu(cancellation_menu)
         cancellation_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        # Add layouts to main vbox
+                                  
         vbox_layout.addLayout(grid)
         vbox_layout.addStretch()
         download_hbox = QHBoxLayout()
         download_hbox.addWidget(recovery_button)
         if context.cancellation_tx is not None:
             download_hbox.addWidget(cancellation_button)
-        # agree checkbox
+                        
         def on_agreement(b):
             recovery_button.setEnabled(bool(b))
             cancellation_button.setEnabled(bool(b))
@@ -660,7 +660,7 @@ class Plugin(TimelockRecoveryPlugin):
             download_dialog.close()
         close_button.clicked.connect(on_close)
         vbox_layout.addLayout(Buttons(close_button))
-        # Populate the HBox layout.
+                                   
         hbox_layout.addWidget(logo_label)
         hbox_layout.addSpacing(16)
         hbox_layout.addLayout(vbox_layout, stretch=1)
@@ -669,8 +669,8 @@ class Plugin(TimelockRecoveryPlugin):
 
     @classmethod
     def _checksum(cls, json_data: dict[str, Any]) -> str:
-        # Assumes the values have a consistent json representation (not a key-value
-        # object whose fields can be ordered in multiple ways).
+                                                                                   
+                                                               
         return hashlib.sha256(json.dumps(
             sorted(json_data.items()),
             skipkeys=False, ensure_ascii=True, check_circular=True,
@@ -680,7 +680,7 @@ class Plugin(TimelockRecoveryPlugin):
 
     def _save_recovery_plan_json(self, context: TimelockRecoveryContext, download_dialog: WindowModalDialog):
         try:
-            # Open a Save As dialog to get the file path
+                                                        
             file_path, _selected_filter = QFileDialog.getSaveFileName(
                 download_dialog,
                 _("Save Recovery Plan JSON..."),
@@ -713,7 +713,7 @@ class Plugin(TimelockRecoveryPlugin):
                     "recovery_weight": context.recovery_tx.estimated_weight(),
                     "recovery_outputs": [[tx_output.address, tx_output.value] for tx_output in context.recovery_tx.outputs()],
                 }
-                # Simple checksum to ensure the file is not corrupted by foolish users
+                                                                                      
                 json_data["checksum"] = self._checksum(json_data)
                 json.dump(json_data, json_file, indent=2)
             download_dialog.show_message(_("File saved successfully"))
@@ -724,7 +724,7 @@ class Plugin(TimelockRecoveryPlugin):
 
     def _save_cancellation_plan_json(self, context: TimelockRecoveryContext, download_dialog: WindowModalDialog):
         try:
-            # Open a Save As dialog to get the file path
+                                                        
             file_path, _selected_filter = QFileDialog.getSaveFileName(
                 download_dialog,
                 _("Save Cancellation Plan JSON..."),
@@ -751,7 +751,7 @@ class Plugin(TimelockRecoveryPlugin):
                     "cancellation_weight": context.cancellation_tx.estimated_weight(),
                     "cancellation_amount": context.cancellation_tx.output_value(),
                 }
-                # Simple checksum to ensure the file is not corrupted by foolish users
+                                                                                      
                 json_data["checksum"] = self._checksum(json_data)
                 json.dump(json_data, f, indent=2)
             download_dialog.show_message(_("File saved successfully"))
@@ -778,13 +778,13 @@ class Plugin(TimelockRecoveryPlugin):
             Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation
         )
-        # Center the logo horizontally and draw at current_height
+                                                                 
         logo_x = (page_width - scaled_logo.width()) / 2
         painter.drawPixmap(int(logo_x), int(current_height), scaled_logo)
         return scaled_logo.height()
 
     def _save_recovery_plan_pdf(self, context: TimelockRecoveryContext, download_dialog: WindowModalDialog):
-        # Open a Save As dialog to get the file path
+                                                    
         file_path, _selected_filter = QFileDialog.getSaveFileName(
             download_dialog,
             _("Save Recovery Plan PDF..."),
@@ -820,7 +820,7 @@ class Plugin(TimelockRecoveryPlugin):
     def _paint_recovery_plan_pdf(self, context: TimelockRecoveryContext, painter: QPainter, printer: QPrinter):
         font_manager = FontManager(self.font_name, printer.resolution())
 
-        # Get page dimensions
+                             
         page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
         page_width = page_rect.width()
         page_height = page_rect.height()
@@ -828,7 +828,7 @@ class Plugin(TimelockRecoveryPlugin):
         current_height = 0
         page_number = 1
 
-        # Header
+                
         painter.setFont(font_manager.header_font)
         painter.drawText(
             QRectF(0, 0, page_width, font_manager.header_line_spacing + 20),
@@ -839,12 +839,12 @@ class Plugin(TimelockRecoveryPlugin):
 
         current_height += self._paint_scaled_logo(painter, page_width, current_height) + 40
 
-        # Title
+               
         painter.setFont(font_manager.title_font)
         painter.drawText(QRectF(0, current_height, page_width, font_manager.title_line_spacing + 20), Qt.AlignmentFlag.AlignHCenter, "Timelock-Recovery Guide")
         current_height += font_manager.title_line_spacing + 20
 
-        # Subtitle
+                  
         painter.setFont(font_manager.subtitle_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.subtitle_line_spacing + 20), Qt.AlignmentFlag.AlignCenter,
@@ -852,7 +852,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.subtitle_line_spacing + 60
 
-        # Main content
+                      
         recovery_tx_outputs = context.recovery_tx.outputs()
         painter.setFont(font_manager.body_font)
         intro_text = (
@@ -876,7 +876,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += drawn_rect.height() + 20
 
-        # Step 1
+                
         painter.setFont(font_manager.title_small_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.title_small_line_spacing + 20),Qt.AlignmentFlag.AlignLeft,
@@ -885,10 +885,10 @@ class Plugin(TimelockRecoveryPlugin):
         current_height += font_manager.title_small_line_spacing + 20
 
         painter.setFont(font_manager.body_font)
-        # Calculate number of anchors
+                                     
         num_anchors = len(context.alert_tx.outputs()) - 1
 
-        # Split alert tx into parts if needed
+                                             
         alert_raw = context.alert_tx.serialize().upper()
         if len(alert_raw) < 2300:
             alert_raw_parts = [alert_raw]
@@ -897,7 +897,7 @@ class Plugin(TimelockRecoveryPlugin):
             for i in range(0, len(alert_raw), 2100):
                 alert_raw_parts.append(alert_raw[i:i+2100])
 
-        # Step 1 explanation text
+                                 
         step1_text = (
             f"The first step is to broadcast the Alert transaction. "
             f"This transaction will keep most funds in the same wallet {context.wallet_name}, "
@@ -933,14 +933,14 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += drawn_rect.height() + 20
 
-        # Generate QR pages for alert tx parts
+                                              
         for i, alert_part in enumerate(alert_raw_parts):
-            # Add new page
+                          
             printer.newPage()
             page_number += 1
             current_height = 20
 
-            # Header
+                    
             painter.setFont(font_manager.header_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.header_line_spacing),
@@ -949,7 +949,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.header_line_spacing + 20
 
-            # Title
+                   
             painter.setFont(font_manager.title_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.title_line_spacing),
@@ -958,7 +958,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.title_line_spacing + 20
 
-            # Transaction ID
+                            
             painter.setFont(font_manager.subtitle_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.subtitle_line_spacing),
@@ -967,7 +967,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.subtitle_line_spacing + 20
 
-            # Part number if multiple parts
+                                           
             if len(alert_raw_parts) > 1:
                 painter.setFont(font_manager.subtitle_font)
                 painter.drawText(
@@ -977,7 +977,7 @@ class Plugin(TimelockRecoveryPlugin):
                 )
                 current_height += font_manager.subtitle_line_spacing + 20
 
-            # QR Code
+                     
             qr = qrcode.main.QRCode(
                 error_correction=qrcode.constants.ERROR_CORRECT_Q,
             )
@@ -985,13 +985,13 @@ class Plugin(TimelockRecoveryPlugin):
             qr.make()
             qr_image = self._paint_qr(qr)
 
-            # Calculate QR position to center it
+                                                
             qr_width = int(page_width * 0.6)
             qr_x = (page_width - qr_width) / 2
             painter.drawImage(QRectF(qr_x, current_height, qr_width, qr_width), qr_image)
             current_height += qr_width + 40
 
-            # Raw text below QR
+                               
             painter.setFont(font_manager.body_font)
             painter.drawText(
                 QRectF(20, current_height, page_width, page_height - current_height),
@@ -1002,7 +1002,7 @@ class Plugin(TimelockRecoveryPlugin):
         printer.newPage()
         page_number += 1
         current_height = 20
-        # Header
+                
         painter.setFont(font_manager.header_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.header_line_spacing),
@@ -1011,7 +1011,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.header_line_spacing + 20
 
-        # Step 2 page
+                     
         painter.setFont(font_manager.title_small_font)
         painter.drawText(QRectF(20, current_height, page_width, font_manager.title_small_line_spacing), Qt.AlignmentFlag.AlignLeft, "Step 2 - Waiting for the Alert transaction confirmation")
         current_height += font_manager.title_small_line_spacing + 20
@@ -1020,7 +1020,7 @@ class Plugin(TimelockRecoveryPlugin):
         painter.drawText(QRectF(20, current_height, page_width, font_manager.subtitle_line_spacing), Qt.AlignmentFlag.AlignLeft, "You can follow the Alert transaction via any of the following links:")
         current_height += font_manager.subtitle_line_spacing + 20
 
-        # QR codes and links for transaction tracking
+                                                     
         for link in [f"https://mempool.space/tx/{context.alert_tx.txid()}", f"https://blockstream.info/tx/{context.alert_tx.txid()}"]:
             qr = qrcode.main.QRCode(
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -1038,7 +1038,7 @@ class Plugin(TimelockRecoveryPlugin):
             painter.drawText(QRectF(0, current_height, page_width, font_manager.body_small_line_spacing), Qt.AlignmentFlag.AlignCenter, link)
             current_height += font_manager.body_small_line_spacing + 20
 
-        # Explanation text
+                          
         painter.setFont(font_manager.body_font)
         explanation_text = (
             "Please wait for a while until the transaction is marked as \"confirmed\" (number of confirmations greater than 0). "
@@ -1058,16 +1058,16 @@ class Plugin(TimelockRecoveryPlugin):
         drawn_rect = painter.drawText(QRectF(20, current_height, page_width, page_height - current_height), Qt.TextFlag.TextWordWrap, explanation_text)
         current_height += drawn_rect.height() + 40
 
-        # Step 3 header
+                       
         painter.setFont(font_manager.title_small_font)
         painter.drawText(QRectF(20, current_height, page_width, font_manager.title_small_line_spacing), Qt.AlignmentFlag.AlignLeft, "Step 3 - Broadcasting the Recovery transaction")
         current_height += font_manager.title_small_line_spacing + 20
 
-        # Split recovery transaction if needed
+                                              
         recovery_raw = context.recovery_tx.serialize().upper()
         recovery_raw_parts = [recovery_raw[i:i+2100] for i in range(0, len(recovery_raw), 2100)] if len(recovery_raw) > 2300 else [recovery_raw]
 
-        # Step 3 explanation
+                            
         painter.setFont(font_manager.body_font)
         step3_text = (
             f"Approximately {context.timelock_days} days after the Alert transaction has been confirmed, you "
@@ -1079,13 +1079,13 @@ class Plugin(TimelockRecoveryPlugin):
         )
         painter.drawText(QRectF(20, current_height, page_width, page_height - current_height), Qt.TextFlag.TextWordWrap, step3_text)
 
-        # Recovery transaction pages
+                                    
         for i, recovery_part in enumerate(recovery_raw_parts):
             printer.newPage()
             page_number += 1
             current_height = 20
 
-            # Header
+                    
             painter.setFont(font_manager.header_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.header_line_spacing),
@@ -1094,7 +1094,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.header_line_spacing + 20
 
-            # Title
+                   
             painter.setFont(font_manager.title_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.title_line_spacing),
@@ -1103,7 +1103,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.title_line_spacing + 20
 
-            # Transaction ID
+                            
             painter.setFont(font_manager.subtitle_font)
             painter.drawText(
                 QRectF(0, current_height, page_width, font_manager.subtitle_line_spacing),
@@ -1112,7 +1112,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.subtitle_line_spacing + 20
 
-            # Part number if multiple parts
+                                           
             if len(recovery_raw_parts) > 1:
                 painter.setFont(font_manager.subtitle_font)
                 painter.drawText(
@@ -1122,7 +1122,7 @@ class Plugin(TimelockRecoveryPlugin):
                 )
                 current_height += font_manager.subtitle_line_spacing + 20
 
-            # QR Code
+                     
             qr = qrcode.main.QRCode(
                 error_correction=qrcode.constants.ERROR_CORRECT_Q,
             )
@@ -1130,13 +1130,13 @@ class Plugin(TimelockRecoveryPlugin):
             qr.make()
             qr_image = self._paint_qr(qr)
 
-            # Calculate QR position to center it
+                                                
             qr_width = int(page_width * 0.6)
             qr_x = (page_width - qr_width) / 2
             painter.drawImage(QRectF(qr_x, current_height, qr_width, qr_width), qr_image)
             current_height += qr_width + 40
 
-            # Raw text below QR
+                               
             painter.setFont(font_manager.body_font)
             painter.drawText(
                 QRectF(20, current_height, page_width, page_height - current_height),
@@ -1145,7 +1145,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
 
     def _save_cancellation_plan_pdf(self, context: TimelockRecoveryContext, download_dialog: WindowModalDialog):
-        # Open a Save As dialog to get the file path
+                                                    
         file_path, _selected_filter = QFileDialog.getSaveFileName(
             download_dialog,
             _("Save Cancellation Plan PDF..."),
@@ -1181,13 +1181,13 @@ class Plugin(TimelockRecoveryPlugin):
     def _paint_cancellation_plan_pdf(self, context: TimelockRecoveryContext, painter: QPainter, printer: QPrinter):
         cancellation_raw = context.cancellation_tx.serialize().upper()
         if len(cancellation_raw) > 2300:
-            # Splitting the cancellation transaction into multiple QR codes is not implemented
-            # because it is unexpected to happen anyways.
+                                                                                              
+                                                         
             raise Exception("Cancellation transaction is too large to be saved as a single QR code")
 
         font_manager = FontManager(self.font_name, printer.resolution())
 
-        # Get page dimensions
+                             
         page_rect = printer.pageRect(QPrinter.Unit.DevicePixel)
         page_width = page_rect.width()
         page_height = page_rect.height()
@@ -1195,7 +1195,7 @@ class Plugin(TimelockRecoveryPlugin):
         current_height = 0
         page_number = 1
 
-        # Header
+                
         painter.setFont(font_manager.header_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.header_line_spacing),
@@ -1206,7 +1206,7 @@ class Plugin(TimelockRecoveryPlugin):
 
         current_height += self._paint_scaled_logo(painter, page_width, current_height) + 40
 
-        # Title
+               
         painter.setFont(font_manager.title_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.title_line_spacing),
@@ -1215,7 +1215,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.title_line_spacing + 20
 
-        # Subtitle
+                  
         painter.setFont(font_manager.subtitle_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.subtitle_line_spacing + 20), Qt.AlignmentFlag.AlignCenter,
@@ -1223,7 +1223,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.subtitle_line_spacing + 60
 
-        # Main text
+                   
         painter.setFont(font_manager.body_font)
         explanation_text = (
             f"This document is intended solely for the eyes of the owner of wallet: {context.wallet_name}. "
@@ -1239,7 +1239,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += drawn_rect.height() + 40
 
-        # QR codes and links for transaction tracking
+                                                     
         for link in [f"https://mempool.space/tx/{context.alert_tx.txid()}", f"https://blockstream.info/tx/{context.alert_tx.txid()}"]:
             qr = qrcode.main.QRCode(
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -1261,7 +1261,7 @@ class Plugin(TimelockRecoveryPlugin):
             )
             current_height += font_manager.body_small_line_spacing + 20
 
-        # Watch tower text
+                          
         painter.setFont(font_manager.body_font)
         drawn_rect = painter.drawText(
             QRectF(20, current_height, page_width - 40, page_height - current_height),
@@ -1271,7 +1271,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += drawn_rect.height() + 40
 
-        # Cancellation transaction section
+                                          
         cancellation_text = (
             "In case the Alert transaction has been broadcast, and you want to stop the funds from "
             "leaving this wallet, you can scan the QR code on page 2, and broadcast "
@@ -1292,12 +1292,12 @@ class Plugin(TimelockRecoveryPlugin):
             cancellation_text
         )
 
-        # New page for cancellation transaction
+                                               
         printer.newPage()
         page_number += 1
         current_height = 20
 
-        # Header
+                
         painter.setFont(font_manager.header_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.header_line_spacing),
@@ -1306,7 +1306,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.header_line_spacing + 20
 
-        # Cancellation transaction title
+                                        
         painter.setFont(font_manager.title_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.title_line_spacing),
@@ -1315,7 +1315,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.title_line_spacing + 20
 
-        # Transaction ID
+                        
         painter.setFont(font_manager.subtitle_font)
         painter.drawText(
             QRectF(0, current_height, page_width, font_manager.subtitle_line_spacing),
@@ -1324,7 +1324,7 @@ class Plugin(TimelockRecoveryPlugin):
         )
         current_height += font_manager.subtitle_line_spacing + 20
 
-        # QR Code for cancellation transaction
+                                              
         qr = qrcode.main.QRCode(
             error_correction=qrcode.constants.ERROR_CORRECT_Q,
         )
@@ -1337,7 +1337,7 @@ class Plugin(TimelockRecoveryPlugin):
         painter.drawImage(QRectF(qr_x, current_height, qr_width, qr_width), qr_image)
         current_height += qr_width + 40
 
-        # Raw transaction text
+                              
         painter.setFont(font_manager.body_font)
         painter.drawText(
             QRectF(20, current_height, page_width - 40, page_height),

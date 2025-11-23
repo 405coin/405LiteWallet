@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
-# -*- mode: python -*-
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2016  The Electrum developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                      
+ 
+                                       
+                                             
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import threading
 from functools import partial
@@ -54,8 +54,8 @@ if TYPE_CHECKING:
     from electrum.gui.qt.wizard.wallet import QENewWalletWizard
 
 
-# The trickiest thing about this handler was getting windows properly
-# parented on macOS.
+                                                                     
+                    
 class QtHandlerBase(HardwareHandlerBase, QObject, Logger):
     """An interface between the GUI (here, QT) and the device handling
     logic for handling I/O."""
@@ -136,7 +136,7 @@ class QtHandlerBase(HardwareHandlerBase, QObject, Logger):
         return self.passphrase
 
     def passphrase_dialog(self, msg, confirm):
-        # If confirm is true, require the user to enter the passphrase twice
+                                                                            
         parent = self.top_level_window()
         d = WindowModalDialog(parent, _("Enter Passphrase"))
         if confirm:
@@ -168,11 +168,11 @@ class QtHandlerBase(HardwareHandlerBase, QObject, Logger):
         text.returnPressed.connect(dialog.accept)
         hbox.addWidget(text)
         hbox.addStretch(1)
-        dialog.exec()  # Firmware cannot handle cancellation
+        dialog.exec()                                       
         self.word = text.text()
         self.done.set()
 
-    MESSAGE_DIALOG_TITLE = None  # type: Optional[str]
+    MESSAGE_DIALOG_TITLE = None                       
     def message_dialog(self, msg, on_cancel=None):
         self.clear_dialog()
         title = self.MESSAGE_DIALOG_TITLE
@@ -236,7 +236,7 @@ class QtPluginBase(object):
             keystore.handler = handler
             keystore.thread = TaskThread(window, on_error=partial(self.on_task_thread_error, window, keystore))
             self.add_show_address_on_hw_device_button_for_receive_addr(wallet, keystore, window)
-        # Trigger pairings
+                          
         devmgr = self.device_manager()
         trigger_pairings = partial(devmgr.trigger_pairings, relevant_keystores, allow_user_interaction=True)
         some_keystore = relevant_keystores[0]
@@ -255,7 +255,7 @@ class QtPluginBase(object):
         if isinstance(e, OutdatedHwFirmwareException):
             if window.question(e.text_ignore_old_fw_and_continue(), title=_("Outdated device firmware")):
                 self.set_ignore_outdated_fw()
-                # will need to re-pair
+                                      
                 devmgr = self.device_manager()
 
                 def re_pair_device():
@@ -283,7 +283,7 @@ class QtPluginBase(object):
         return device_id
 
     def show_settings_dialog(self, window: 'ElectrumWindow', keystore: 'Hardware_KeyStore') -> None:
-        # default implementation (if no dialog): just try to connect to device
+                                                                              
         def connect():
             device_id = self.choose_device(window, keystore)
 

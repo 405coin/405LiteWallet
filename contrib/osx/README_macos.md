@@ -33,5 +33,5 @@ $ python3 -m pip install --user -e ".[gui,crypto]"
 
 ### 4. Run electrum:
 ```
-$ ./run_electrum
+$ ./run_405litewallet
 ```

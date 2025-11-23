@@ -48,7 +48,7 @@ WizardComponent {
                 id: piechart
                 Layout.preferredWidth: parent.width * 1/2
                 Layout.alignment: Qt.AlignHCenter
-                Layout.preferredHeight: 200 // TODO
+                Layout.preferredHeight: 200 
                 showLegend: false
                 innerOffset: 3
                 function updateSlices() {

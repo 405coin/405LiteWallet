@@ -47,7 +47,7 @@ if TYPE_CHECKING:
 
 class Plugin(RevealerPlugin):
 
-    MAX_PLAINTEXT_LEN = 189  # chars
+    MAX_PLAINTEXT_LEN = 189         
     HELP_TEXT = "\n".join([
         _("Revealer is a tool to encrypt your secrets visually."),
         _("Revealer is based on the scheme 'Visual Cryptography' by Moni Naor and Adi Shamir."),
@@ -90,10 +90,10 @@ class Plugin(RevealerPlugin):
 
     @hook
     def load_wallet(self, wallet, window):
-        if self._init_qt_received:  # only need/want the first signal
+        if self._init_qt_received:                                   
             return
         self._init_qt_received = True
-        # load custom fonts (note: here, and not in __init__, as it needs the QApplication to be created)
+                                                                                                         
         QFontDatabase.addApplicationFont(os.path.join(os.path.dirname(__file__), 'SourceSans3-Bold.otf'))
         QFontDatabase.addApplicationFont(os.path.join(os.path.dirname(__file__), 'DejaVuSansMono-Bold.ttf'))
 
@@ -136,93 +136,93 @@ class Plugin(RevealerPlugin):
         self.d = WindowModalDialog(window, "Revealer Visual Cryptography Plugin - Select Noise File")
         self.d.setContentsMargins(11,11,1,1)
 
-        # Create an HBox layout.  The logo will be on the left and the rest of the dialog on the right.
+                                                                                                       
         hbox_layout = QHBoxLayout(self.d)
 
-        # Create the logo label.
+                                
         logo_label = QLabel()
 
-        # Set the logo label pixmap.
+                                    
         logo_label.setPixmap(read_QPixmap_from_bytes(self.icon_bytes))
 
-        # Align the logo label to the top left.
+                                               
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # help text button
+                          
         help_button = HelpButton(self.HELP_TEXT)
 
-        # Create a VBox layout for the main contents of the dialog.
+                                                                   
         vbox_layout = QVBoxLayout()
 
-        # create a HBox for the first line to show help button and label side by side
+                                                                                     
         first_line_hbox = QHBoxLayout()
 
-        # Populate the HBox layout with spacing between the two columns.
+                                                                        
         hbox_layout.addWidget(logo_label)
         hbox_layout.addSpacing(16)
         hbox_layout.addLayout(vbox_layout)
 
-        # Create the labels.
+                            
         create_or_load_noise_file_label = QLabel(_("To encrypt a secret, you must first create or load a noise file."))
         instructions_label = QLabel(_("Click the button above or type an existing revealer code in the box below."))
 
         first_line_hbox.addWidget(create_or_load_noise_file_label)
         first_line_hbox.addWidget(help_button)
 
-        # Allow users to select text in the labels.
+                                                   
         create_or_load_noise_file_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         instructions_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
-        # Create the buttons.
+                             
         create_button = QPushButton(_("Create a new Revealer noise file"))
         self.next_button = QPushButton(_("Next"), self.d)
 
-        # Calculate the desired width of the create button
+                                                          
         create_button_width = create_button.fontMetrics().boundingRect(create_button.text()).width() + 40
 
-        # Set the create button width.
+                                      
         create_button.setMaximumWidth(create_button_width)
 
-        # Set the create button to be the default.
+                                                  
         create_button.setDefault(True)
 
-        # Initially disable the next button.
+                                            
         self.next_button.setEnabled(False)
 
-        # Define the create noise file function.
+                                                
         def create_noise_file():
             self.make_digital(self.d)
             self.cypherseed_dialog(window)
 
-        # Handle clicks on the buttons.
+                                       
         create_button.clicked.connect(create_noise_file)
         self.next_button.clicked.connect(self.d.close)
         self.next_button.clicked.connect(partial(self.cypherseed_dialog, window))
 
-        # Create the noise scan QR text edit.
+                                             
         self.noise_scan_qr_textedit = ScanQRTextEdit(config=self.config)
 
-        # Make tabs change focus from the text edit instead of inserting a tab into the field.
+                                                                                              
         self.noise_scan_qr_textedit.setTabChangesFocus(True)
 
-        # Update the UI when the text changes.
+                                              
         self.noise_scan_qr_textedit.textChanged.connect(self.on_edit)
 
-        # Populate the VBox layout.
+                                   
         vbox_layout.addLayout(first_line_hbox)
         vbox_layout.addWidget(create_button, alignment=Qt.AlignmentFlag.AlignCenter)
         vbox_layout.addWidget(instructions_label)
         vbox_layout.addWidget(self.noise_scan_qr_textedit)
         vbox_layout.addLayout(Buttons(self.next_button))
 
-        # Add stretches to the end of the layouts to prevent the contents from spreading when the dialog is enlarged.
+                                                                                                                     
         hbox_layout.addStretch(1)
         vbox_layout.addStretch(1)
 
         return bool(self.d.exec())
 
     def get_noise(self):
-        # Get the text from the scan QR text edit.
+                                                  
         text = self.noise_scan_qr_textedit.text()
         return ''.join(text.split()).lower()
 
@@ -291,27 +291,27 @@ class Plugin(RevealerPlugin):
         txt = self.custom_secret_scan_qr_textedit.text()
         self.custom_secret_character_count_label.setText(f"({len(txt)}/{self.MAX_PLAINTEXT_LEN})")
 
-        # Hide the custom secret maximum characters warning label.
+                                                                  
         self.custom_secret_maximum_characters_warning_label.setVisible(False)
 
-        # Update the status of the encrypt custom secret button.
+                                                                
         self.encrypt_custom_secret_button.setEnabled(len(txt)>0)
 
-        # Check to make sure the length of the text has not exceeded the limit.
+                                                                               
         if len(txt) > self.MAX_PLAINTEXT_LEN:
-            # Truncate the text to the maximum limit.
+                                                     
             self.custom_secret_scan_qr_textedit.setPlainText(txt[:self.MAX_PLAINTEXT_LEN])
 
-            # Get the text cursor.
+                                  
             textCursor = self.custom_secret_scan_qr_textedit.textCursor()
 
-            # Move the cursor position to the end (setting the text above automatically moves the cursor to the beginning, which is undesirable)
+                                                                                                                                                
             textCursor.movePosition(textCursor.MoveOperation.End)
 
-            # Set the text cursor with the corrected position.
+                                                              
             self.custom_secret_scan_qr_textedit.setTextCursor(textCursor)
 
-            # Display the custom secret maximum characters warning label.
+                                                                         
             self.custom_secret_maximum_characters_warning_label.setVisible(True)
 
     def t(self):
@@ -337,27 +337,27 @@ class Plugin(RevealerPlugin):
         d.setContentsMargins(11, 11, 1, 1)
         self.c_dialog = d
 
-        # Create an HBox layout.  The logo will be on the left and the rest of the dialog on the right.
+                                                                                                       
         hbox_layout = QHBoxLayout(d)
 
-        # Create the logo label.
+                                
         logo_label = QLabel()
 
-        # Set the logo label pixmap.
+                                    
         logo_label.setPixmap(read_QPixmap_from_bytes(self.icon_bytes))
 
-        # Align the logo label to the top left.
+                                               
         logo_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        # Create a VBox layout for the main contents of the dialog.
+                                                                   
         vbox_layout = QVBoxLayout()
 
-        # Populate the HBox layout.
+                                   
         hbox_layout.addWidget(logo_label)
         hbox_layout.addSpacing(16)
         hbox_layout.addLayout(vbox_layout)
 
-        # Create the labels.
+                            
         ready_to_encrypt_label = QLabel(_("Ready to encrypt for revealer {}.").format(self.versioned_seed.version+'_'+self.versioned_seed.checksum))
         instructions_label = QLabel(_("Click the button above to encrypt the seed or type a custom alphanumerical secret below."))
         self.custom_secret_character_count_label = QLabel(f"(0/{self.MAX_PLAINTEXT_LEN})")
@@ -366,50 +366,50 @@ class Plugin(RevealerPlugin):
                                                        +"</font>")
         one_time_pad_warning_label = QLabel("<b>" + _("Warning ") + "</b>: " + _("each Revealer is a one-time-pad, use it for a single secret."))
 
-        # Allow users to select text in the labels.
+                                                   
         ready_to_encrypt_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         instructions_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         self.custom_secret_character_count_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
         one_time_pad_warning_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
-        # Align the custom secret character count label to the right.
+                                                                     
         self.custom_secret_character_count_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
-        # Initially hide the custom secret character count label.
+                                                                 
         self.custom_secret_maximum_characters_warning_label.setVisible(False)
 
-        # Create the buttons.
+                             
         encrypt_seed_button = QPushButton(_("Encrypt {}'s seed").format(self.wallet_name))
         self.encrypt_custom_secret_button = QPushButton(_("Encrypt custom secret"))
 
-        # Calculate the desired width of the buttons.
+                                                     
         encrypt_seed_button_width = encrypt_seed_button.fontMetrics().boundingRect(encrypt_seed_button.text()).width() + 40
         encrypt_custom_secret_button_width = self.encrypt_custom_secret_button.fontMetrics().boundingRect(self.encrypt_custom_secret_button.text()).width() + 40
 
-        # Set the button widths.
+                                
         encrypt_seed_button.setMaximumWidth(encrypt_seed_button_width)
         self.encrypt_custom_secret_button.setMaximumWidth(encrypt_custom_secret_button_width)
 
-        # Set the encrypt seed button to be the default.
+                                                        
         encrypt_seed_button.setDefault(True)
 
-        # Initially disable the encrypt custom secret button.
+                                                             
         self.encrypt_custom_secret_button.setEnabled(False)
 
-        # Handle clicks on the buttons.
+                                       
         encrypt_seed_button.clicked.connect(partial(self.seed_img, True))
         self.encrypt_custom_secret_button.clicked.connect(self.t)
 
-        # Create the custom secret scan QR text edit.
+                                                     
         self.custom_secret_scan_qr_textedit = ScanQRTextEdit(config=self.config)
 
-        # Make tabs change focus from the text edit instead of inserting a tab into the field.
+                                                                                              
         self.custom_secret_scan_qr_textedit.setTabChangesFocus(True)
 
-        # Update the UI when the custom secret text changes.
+                                                            
         self.custom_secret_scan_qr_textedit.textChanged.connect(self.customtxt_limits)
 
-        # Populate the VBox layout.
+                                   
         vbox_layout.addWidget(ready_to_encrypt_label)
         vbox_layout.addWidget(encrypt_seed_button, alignment=Qt.AlignmentFlag.AlignCenter)
         vbox_layout.addWidget(instructions_label)
@@ -421,7 +421,7 @@ class Plugin(RevealerPlugin):
         vbox_layout.addWidget(one_time_pad_warning_label)
         vbox_layout.addLayout(Buttons(CloseButton(d)))
 
-        # Add stretches to the end of the layouts to prevent the contents from spreading when the dialog is enlarged.
+                                                                                                                     
         hbox_layout.addStretch(1)
         vbox_layout.addStretch(1)
 
@@ -527,7 +527,7 @@ class Plugin(RevealerPlugin):
         img = img.convertToFormat(QImage.Format.Format_Mono)
         p = QPainter()
         p.begin(img)
-        p.setCompositionMode(QPainter.CompositionMode.RasterOp_SourceXorDestination) #xor
+        p.setCompositionMode(QPainter.CompositionMode.RasterOp_SourceXorDestination)     
         p.drawImage(0, 0, rawnoise)
         p.end()
         cypherseed = self.pixelcode_2x2(img)
@@ -653,18 +653,18 @@ class Plugin(RevealerPlugin):
                           total_distance_h,
                           img)
 
-        #frame around image
+                           
         pen = QPen(Qt.GlobalColor.black, 2)
         painter.setPen(pen)
 
-        #horz
+             
         painter.drawLine(0, total_distance_h, base_img.width(), total_distance_h)
         painter.drawLine(0, base_img.height()-(total_distance_h), base_img.width(), base_img.height()-(total_distance_h))
-        #vert
+             
         painter.drawLine(total_distance_h, 0,  total_distance_h, base_img.height())
         painter.drawLine(base_img.width()-(total_distance_h), 0,  base_img.width()-(total_distance_h), base_img.height())
 
-        #border around img
+                          
         border_thick = 6
         Rpath = QPainterPath()
         Rpath.addRect(QRectF((total_distance_h)+(border_thick/2),
@@ -692,14 +692,14 @@ class Plugin(RevealerPlugin):
         painter.drawLine(base_img.width()-total_distance_h, base_img.height()//2, base_img.width(), base_img.height()//2)
         painter.drawLine(base_img.width()//2, base_img.height(), base_img.width()//2, base_img.height() - total_distance_h)
 
-        #print code
+                   
         f_size = 37
         font = QFont("DejaVu Sans Mono", f_size-11, QFont.Weight.Bold)
         font.setPixelSize(35)
         painter.setFont(font)
 
         if not calibration_sheet:
-            if is_cseed: #its a secret
+            if is_cseed:              
                 painter.setPen(QPen(Qt.GlobalColor.black, 1, Qt.PenStyle.DashDotDotLine))
                 painter.drawLine(0, dist_v, base_img.width(), dist_v)
                 painter.drawLine(dist_h, 0,  dist_h, base_img.height())
@@ -720,7 +720,7 @@ class Plugin(RevealerPlugin):
                                  self.versioned_seed.version + '_'+self.versioned_seed.checksum)
                 painter.end()
 
-            else: # revealer
+            else:           
 
                 painter.setPen(QPen(border_color, 17))
                 painter.drawLine(0, dist_v, base_img.width(), dist_v)
@@ -736,14 +736,14 @@ class Plugin(RevealerPlugin):
                 logo = QImage(internal_plugin_icon_path(self.name, 'revealer_c.png')).scaledToWidth(round(1.3*(total_distance_h)))
                 painter.drawImage(int(total_distance_h+border_thick), int(total_distance_h+border_thick), logo)
 
-                #frame around logo
+                                  
                 painter.setPen(QPen(Qt.GlobalColor.black, border_thick))
                 painter.drawLine(int(total_distance_h+border_thick), int(total_distance_h+logo.height()+3*(border_thick/2)),
                                  int(total_distance_h+logo.width()+border_thick), int(total_distance_h+logo.height()+3*(border_thick/2)))
                 painter.drawLine(int(logo.width()+total_distance_h+3*(border_thick/2)), int(total_distance_h+(border_thick)),
                                  int(total_distance_h+logo.width()+3*(border_thick/2)), int(total_distance_h+logo.height()+(border_thick)))
 
-                #frame around code/qr
+                                     
                 qr_size = 179
 
                 painter.drawLine(int((base_img.width()-((total_distance_h))-(border_thick/2)-2)-qr_size),
@@ -772,7 +772,7 @@ class Plugin(RevealerPlugin):
                 painter.drawText(QRect(0, base_img.height()-107, base_img.width()-total_distance_h - border_thick -3 -qr_size,
                                        base_img.height()-total_distance_h - border_thick), Qt.AlignmentFlag.AlignRight, self.versioned_seed.checksum)
 
-                # draw qr code
+                              
                 qr_qt = paintQR(self.versioned_seed.get_ui_string_version_plus_seed()
                                      + self.versioned_seed.checksum)
                 target = QRectF(base_img.width()-65-qr_size,
@@ -794,7 +794,7 @@ class Plugin(RevealerPlugin):
                 )
                 painter.end()
 
-        else: # calibration only
+        else:                   
             painter.end()
             cal_img = QImage(self.f_size.width() + 100, self.f_size.height() + 100,
                               QImage.Format.Format_ARGB32)
@@ -804,7 +804,7 @@ class Plugin(RevealerPlugin):
             cal_painter.begin(cal_img)
             cal_painter.drawImage(0,0, base_img)
 
-            #black lines in the middle of border top left only
+                                                              
             cal_painter.setPen(QPen(Qt.GlobalColor.black, 1, Qt.PenStyle.DashDotDotLine))
             cal_painter.drawLine(0, dist_v, base_img.width(), dist_v)
             cal_painter.drawLine(dist_h, 0,  dist_h, base_img.height())
@@ -815,7 +815,7 @@ class Plugin(RevealerPlugin):
 
             cal_painter.setFont(QFont("DejaVu Sans Mono", 21, QFont.Weight.Bold))
             for x in range(-n,n):
-                #lines on bottom (vertical calibration)
+                                                       
                 cal_painter.drawLine(int((((base_img.width())/(n*2)) *(x))+ (base_img.width()//2)-13),
                                      int(x+2+base_img.height()-(dist_v)),
                                      int((((base_img.width())/(n*2)) *(x))+ (base_img.width()//2)+13),
@@ -830,7 +830,7 @@ class Plugin(RevealerPlugin):
                                      int(50+base_img.height()-(dist_v)),
                                      str(x))
 
-                #lines on the right (horizontal calibrations)
+                                                             
 
                 cal_painter.drawLine(int(x+2+(base_img.width()-(dist_h))),
                                      int(((base_img.height()/(2*n)) *(x))+ (base_img.height()/n)+(base_img.height()//2)-13),

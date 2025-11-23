@@ -10,7 +10,7 @@ Item {
     width: ListView.view.width
     height: delegateLayout.height
 
-    // expose delegate model for scroll indicator
+    
     property var delegateModel: model
 
     ColumnLayout {
@@ -26,13 +26,13 @@ Item {
                 if (model.lightning) {
                     var page = app.stack.push(Qt.resolvedUrl('../LightningPaymentDetails.qml'), {'key': model.key})
                     page.detailsChanged.connect(function() {
-                        // update listmodel when details change
+                        
                         visualModel.model.updateTxLabel(model.key, page.label)
                     })
                 } else {
                     var page = app.stack.push(Qt.resolvedUrl('../TxDetails.qml'), {'txid': model.key})
                     page.detailsChanged.connect(function() {
-                        // update listmodel when details change
+                        
                         visualModel.model.updateTxLabel(model.key, page.label)
                     })
                 }
@@ -130,8 +130,8 @@ Item {
         }
 
     }
-    // as the items in the model are not bindings to QObjects,
-    // hook up events that might change the appearance
+    
+    
     Connections {
         target: Config
         function onBaseUnitChanged() { valueLabel.updateText() }

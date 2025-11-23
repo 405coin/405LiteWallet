@@ -12,7 +12,7 @@ from .util import QtEventListener, qt_event_listener
 class QEServerListModel(QAbstractListModel, QtEventListener):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES=('name', 'address', 'is_connected', 'is_primary', 'is_tor', 'chain', 'height')
     _ROLE_KEYS = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + len(_ROLE_NAMES))
     _ROLE_MAP  = dict(zip(_ROLE_KEYS, [bytearray(x.encode()) for x in _ROLE_NAMES]))
@@ -110,7 +110,7 @@ class QEServerListModel(QAbstractListModel, QtEventListener):
 
                 servers.append(server)
 
-        # disconnected servers
+                              
         all_servers = self.network.get_servers()
         connected_hosts = set([iface.host for ifaces in chains.values() for iface in ifaces])
         protocol = PREFERRED_NETWORK_PROTOCOL

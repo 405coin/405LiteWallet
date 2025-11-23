@@ -1,6 +1,6 @@
-# Copyright (C) 2020 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+                                            
+                                                                  
+                                                                    
 """
 lnrater.py contains Lightning Network node rating functionality.
 """
@@ -27,37 +27,37 @@ if TYPE_CHECKING:
 
 
 MONTH_IN_BLOCKS = 6 * 24 * 30
-# the scores are only updated after this time interval
+                                                      
 RATER_UPDATE_TIME_SEC = 10 * 60
-# amount used for calculating an effective relative fee
+                                                       
 FEE_AMOUNT_MSAT = 100_000_000
 
-# define some numbers for minimal requirements of good nodes
-# exclude nodes with less number of channels
+                                                            
+                                            
 EXCLUDE_NUM_CHANNELS = 15
-# exclude nodes with less mean capacity
+                                       
 EXCLUDE_MEAN_CAPACITY_MSAT = 1_000_000_000
-# exclude nodes which are young
+                               
 EXCLUDE_NODE_AGE = 2 * MONTH_IN_BLOCKS
-# exclude nodes which have young mean channel age
+                                                 
 EXCLUDE_MEAN_CHANNEL_AGE = EXCLUDE_NODE_AGE
-# exclude nodes which charge a high fee
+                                       
 EXCLUDE_EFFECTIVE_FEE_RATE = 0.001500
-# exclude nodes whose last channel open was a long time ago
+                                                           
 EXCLUDE_BLOCKS_LAST_CHANNEL = 3 * MONTH_IN_BLOCKS
 
 
 class NodeStats(NamedTuple):
     number_channels: int
-    # capacity related
+                      
     total_capacity_msat: int
     median_capacity_msat: float
     mean_capacity_msat: float
-    # block height related
+                          
     node_age_block_height: int
     mean_channel_age_block_height: float
     blocks_since_last_channel: int
-    # fees
+          
     mean_fee_rate: float
 
 
@@ -79,10 +79,10 @@ class LNRater(Logger):
         self.lnworker = lnworker
         self.network = network
 
-        self._node_stats: Dict[bytes, NodeStats] = {}  # node_id -> NodeStats
-        self._node_ratings: Dict[bytes, float] = {}  # node_id -> float
-        self._policies_by_nodes: Dict[bytes, List[Tuple[ShortChannelID, Policy]]] = defaultdict(list)  # node_id -> (short_channel_id, policy)
-        self._last_analyzed = 0  # timestamp
+        self._node_stats: Dict[bytes, NodeStats] = {}                        
+        self._node_ratings: Dict[bytes, float] = {}                    
+        self._policies_by_nodes: Dict[bytes, List[Tuple[ShortChannelID, Policy]]] = defaultdict(list)                                         
+        self._last_analyzed = 0             
         self._last_progress_percent = 0
 
     def maybe_analyze_graph(self):
@@ -96,17 +96,17 @@ class LNRater(Logger):
     async def _maybe_analyze_graph(self):
         """Analyzes the graph when in early sync stage (>30%) or when caching
         time expires."""
-        # gather information about graph sync status
+                                                    
         current_channels, total, progress_percent = self.network.lngossip.get_sync_progress_estimate()
 
-        # gossip sync progress state could be None when not started, but channel
-        # db already knows something about the graph, which is why we allow to
-        # evaluate the graph early
+                                                                                
+                                                                              
+                                  
         if progress_percent is not None or self.network.channel_db.num_nodes > 500:
-            progress_percent = progress_percent or 0  # convert None to 0
+            progress_percent = progress_percent or 0                     
             now = time.time()
-            # graph should have changed significantly during the sync progress
-            # or last analysis was a long time ago
+                                                                              
+                                                  
             if (30 <= progress_percent and progress_percent - self._last_progress_percent >= 10 or
                     self._last_analyzed + RATER_UPDATE_TIME_SEC < now):
                 await self._analyze_graph()
@@ -117,7 +117,7 @@ class LNRater(Logger):
         await self.network.channel_db.data_loaded.wait()
         self._collect_policies_by_node()
         loop = get_running_loop()
-        # the analysis is run in an executor because it's costly
+                                                                
         await loop.run_in_executor(None, self._collect_purged_stats)
         self._rate_nodes()
         now = time.time()
@@ -126,7 +126,7 @@ class LNRater(Logger):
     def _collect_policies_by_node(self):
         policies = self.network.channel_db.get_node_policies()
         for pv, p in policies.items():
-            # append tuples of ShortChannelID and Policy
+                                                        
             self._policies_by_nodes[pv[0]].append((pv[1], p))
 
     @profiler
@@ -137,14 +137,14 @@ class LNRater(Logger):
 
         for n, channel_policies in self._policies_by_nodes.items():
             try:
-                # use policies synonymously to channels
+                                                       
                 num_channels = len(channel_policies)
 
-                # save some time for nodes we are not interested in:
+                                                                    
                 if num_channels < EXCLUDE_NUM_CHANNELS:
                     continue
 
-                # analyze block heights
+                                       
                 block_heights = [p[0].block_height for p in channel_policies]
                 node_age_bh = current_height - min(block_heights)
                 if node_age_bh < EXCLUDE_NODE_AGE:
@@ -156,7 +156,7 @@ class LNRater(Logger):
                 if blocks_since_last_channel > EXCLUDE_BLOCKS_LAST_CHANNEL:
                     continue
 
-                # analyze capacities
+                                    
                 capacities = [p[1].htlc_maximum_msat for p in channel_policies]
                 if None in capacities:
                     continue
@@ -167,7 +167,7 @@ class LNRater(Logger):
                     continue
                 median_capacity = median(capacities)
 
-                # analyze fees
+                              
                 effective_fee_rates = [fee_for_edge_msat(
                     FEE_AMOUNT_MSAT,
                     p[1].fee_base_msat,
@@ -211,19 +211,19 @@ class LNRater(Logger):
             heuristics = []
             heuristics_weights = []
 
-            # Construct an average score which leads to recommendation of nodes
-            # with low fees, large capacity and reasonable number of channels.
-            # This is somewhat akin to preferential attachment, but low fee
-            # nodes are more favored. Here we make a compromise between user
-            # comfort and decentralization, tending towards user comfort.
+                                                                               
+                                                                              
+                                                                           
+                                                                            
+                                                                         
 
-            # number of channels
+                                
             heuristics.append(stats.number_channels / max_num_chan)
             heuristics_weights.append(0.2)
-            # total capacity
+                            
             heuristics.append(stats.total_capacity_msat / max_capacity)
             heuristics_weights.append(0.8)
-            # inverse fees
+                          
             fees = min(1E-6, min_fee_rate) / max(1E-10, stats.mean_fee_rate)
             heuristics.append(fees)
             heuristics_weights.append(1.0)
@@ -238,11 +238,11 @@ class LNRater(Logger):
         node_info: Optional["NodeInfo"] = None
 
         while node_stats:
-            # randomly pick nodes weighted by node_rating
+                                                         
             pk = choices(list(node_stats.keys()), weights=list(node_ratings.values()), k=1)[0]
-            # remove the pk so it doesn't get tried again
+                                                         
             node_stats.pop(pk); node_ratings.pop(pk)
-            # node should have compatible features
+                                                  
             node_info = self.network.channel_db.get_node_infos().get(pk, None)
             peer_features = LnFeatures(node_info.features)
             try:
@@ -251,13 +251,13 @@ class LNRater(Logger):
                 self.logger.info("suggested node is incompatible")
                 continue
 
-            # don't want to connect to nodes we are already connected to
+                                                                        
             if pk in channel_peers:
                 continue
-            # don't want to connect to nodes we already have a channel with on another device
+                                                                                             
             if self.lnworker.has_conflicting_backup_with(pk):
                 continue
-            # node should be on clearnet and have an address saved
+                                                                  
             for (hostname, _, _) in self.lnworker.channel_db.get_node_addresses(node_id=pk):
                 if not hostname.endswith(".onion"):
                     break

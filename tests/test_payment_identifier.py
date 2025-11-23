@@ -48,7 +48,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertEqual(None, maybe_extract_lightning_payment_identifier(f"garbage text"))
 
     def test_bolt11(self):
-        # no amount, no fallback address
+                                        
         bolt11 = 'lnbc1ps9zprzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygsdqq9qypqszpyrpe4tym8d3q87d43cgdhhlsrt78epu7u99mkzttmt2wtsx0304rrw50addkryfrd3vn3zy467vxwlmf4uz7yvntuwjr2hqjl9lw5cqwtp2dy'
         for pi_str in [
             f'{bolt11}',
@@ -74,7 +74,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
             pi = PaymentIdentifier(None, pi_str)
             self.assertFalse(pi.is_valid())
 
-        # amount, fallback address
+                                  
         bolt_11_w_fallback = 'lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj'
         pi = PaymentIdentifier(None, bolt_11_w_fallback)
         self.assertTrue(pi.is_valid())
@@ -103,7 +103,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
             self.assertTrue(pi.is_onchain())
             self.assertIsNotNone(pi.bip21)
 
-        # amount, expired, message
+                                  
         bip21 = 'bitcoin:bc1qy7ps80x5csdqpfcekn97qfljxtg2lrya8826ds?amount=0.001&message=unit_test&time=1707382023&exp=3600'
 
         pi = PaymentIdentifier(None, bip21)
@@ -115,7 +115,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertTrue(pi.has_expired())
         self.assertEqual('unit_test', pi.bip21.get('message'))
 
-        # amount, expired, message, lightning w matching amount
+                                                               
         bip21 = 'bitcoin:1RustyRX2oai4EYYDpQGWvEL62BBGqN9T?amount=0.02&message=unit_test&time=1707382023&exp=3600&lightning=lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj'
 
         pi = PaymentIdentifier(None, bip21)
@@ -128,13 +128,13 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertTrue(pi.has_expired())
         self.assertEqual('unit_test', pi.bip21.get('message'))
 
-        # amount, expired, message, lightning w non-matching amount
+                                                                   
         bip21 = 'bitcoin:1RustyRX2oai4EYYDpQGWvEL62BBGqN9T?amount=0.01&message=unit_test&time=1707382023&exp=3600&lightning=lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj'
 
         pi = PaymentIdentifier(None, bip21)
         self.assertFalse(pi.is_valid())
 
-        # amount bounds
+                       
         bip21 = 'bitcoin:1RustyRX2oai4EYYDpQGWvEL62BBGqN9T?amount=-1'
         pi = PaymentIdentifier(None, bip21)
         self.assertFalse(pi.is_valid())
@@ -157,7 +157,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertTrue(pi.need_resolve())
         self.assertEqual(PaymentIdentifierState.NEED_RESOLVE, pi.state)
 
-        # Test with lightning: prefix
+                                     
         lightning_lnurl = f'lightning:{valid_lnurl}'
         pi = PaymentIdentifier(None, lightning_lnurl)
         self.assertTrue(pi.is_valid())
@@ -169,7 +169,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
         """Test LNURL-pay (LNURL6) with mocked resolve"""
         valid_lnurl = 'LNURL1DP68GURN8GHJ7MRWVF5HGUEWD3HXZERYWFJHXUEWVDHK6TMVDE6HYMRS9ANRV46DXETQPJQCS4'
 
-        # Mock lnurl-p response
+                               
         mock_lnurl6_data = LNURL6Data(
             callback_url='https://example.com/lnurl-pay',
             max_sendable_sat=1_000_000,
@@ -201,11 +201,11 @@ class TestPaymentIdentifier(ElectrumTestCase):
     @patch('electrum.payment_identifier.request_lnurl')
     def test_lnurl_withdraw_resolve(self, mock_request_lnurl):
         """Test LNURL-withdraw (LNURL3) with mocked resolve"""
-        valid_lnurl = 'LNURL1DP68GURN8GHJ7MRWVF5HGUEWD3HXZERYWFJHXUEWVDHK6TM4WPNHYCTYV4EJ7DFCVGENSDPH8QCRZETXVGCXGCMPVFJR' \
-                        'WENP8P3NJEP3XE3NQWRPXFJR2VRRVSCX2V33V5UNVC3SXP3RXCFSVFSKVWPCV3SKZWTP8YUZ7AMFW35XGUNPWUHKZURF9AMRZT' \
+        valid_lnurl = 'LNURL1DP68GURN8GHJ7MRWVF5HGUEWD3HXZERYWFJHXUEWVDHK6TM4WPNHYCTYV4EJ7DFCVGENSDPH8QCRZETXVGCXGCMPVFJR'\
+                        'WENP8P3NJEP3XE3NQWRPXFJR2VRRVSCX2V33V5UNVC3SXP3RXCFSVFSKVWPCV3SKZWTP8YUZ7AMFW35XGUNPWUHKZURF9AMRZT'\
                         'MVDE6HYMP0FETHVUNZDAMHQ7JSF4RX73TZ2VU9Z3J3GVMSLCJ57F'
 
-        # Mock lnurl-w response
+                               
         mock_lnurl3_data = LNURL3Data(
             callback_url='https://example.com/lnurl-withdraw',
             k1='test-k1-value',
@@ -235,11 +235,11 @@ class TestPaymentIdentifier(ElectrumTestCase):
     @patch('electrum.payment_identifier.request_lnurl')
     def test_lnurl_resolve_error(self, mock_request_lnurl):
         """Test LNURL resolve error handling"""
-        lnurl = 'LNURL1DP68GURN8GHJ7MRWVF5HGUEWD3HXZERYWFJHXUEWVDHK6TM4WPNHYCTYV4EJ7DFCVGENSDPH8QCRZETXVGCXGCMPVFJR' \
-                  'WENP8P3NJEP3XE3NQWRPXFJR2VRRVSCX2V33V5UNVC3SXP3RXCFSVFSKVWPCV3SKZWTP8YUZ7AMFW35XGUNPWUHKZURF9AMRZT' \
+        lnurl = 'LNURL1DP68GURN8GHJ7MRWVF5HGUEWD3HXZERYWFJHXUEWVDHK6TM4WPNHYCTYV4EJ7DFCVGENSDPH8QCRZETXVGCXGCMPVFJR'\
+                  'WENP8P3NJEP3XE3NQWRPXFJR2VRRVSCX2V33V5UNVC3SXP3RXCFSVFSKVWPCV3SKZWTP8YUZ7AMFW35XGUNPWUHKZURF9AMRZT'\
                   'MVDE6HYMP0FETHVUNZDAMHQ7JSF4RX73TZ2VU9Z3J3GVMSLCJ57F'
 
-        # Mock LNURL error
+                          
         mock_request_lnurl.side_effect = LNURLError("Server error")
 
         pi = PaymentIdentifier(None, lnurl)
@@ -365,7 +365,7 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertFalse(pi.is_available())
         self.assertTrue(pi.need_resolve())
 
-        # TODO resolve mock
+                           
 
     def test_bip70(self):
         pi_str = 'bitcoin:?r=https://test.bitpay.com/i/87iLJoaYVyJwFXtdassQJv'
@@ -375,10 +375,10 @@ class TestPaymentIdentifier(ElectrumTestCase):
         self.assertFalse(pi.is_available())
         self.assertTrue(pi.need_resolve())
 
-        # TODO resolve mock
+                           
 
     async def test_invoice_from_payment_identifier(self):
-        # amount, expired, message, lightning w matching amount
+                                                               
         bip21 = 'bitcoin:1RustyRX2oai4EYYDpQGWvEL62BBGqN9T?amount=0.02&message=unit_test&time=1707382023&exp=3600&lightning=lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj'
 
         pi = PaymentIdentifier(None, bip21)
@@ -389,16 +389,16 @@ class TestPaymentIdentifier(ElectrumTestCase):
 
         text = 'bitter grass shiver impose acquire brush forget axis eager alone wine silver'
         d = restore_wallet_from_text__for_unittest(text, path=self.wallet2_path, config=self.config)
-        wallet2 = d['wallet']  # type: Standard_Wallet
+        wallet2 = d['wallet']                         
 
-        # no amount bip21+lightning, MAX amount passed
+                                                      
         bip21 = 'bitcoin:1RustyRX2oai4EYYDpQGWvEL62BBGqN9T?message=unit_test&time=1707382023&exp=3600&lightning=lnbc1ps9zprzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygsdqq9qypqszpyrpe4tym8d3q87d43cgdhhlsrt78epu7u99mkzttmt2wtsx0304rrw50addkryfrd3vn3zy467vxwlmf4uz7yvntuwjr2hqjl9lw5cqwtp2dy'
         pi = PaymentIdentifier(None, bip21)
         invoice = invoice_from_payment_identifier(pi, wallet2, '!')
         self.assertTrue(isinstance(invoice, Invoice))
         self.assertFalse(invoice.is_lightning())
 
-        # no amount lightning, MAX amount passed -> expect raise
+                                                                
         bolt11 = 'lightning:lnbc1ps9zprzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygsdqq9qypqszpyrpe4tym8d3q87d43cgdhhlsrt78epu7u99mkzttmt2wtsx0304rrw50addkryfrd3vn3zy467vxwlmf4uz7yvntuwjr2hqjl9lw5cqwtp2dy'
         pi = PaymentIdentifier(None, bolt11)
         with self.assertRaises(AssertionError):

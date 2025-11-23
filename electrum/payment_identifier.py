@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
 
 def maybe_extract_lightning_payment_identifier(data: str) -> Optional[str]:
-    data = data.strip()  # whitespaces
+    data = data.strip()               
     data = data.lower()
     if data.startswith(LIGHTNING_URI_SCHEME + ':ln'):
         cut_prefix = LIGHTNING_URI_SCHEME + ':'
@@ -54,22 +54,22 @@ RE_SCRIPT_FN = r'script\((.*)\)'
 
 
 class PaymentIdentifierState(IntEnum):
-    EMPTY = 0               # Initial state.
-    INVALID = 1             # Unrecognized PI
-    AVAILABLE = 2           # PI contains a payable destination
-                            # payable means there's enough addressing information to submit to one
-                            # of the channels Electrum supports (on-chain, lightning)
-    NEED_RESOLVE = 3        # PI contains a recognized destination format, but needs an online resolve step
-    LNURLP_FINALIZE = 4     # PI contains a resolved LNURLp, but needs amount and comment to resolve to a bolt11
-    LNURLW_FINALIZE = 5     # PI contains resolved LNURLw, user needs to enter amount and initiate withdraw
-    MERCHANT_NOTIFY = 6     # PI contains a valid payment request and on-chain destination. It should notify
-                            # the merchant payment processor of the tx after on-chain broadcast,
-                            # and supply a refund address (bip70)
-    MERCHANT_ACK = 7        # PI notified merchant. nothing to be done.
-    ERROR = 50              # generic error
-    NOT_FOUND = 51          # PI contains a recognized destination format, but resolve step was unsuccessful
-    MERCHANT_ERROR = 52     # PI failed notifying the merchant after broadcasting onchain TX
-    INVALID_AMOUNT = 53     # Specified amount not accepted
+    EMPTY = 0                               
+    INVALID = 1                              
+    AVAILABLE = 2                                              
+                                                                                                  
+                                                                                     
+    NEED_RESOLVE = 3                                                                                       
+    LNURLP_FINALIZE = 4                                                                                         
+    LNURLW_FINALIZE = 5                                                                                    
+    MERCHANT_NOTIFY = 6                                                                                     
+                                                                                                
+                                                                 
+    MERCHANT_ACK = 7                                                   
+    ERROR = 50                             
+    NOT_FOUND = 51                                                                                          
+    MERCHANT_ERROR = 52                                                                     
+    INVALID_AMOUNT = 53                                    
 
 
 class PaymentIdentifierType(IntEnum):
@@ -79,7 +79,7 @@ class PaymentIdentifierType(IntEnum):
     BIP70 = 3
     MULTILINE = 4
     BOLT11 = 5
-    LNURL = 6  # before the resolve it's unknown if pi is LNURLP or LNURLW
+    LNURL = 6                                                             
     LNURLP = 7
     LNURLW = 8
     EMAILLIKE = 9
@@ -118,27 +118,27 @@ class PaymentIdentifier(Logger):
         self.config = wallet.config if wallet is not None else None
         self.text = text.strip()
         self._type = PaymentIdentifierType.UNKNOWN
-        self.error = None    # if set, GUI should show error and stop
-        self.warning = None  # if set, GUI should ask user if they want to proceed
-        # more than one of those may be set
+        self.error = None                                            
+        self.warning = None                                                       
+                                           
         self.multiline_outputs = None
         self._is_max = False
-        self.bolt11 = None  # type: Optional[Invoice]
+        self.bolt11 = None                           
         self.bip21 = None
         self.spk = None
         self.spk_is_address = False
-        #
+         
         self.emaillike = None
         self.domainlike = None
         self.openalias_data = None
-        #
+         
         self.bip70 = None
         self.bip70_data = None
         self.merchant_ack_status = None
         self.merchant_ack_message = None
-        #
-        self.lnurl = None  # type: Optional[str]
-        self.lnurl_data = None # type: Optional[LNURLData]
+         
+        self.lnurl = None                       
+        self.lnurl_data = None                            
 
         self.parse(text)
 
@@ -191,11 +191,11 @@ class PaymentIdentifier(Logger):
         if self._type == PaymentIdentifierType.BIP21:
             return bool(self.bip21.get('amount'))
         elif self._type == PaymentIdentifierType.BIP70:
-            return not self.need_resolve()  # always fixed after resolve?
+            return not self.need_resolve()                               
         elif self._type == PaymentIdentifierType.BOLT11:
             return bool(self.bolt11.get_amount_sat())
         elif self._type in [PaymentIdentifierType.LNURLP, PaymentIdentifierType.LNADDR]:
-            # amount limits known after resolve, might be specific amount or locked to range
+                                                                                            
             if self.need_resolve():
                 return False
             if self.need_finalize():
@@ -214,7 +214,7 @@ class PaymentIdentifier(Logger):
         return self.error
 
     def parse(self, text: str):
-        # parse text, set self._type and self.error
+                                                   
         text = text.strip()
         if not text:
             return
@@ -259,20 +259,20 @@ class PaymentIdentifier(Logger):
                 self.set_state(PaymentIdentifierState.NEED_RESOLVE)
             else:
                 self._type = PaymentIdentifierType.BIP21
-                # check optional lightning in bip21, set self.bolt11 if valid
+                                                                             
                 bolt11 = out.get('lightning')
                 if bolt11:
                     try:
                         self.bolt11 = Invoice.from_bech32(bolt11)
-                        # carry BIP21 onchain address in Invoice.outputs in case bolt11 doesn't contain a fallback
-                        # address but the BIP21 URI has one.
+                                                                                                                  
+                                                            
                         if bip21_address := self.bip21.get('address'):
                             amount = self.bip21.get('amount', 0)
                             self.bolt11.outputs = [PartialTxOutput.from_address_and_value(bip21_address, amount)]
                     except InvoiceError as e:
                         self.logger.debug(self._get_error_from_invoiceerror(e))
                 elif not self.bip21.get('address'):
-                    # no address and no bolt11, invalid
+                                                       
                     self.set_state(PaymentIdentifierState.INVALID)
                     return
                 self.set_state(PaymentIdentifierState.AVAILABLE)
@@ -319,7 +319,7 @@ class PaymentIdentifier(Logger):
                 openalias_key = self.emaillike if self.emaillike else self.domainlike
                 openalias_task = asyncio.create_task(self.resolve_openalias(openalias_key))
 
-                # prefers lnurl over openalias if both are available
+                                                                    
                 lnurl = lightning_address_to_url(self.emaillike) if self.emaillike else None
                 if lnurl is not None and (lnurl_result := await try_resolve_lnurlpay(lnurl)):
                     openalias_task.cancel()
@@ -335,7 +335,7 @@ class PaymentIdentifier(Logger):
                             'WARNING: the alias "{}" could not be validated via an additional '
                             'security check, DNSSEC, and thus may not be correct.').format(openalias_key)
                     try:
-                        # this assertion error message is shown in the GUI
+                                                                          
                         assert bitcoin.is_address(address), f"{_('Openalias address invalid')}: {address[:100]}"
                         scriptpubkey = bitcoin.address_to_script(address)
                         self._type = PaymentIdentifierType.OPENALIAS
@@ -424,7 +424,7 @@ class PaymentIdentifier(Logger):
             invoice = Invoice.from_bech32(bolt11_invoice)
             if invoice.get_amount_sat() != amount_sat:
                 raise Exception("lnurl returned invoice with wrong amount")
-            # this will change what is returned by get_fields_for_GUI
+                                                                     
             self.bolt11 = invoice
             self.set_state(PaymentIdentifierState.AVAILABLE)
         except Exception as e:
@@ -484,17 +484,17 @@ class PaymentIdentifier(Logger):
         elif self.bip21:
             address = self.bip21.get('address')
             scriptpubkey, is_address = self.parse_output(address)
-            assert is_address  # unlikely, but make sure it is an address, not a script
+            assert is_address                                                          
             return [PartialTxOutput(scriptpubkey=scriptpubkey, value=amount)]
         else:
             raise Exception('not onchain')
 
     def _parse_as_multiline(self, text: str):
-        # filter out empty lines
+                                
         lines = text.split('\n')
         lines = [i for i in lines if i]
         is_multiline = len(lines) > 1
-        outputs = []  # type: List[PartialTxOutput]
+        outputs = []                               
         errors = ''
         total = 0
         self._is_max = False
@@ -547,7 +547,7 @@ class PaymentIdentifier(Logger):
                 opcode_int = opcodes[word]
                 script += construct_script([opcode_int])
             else:
-                bytes.fromhex(word)  # to test it is hex data
+                bytes.fromhex(word)                          
                 script += construct_script([word])
         return bytes(script)
 
@@ -636,15 +636,15 @@ class PaymentIdentifier(Logger):
             recipient = f'{label} <{address}>' if label else address
             amount = self.bip21.get('amount')
             description = self.bip21.get('message')
-            # TODO: use label as description? (not BIP21 compliant)
-            # if label and not description:
-            #     description = label
+                                                                   
+                                           
+                                     
 
         return FieldsForGUI(recipient=recipient, amount=amount, description=description,
                             comment=comment, validated=validated, amount_range=amount_range)
 
     def _get_bolt11_fields(self):
-        lnaddr = self.bolt11._lnaddr # TODO: improve access to lnaddr
+        lnaddr = self.bolt11._lnaddr                                 
         pubkey = lnaddr.pubkey.serialize().hex()
         for k, v in lnaddr.tags:
             if k == 'd':
@@ -656,11 +656,11 @@ class PaymentIdentifier(Logger):
         return pubkey, amount, description
 
     async def resolve_openalias(self, key: str) -> Optional[dict]:
-        parts = key.split(sep=',')  # assuming single line
+        parts = key.split(sep=',')                        
         if parts and len(parts) > 0 and bitcoin.is_address(parts[0]):
             return None
         try:
-            data = await self.contacts.resolve(key)  # TODO: don't use contacts as delegate to resolve openalias, separate.
+            data = await self.contacts.resolve(key)                                                                        
             self.logger.debug(f'OA: {data!r}')
             return data
         except AliasNotFoundException as e:
@@ -688,7 +688,7 @@ def invoice_from_payment_identifier(
     message: str = None
 ) -> Optional[Invoice]:
     assert pi.state in [PaymentIdentifierState.AVAILABLE, PaymentIdentifierState.MERCHANT_NOTIFY]
-    assert pi.is_onchain() if amount_sat == '!' else True  # MAX should only be allowed if pi has onchain destination
+    assert pi.is_onchain() if amount_sat == '!' else True                                                            
 
     if pi.is_lightning() and not amount_sat == '!':
         invoice = pi.bolt11
@@ -708,9 +708,9 @@ def invoice_from_payment_identifier(
             URI=pi.bip21)
 
 
-# Note: this is only really used for bip70 to handle MECHANT_NOTIFY state from
-# a saved bip70 invoice.
-# TODO: reflect bip70-only in function name, or implement other types as well.
+                                                                              
+                        
+                                                                              
 def payment_identifier_from_invoice(
     wallet: 'Abstract_Wallet',
     invoice: Invoice
@@ -723,26 +723,26 @@ def payment_identifier_from_invoice(
         pi.bip70_data = paymentrequest.PaymentRequest(bytes.fromhex(invoice.bip70))
         pi.set_state(PaymentIdentifierState.MERCHANT_NOTIFY)
         return pi
-    # else:
-    #     if invoice.outputs:
-    #         if len(invoice.outputs) > 1:
-    #             pi._type = PaymentIdentifierType.MULTILINE
-    #             pi.multiline_outputs = invoice.outputs
-    #             pi.set_state(PaymentIdentifierState.AVAILABLE)
-    #         else:
-    #             pi._type = PaymentIdentifierType.BIP21
-    #             params = {}
-    #             if invoice.exp:
-    #                 params['exp'] = str(invoice.exp)
-    #             if invoice.time:
-    #                 params['time'] = str(invoice.time)
-    #             pi.bip21 = create_bip21_uri(invoice.outputs[0].address, invoice.get_amount_sat(), invoice.message,
-    #                                         extra_query_params=params)
-    #             pi.set_state(PaymentIdentifierState.AVAILABLE)
-    #     elif invoice.is_lightning():
-    #         pi._type = PaymentIdentifierType.BOLT11
-    #         pi.bolt11 = invoice
-    #         pi.set_state(PaymentIdentifierState.AVAILABLE)
-    #     else:
-    #         return None
-    #     return pi
+           
+                             
+                                          
+                                                            
+                                                        
+                                                                
+                   
+                                                        
+                             
+                                 
+                                                      
+                                  
+                                                        
+                                                                                                                    
+                                                                        
+                                                                
+                                      
+                                                     
+                                 
+                                                            
+               
+                         
+                   

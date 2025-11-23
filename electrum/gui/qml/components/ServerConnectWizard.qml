@@ -9,7 +9,7 @@ Wizard {
 
     wizardTitle: qsTr('Network configuration')
 
-    enter: null // disable transition
+    enter: null 
 
     wiz: Daemon.serverConnectWizard
     finishButtonText: qsTr('Next')

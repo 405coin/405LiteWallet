@@ -25,15 +25,15 @@ if TYPE_CHECKING:
     from electrum.plugin import Plugins
 
 
-# wallet list model. supports both wallet basenames (wallet file basenames)
-# and whole Wallet instances (loaded wallets)
+                                                                           
+                                             
 from .util import check_password_strength
 
 
 class QEWalletListModel(QAbstractListModel):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES= ('name', 'path', 'active')
     _ROLE_KEYS = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + len(_ROLE_NAMES))
     _ROLE_MAP  = dict(zip(_ROLE_KEYS, [bytearray(x.encode()) for x in _ROLE_NAMES]))
@@ -121,7 +121,7 @@ class QEWalletListModel(QAbstractListModel):
 
 
 class QEDaemon(AuthMixin, QObject):
-    instance = None  # type: Optional[QEDaemon]
+    instance = None                            
 
     _logger = get_logger(__name__)
 
@@ -176,7 +176,7 @@ class QEDaemon(AuthMixin, QObject):
         self._loading = True
 
         if path is None:
-            self._path = self.daemon.config.get('wallet_path')  # command line -w option
+            self._path = self.daemon.config.get('wallet_path')                          
             if self._path is None:
                 self._path = self.daemon.config.CURRENT_WALLET
         else:
@@ -192,7 +192,7 @@ class QEDaemon(AuthMixin, QObject):
 
         self._logger.debug('load wallet ' + str(self._path))
 
-        # map empty string password to None
+                                           
         if password == '':
             password = None
 
@@ -206,14 +206,14 @@ class QEDaemon(AuthMixin, QObject):
         def load_wallet_task():
             success = False
             try:
-                local_password = password  # need this in local scope
+                local_password = password                            
                 wallet = None
                 try:
                     wallet = self.daemon.load_wallet(
                         self._path,
                         password=local_password,
                         upgrade=True,
-                        # might have a keystore password, but unencrypted storage. we want to prompt for pw even then:
+                                                                                                                      
                         force_check_password=True,
                     )
                 except InvalidPassword:
@@ -243,7 +243,7 @@ class QEDaemon(AuthMixin, QObject):
                 success = True
                 self._backendWalletLoaded.emit(local_password)
             finally:
-                if not success:  # if successful, _loading guard will be reset by _on_backend_wallet_loaded
+                if not success:                                                                            
                     self._loading = False
                     self.loadingChanged.emit()
 
@@ -257,8 +257,8 @@ class QEDaemon(AuthMixin, QObject):
         assert wallet is not None
         self._current_wallet = QEWallet.getInstanceFor(wallet)
         self.availableWallets.updateWallet(self._path)
-        wallet.unlock(password or None)  # not conditional on wallet.requires_unlock in qml, as
-        # the auth wrapper doesn't pass the entered password, but instead we rely on the password in memory
+        wallet.unlock(password or None)                                                        
+                                                                                                           
         self._loading = False
         self.loadingChanged.emit()
         self.walletLoaded.emit(self._name, self._path)
@@ -290,7 +290,7 @@ class QEDaemon(AuthMixin, QObject):
         path = standardize_path(wallet.wallet.storage.path)
         self._logger.debug('deleting wallet with path %s' % path)
         self._current_wallet = None
-        # TODO walletLoaded signal is confusing
+                                               
         self.walletLoaded.emit(None, None)
 
         if not self.daemon.delete_wallet(path):
@@ -329,7 +329,7 @@ class QEDaemon(AuthMixin, QObject):
 
     @pyqtSlot(result=str)
     def suggestWalletName(self):
-        # FIXME why not use util.get_new_wallet_name ?
+                                                      
         i = 1
         while self.availableWallets.wallet_name_exists(f'wallet_{i}'):
             i = i + 1
@@ -383,7 +383,7 @@ class QEDaemon(AuthMixin, QObject):
         if not is_address(address):
             return False
         try:
-            # This can throw on invalid base64
+                                              
             sig = base64.b64decode(str(signature.strip()), validate=True)
             verified = verify_usermessage_with_address(address, sig, message)
         except Exception as e:

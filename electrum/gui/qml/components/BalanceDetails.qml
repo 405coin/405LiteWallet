@@ -56,7 +56,7 @@ Pane {
 
                         visible: total > 0
                         Layout.preferredWidth: parent.width
-                        implicitHeight: 220 // TODO: sane value dependent on screen
+                        implicitHeight: 220 
                         innerOffset: 6
                         function updateSlices() {
                             var p = Daemon.currentWallet.getBalancesForPiechart()

@@ -1,5 +1,5 @@
 
-# source: http://stackoverflow.com/questions/2758159/how-to-embed-a-python-interpreter-in-a-pyqt-widget
+
 
 import sys
 import os
@@ -15,7 +15,7 @@ from electrum.base_crash_reporter import taint_reports_by_console_usage
 
 from .util import MONOSPACE_FONT, font_height
 
-# sys.ps1 and sys.ps2 are only declared if an interpreter is in interactive mode.
+
 sys.ps1 = '>>> '
 sys.ps2 = '... '
 
@@ -43,7 +43,7 @@ class OverlayLabel(QtWidgets.QLabel):
         self.hide()
 
     def on_resize(self, w):
-        padding = 2  # px, from the stylesheet above
+        padding = 2
         self.setFixedWidth(w - padding)
 
 
@@ -59,7 +59,7 @@ class Console(QtWidgets.QPlainTextEdit):
         self.setWordWrapMode(QtGui.QTextOption.WrapMode.WrapAnywhere)
         self.setUndoRedoEnabled(False)
         self.setFont(QtGui.QFont(MONOSPACE_FONT, 10, QtGui.QFont.Weight.Normal))
-        self.newPrompt("")  # make sure there is always a prompt, even before first server.banner
+        self.newPrompt("")
 
         self.updateNamespace({'run':self.run_script})
         self.set_json(False)
@@ -253,7 +253,7 @@ class Console(QtWidgets.QPlainTextEdit):
         sys.stdout = StdoutProxy(self.appendPlainText)
         try:
             try:
-                # eval is generally considered bad practice. use it wisely!
+
                 result = eval(command, self.namespace, self.namespace)
                 if result is not None:
                     if self.is_json:
@@ -261,19 +261,19 @@ class Console(QtWidgets.QPlainTextEdit):
                     else:
                         self.appendPlainText(repr(result))
             except SyntaxError:
-                # exec is generally considered bad practice. use it wisely!
+
                 exec(command, self.namespace, self.namespace)
         except SystemExit:
             self.close()
         except BaseException as e:
             te = traceback.TracebackException.from_exception(e)
-            # rm part of traceback mentioning this file.
-            # (note: we rm stack items before converting to str, instead of removing lines from the str,
-            #        as this is more reliable. The latter would differ whether the traceback has source text lines,
-            #        which is not always the case.)
+
+
+
+
             te.stack = traceback.StackSummary.from_list(te.stack[1:])
             tb_str = "".join(te.format())
-            # rm last linebreak:
+
             if tb_str.endswith("\n"):
                 tb_str = tb_str[:-1]
             self.appendPlainText(tb_str)
@@ -313,7 +313,7 @@ class Console(QtWidgets.QPlainTextEdit):
 
     def completions(self):
         cmd = self.getCommand()
-        # note for regex: new words start after ' ' or '(' or ')'
+
         lastword = re.split(r'[ ()]', cmd)[-1]
         beginning = cmd[0:-len(lastword)]
 
@@ -348,7 +348,7 @@ class Console(QtWidgets.QPlainTextEdit):
             self.hide_completions()
             self.setCommand(beginning + completions[0])
         else:
-            # find common prefix
+
             p = os.path.commonprefix(completions)
             if len(p)>len(lastword):
                 self.hide_completions()

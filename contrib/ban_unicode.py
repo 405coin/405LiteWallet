@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-#
-# Copyright (C) 2025 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
-#
-# This script scans the whole codebase for unicode characters and
-# errors if it finds any, unless the character is specifically whitelisted below.
-# The motivation is to protect against homoglyph attacks, invisible unicode characters,
-# bidirectional and other control characters, and other malicious unicode usage.
-# Given that we mostly expect to use ASCII characters in the source code,
-# the most robust and generic fix seems to be to just ban all unicode usage.
+ 
+                                            
+                                                                  
+                                                                    
+ 
+                                                                 
+                                                                                 
+                                                                                       
+                                                                                
+                                                                         
+                                                                            
 
 import os.path
 import subprocess
@@ -44,7 +44,7 @@ for file_path in bfiles.splitlines():
     _fname, ext = os.path.splitext(file_path)
     if ext in EXCLUDE_EXTENSIONS:
         continue
-    # open file
+               
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             for line_no, line in enumerate(f.read().splitlines()):

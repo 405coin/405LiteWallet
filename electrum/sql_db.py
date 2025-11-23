@@ -59,13 +59,13 @@ class SqlDB(Logger):
                 continue
             if not future.cancelled():
                 self.asyncio_loop.call_soon_threadsafe(future.set_result, result)
-            # note: in sweepstore session.commit() is called inside
-            # the sql-decorated methods, so committing to disk is awaited
+                                                                   
+                                                                         
             if self.commit_interval:
                 i = (i + 1) % self.commit_interval
                 if i == 0:
                     self.conn.commit()
-        # write
+               
         self.conn.commit()
         self.conn.close()
 

@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 from typing import TYPE_CHECKING, Optional
 from functools import partial
 from datetime import datetime
@@ -78,7 +78,7 @@ class Plugin(NWCServerPlugin):
         d = WindowModalDialog(window, _("Nostr Wallet Connect"))
         main_layout = QHBoxLayout(d)
 
-        # Create the logo label.
+                                
         logo_label = QLabel()
         pixmap = read_QPixmap_from_bytes(self.read_file('nwc.png'))
         logo_label.setPixmap(pixmap.scaled(50, 50))
@@ -89,22 +89,22 @@ class Plugin(NWCServerPlugin):
         main_layout.addSpacing(16)
         main_layout.addLayout(vbox)
 
-        # Connections list
+                          
         connections_list = QTreeWidget()
         connections_list.setHeaderLabels([_("Name"), _("Budget [{}]").format(self.config.get_base_unit()), _("Expiry")])
-        # Set the resize mode for all columns to adjust to content
+                                                                  
         header = connections_list.header()
         header.setSectionResizeMode(0, header.ResizeMode.Stretch)
         header.setSectionResizeMode(1, header.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(2, header.ResizeMode.ResizeToContents)
         header.setStretchLastSection(False)
-        # Set size policy to expand horizontally
+                                                
         connections_list.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        # Make the widget update its size when data changes
+                                                           
         connections_list.setAutoExpandDelay(0)
 
         def update_connections_list():
-            # Clear the list and repopulate it
+                                              
             connections_list.clear()
             connections = self.list_connections()
             for name, conn in connections.items():
@@ -131,11 +131,11 @@ class Plugin(NWCServerPlugin):
         update_connections_list()
         connections_list.setMinimumHeight(min(connections_list.sizeHint().height(), 400))
 
-        # Delete button - initially disabled
+                                            
         delete_btn = QPushButton(_("Delete"))
         delete_btn.setEnabled(False)
 
-        # Function to delete the selected connection
+                                                    
         def delete_selected_connection():
             selected_items = connections_list.selectedItems()
             if not selected_items:
@@ -151,25 +151,25 @@ class Plugin(NWCServerPlugin):
                 self.nwc_server.restart_event_handler()
             delete_btn.setEnabled(False)
 
-        # Enable delete button when an item is selected
+                                                       
         def on_item_selected():
             delete_btn.setEnabled(bool(connections_list.selectedItems()))
 
         connections_list.itemSelectionChanged.connect(on_item_selected)
         delete_btn.clicked.connect(delete_selected_connection)
 
-        # Create Connection button
+                                  
         create_btn = QPushButton(_("Create"))
 
         def create_connection():
-            # Show a dialog to create a new connection
+                                                      
             connection_string = self.connection_info_input_dialog(window)
             if connection_string:
                 update_connections_list()
                 self.show_new_connection_dialog(window, connection_string)
         create_btn.clicked.connect(create_connection)
 
-        # Add the info and close button to the footer
+                                                     
         close_button = OkButton(d, label=_("Close"))
         info_button = QPushButton(_("Help"))
         info = _("This plugin allows you to create Nostr Wallet Connect connections and "
@@ -198,24 +198,24 @@ class Plugin(NWCServerPlugin):
         return bool(d.exec())
 
     def connection_info_input_dialog(self, window) -> Optional[str]:
-        # Create input dialog for connection parameters
+                                                       
         input_dialog = WindowModalDialog(window, _("Enter NWC connection parameters"))
         layout = QVBoxLayout(input_dialog)
 
-        # Name field (mandatory)
+                                
         layout.addWidget(QLabel(_("Connection Name (required):")))
         name_edit = QLineEdit()
         name_edit.setMaximumHeight(30)
         layout.addWidget(name_edit)
 
-        # Daily limit field (optional)
+                                      
         layout.addWidget(QLabel(_("Daily Satoshi Budget (optional):")))
         limit_edit = OptionalSpinBox()
         limit_edit.setRange(-1, 100_000_000)
         limit_edit.setMaximumHeight(30)
         layout.addWidget(limit_edit)
 
-        # Validity period field (optional)
+                                          
         layout.addWidget(QLabel(_("Valid for seconds (optional):")))
         validity_edit = OptionalSpinBox()
         validity_edit.setRange(-1, 63072000)
@@ -225,7 +225,7 @@ class Plugin(NWCServerPlugin):
         def change_nwc_relay(url):
             self.config.NWC_RELAY = url
 
-        # dropdown menu to select prioritized nwc relay from self.config.NOSTR_RELAYS
+                                                                                     
         main_relay_label = QLabel(_("Main NWC Relay:"))
         relay_tooltip = (
             _("Most clients only use the first relay url encoded in the connection string.")
@@ -235,25 +235,25 @@ class Plugin(NWCServerPlugin):
         relay_combo = QComboBox()
         relay_combo.setMaximumHeight(30)
         relay_combo.addItems(self.config.NOSTR_RELAYS.split(","))
-        relay_combo.setCurrentText(self.config.NWC_RELAY)  # type: ignore
+        relay_combo.setCurrentText(self.config.NWC_RELAY)                
         relay_combo.currentTextChanged.connect(lambda: change_nwc_relay(relay_combo.currentText()))
         layout.addWidget(relay_combo)
 
-        # Buttons
+                 
         buttons = Buttons(OkButton(input_dialog), CancelButton(input_dialog))
         layout.addLayout(buttons)
 
         if not input_dialog.exec():
             return None
 
-        # Validate inputs
+                         
         name = name_edit.text().strip()
         if not name or len(name) < 1:
             window.show_error(_("Connection name is required"))
             return None
         duration_limit = validity_edit.value() if validity_edit.value() else None
 
-        # Call create_connection function with user-provided parameters
+                                                                       
         try:
             connection_string = self.create_connection(
                 name=name,
@@ -272,7 +272,7 @@ class Plugin(NWCServerPlugin):
 
     @staticmethod
     def show_new_connection_dialog(window, connection_string: str):
-        # Create popup with QR code
+                                   
         popup = WindowModalDialog(window, _("New NWC Connection"))
         vbox = QVBoxLayout(popup)
 
@@ -287,7 +287,7 @@ class Plugin(NWCServerPlugin):
         vbox.addWidget(QLabel(_("Scan this QR code with your nwc client:")))
         vbox.addWidget(qr_label)
 
-        # Add connection string text that can be copied
+                                                       
         vbox.addWidget(QLabel(_("Or copy this connection string:")))
         text_edit = QTextEdit()
         text_edit.setText(connection_string)
@@ -301,7 +301,7 @@ class Plugin(NWCServerPlugin):
         warning_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         vbox.addWidget(warning_label)
 
-        # Button to copy to clipboard
+                                     
         copy_btn = QPushButton(_("Copy to clipboard"))
         copy_btn.clicked.connect(lambda: QApplication.clipboard().setText(connection_string))
 
@@ -319,10 +319,10 @@ class OptionalSpinBox(QSpinBox):
         self.setValue(-1)
 
     def value(self):
-        # Return None if at special value, otherwise return the actual value
+                                                                            
         val = super().value()
         return None if val == -1 else val
 
     def setValue(self, value):
-        # Accept None to set to the special empty value
+                                                       
         super().setValue(-1 if value is None else value)

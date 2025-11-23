@@ -38,12 +38,12 @@ class TestBlockchain(ElectrumTestCase):
         'Y': deserialize_header(bfh("00000020db33c9768a9e5f7c37d0f09aad88d48165946c87d08f7d63793f07b5c08c527fd67cb902a7d807cee7676cb543feec3e053aa824d5dfb528d5b94f9760313d9d9b29f45bffff7f2000000000"), 12),
         'Z': deserialize_header(bfh("0000002047822b67940e337fda38be6f13390b3596e4dea2549250256879722073824e7f0f2596c29203f8a0f71ae94193092dc8f113be3dbee4579f1e649fa3d6dcc38c622ef45bffff7f2003000000"), 13),
     }
-    # tree of headers:
-    #                                            - M <- N <- X <- Y <- Z
-    #                                          /
-    #                             - G <- H <- I <- J <- K <- L
-    #                           /
-    # A <- B <- C <- D <- E <- F <- O <- P <- Q <- R <- S <- T <- U
+                      
+                                                                        
+                                                
+                                                              
+                                 
+                                                                   
 
     @classmethod
     def setUpClass(cls):
@@ -190,7 +190,7 @@ class TestBlockchain(ElectrumTestCase):
         self._append_header(chain_l, self.HEADERS['I'])
         self._append_header(chain_l, self.HEADERS['J'])
 
-        # do checks
+                   
         self.assertEqual(2, len(blockchain.blockchains))
         self.assertEqual(1, len(os.listdir(os.path.join(self.data_dir, "forks"))))
         self.assertEqual(0, chain_u.forkpoint)
@@ -208,7 +208,7 @@ class TestBlockchain(ElectrumTestCase):
 
         self._append_header(chain_l, self.HEADERS['K'])
 
-        # chains were swapped, do checks
+                                        
         self.assertEqual(2, len(blockchain.blockchains))
         self.assertEqual(1, len(os.listdir(os.path.join(self.data_dir, "forks"))))
         self.assertEqual(6, chain_u.forkpoint)
@@ -237,7 +237,7 @@ class TestBlockchain(ElectrumTestCase):
         self._append_header(chain_z, self.HEADERS['Y'])
         self._append_header(chain_z, self.HEADERS['Z'])
 
-        # chain_z became best chain, do checks
+                                              
         self.assertEqual(3, len(blockchain.blockchains))
         self.assertEqual(2, len(os.listdir(os.path.join(self.data_dir, "forks"))))
         self.assertEqual(0, chain_z.forkpoint)
@@ -294,7 +294,7 @@ class TestBlockchain(ElectrumTestCase):
         self._append_header(chain_l, self.HEADERS['I'])
         self._append_header(chain_l, self.HEADERS['J'])
         self._append_header(chain_l, self.HEADERS['K'])
-        # now chain_u is best chain, but it's tied with chain_l
+                                                               
 
         self.assertEqual(2, len(blockchain.blockchains))
         self.assertEqual(1, len(os.listdir(os.path.join(self.data_dir, "forks"))))
@@ -306,7 +306,7 @@ class TestBlockchain(ElectrumTestCase):
         self.assertEqual(3, len(blockchain.blockchains))
         self.assertEqual(2, len(os.listdir(os.path.join(self.data_dir, "forks"))))
 
-        # chain_z became best chain, do checks
+                                              
         self.assertEqual(0, chain_z.forkpoint)
         self.assertEqual(None, chain_z.parent)
         self.assertEqual(constants.net.GENESIS, chain_z._forkpoint_hash)
@@ -385,11 +385,11 @@ class TestBlockchain(ElectrumTestCase):
         self.assertEqual([chain_z, chain_l], self.get_chains_that_contain_header_helper(self.HEADERS['I']))
 
     def test_target_to_bits(self):
-        # https://github.com/bitcoin/bitcoin/blob/7fcf53f7b4524572d1d0c9a5fdc388e87eb02416/src/arith_uint256.h#L269
+                                                                                                                   
         self.assertEqual(0x05123456, Blockchain.target_to_bits(0x1234560000))
         self.assertEqual(0x0600c0de, Blockchain.target_to_bits(0xc0de000000))
 
-        # tests from https://github.com/bitcoin/bitcoin/blob/a7d17daa5cd8bf6398d5f8d7e77290009407d6ea/src/test/arith_uint256_tests.cpp#L411
+                                                                                                                                           
         tuples = (
             (0, 0x0000000000000000000000000000000000000000000000000000000000000000, 0),
             (0x00123456, 0x0000000000000000000000000000000000000000000000000000000000000000, 0),
@@ -415,20 +415,20 @@ class TestBlockchain(ElectrumTestCase):
                 self.assertEqual(target, num)
                 self.assertEqual(nbits2, Blockchain.target_to_bits(num))
 
-        # Make sure that we don't generate compacts with the 0x00800000 bit set
+                                                                               
         self.assertEqual(0x02008000, Blockchain.target_to_bits(0x80))
 
-        with self.assertRaises(InvalidHeader):  # target cannot be negative
+        with self.assertRaises(InvalidHeader):                             
             Blockchain.bits_to_target(0x01fedcba)
-        with self.assertRaises(InvalidHeader):  # target cannot be negative
+        with self.assertRaises(InvalidHeader):                             
             Blockchain.bits_to_target(0x04923456)
-        with self.assertRaises(InvalidHeader):  # overflow
+        with self.assertRaises(InvalidHeader):            
             Blockchain.bits_to_target(0xff123456)
 
 
 class TestVerifyHeader(ElectrumTestCase):
 
-    # Data for Bitcoin block header #100.
+                                         
     valid_header = "0100000095194b8567fe2e8bbda931afd01a7acd399b9325cb54683e64129bcd00000000660802c98f18fd34fd16d61c63cf447568370124ac5f3be626c2e1c3c9f0052d19a76949ffff001d33f3c25d"
     target = Blockchain.bits_to_target(0x1d00ffff)
     prev_hash = "00000000cd9b12643e6854cb25939b39cd7a1ad0af31a9bd8b2efe67854b1995"

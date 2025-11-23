@@ -97,7 +97,7 @@ class TestHTLCManager(ElectrumTestCase):
             self.assertEqual(B.get_htlcs_in_next_ctx(REMOTE), [])
             B.send_ctx()
             A.recv_ctx()
-            A.send_rev() # here pending_htlcs(REMOTE) should become empty
+            A.send_rev()                                                 
             self.assertEqual(A.get_htlcs_in_next_ctx(REMOTE), [])
 
             B.recv_rev()

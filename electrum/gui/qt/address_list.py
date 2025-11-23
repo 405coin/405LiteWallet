@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import enum
 from enum import IntEnum
@@ -101,15 +101,15 @@ class AddressList(MyTreeView):
         self.wallet = self.main_window.wallet
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setSortingEnabled(True)
-        self.show_change = AddressTypeFilter.ALL  # type: AddressTypeFilter
-        self.show_used = AddressUsageStateFilter.ALL  # type: AddressUsageStateFilter
+        self.show_change = AddressTypeFilter.ALL
+        self.show_used = AddressUsageStateFilter.ALL
         self.change_button = QComboBox(self)
         self.change_button.currentIndexChanged.connect(self.toggle_change)
-        for addr_type in AddressTypeFilter.__members__.values():  # type: AddressTypeFilter
+        for addr_type in AddressTypeFilter.__members__.values():
             self.change_button.addItem(addr_type.ui_text())
         self.used_button = QComboBox(self)
         self.used_button.currentIndexChanged.connect(self.toggle_used)
-        for addr_usage_state in AddressUsageStateFilter.__members__.values():  # type: AddressUsageStateFilter
+        for addr_usage_state in AddressUsageStateFilter.__members__.values():
             self.used_button.addItem(addr_usage_state.ui_text())
         self.std_model = QStandardItemModel(self)
         self.proxy = MySortModel(self, sort_role=self.ROLE_SORT_ORDER)
@@ -140,8 +140,8 @@ class AddressList(MyTreeView):
         return self.change_button, self.used_button
 
     def on_hide_toolbar(self):
-        self.show_change = AddressTypeFilter.ALL  # type: AddressTypeFilter
-        self.show_used = AddressUsageStateFilter.ALL  # type: AddressUsageStateFilter
+        self.show_change = AddressTypeFilter.ALL
+        self.show_used = AddressUsageStateFilter.ALL
         self.update()
 
     def refresh_headers(self):
@@ -182,7 +182,7 @@ class AddressList(MyTreeView):
             addr_list = self.wallet.get_change_addresses()
         else:
             addr_list = self.wallet.get_addresses()
-        self.proxy.setDynamicSortFilter(False)  # temp. disable re-sorting after every change
+        self.proxy.setDynamicSortFilter(False)
         self.std_model.clear()
         self.refresh_headers()
         fx = self.main_window.fx
@@ -205,14 +205,14 @@ class AddressList(MyTreeView):
             labels = [""] * len(self.Columns)
             labels[self.Columns.ADDRESS] = address
             address_item = [QStandardItem(e) for e in labels]
-            # align text and set fonts
+
             for i, item in enumerate(address_item):
                 item.setTextAlignment(Qt.AlignmentFlag.AlignVCenter)
                 if i not in (self.Columns.TYPE, self.Columns.LABEL):
                     item.setFont(QFont(MONOSPACE_FONT))
             self.set_editability(address_item)
             address_item[self.Columns.FIAT_BALANCE].setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-            # setup column 0
+
             if self.wallet.is_change(address):
                 address_item[self.Columns.TYPE].setText(_('change'))
                 address_item[self.Columns.TYPE].setBackground(ColorScheme.YELLOW.as_color(True))
@@ -225,7 +225,7 @@ class AddressList(MyTreeView):
             address_path_str = self.wallet.get_address_path_str(address)
             if address_path_str is not None:
                 address_item[self.Columns.TYPE].setToolTip(address_path_str)
-            # add item
+
             count = self.std_model.rowCount()
             self.std_model.insertRow(count, address_item)
             self.refresh_row(address, count)
@@ -233,14 +233,14 @@ class AddressList(MyTreeView):
             if address == current_address:
                 set_address = QPersistentModelIndex(address_idx)
         self.set_current_idx(set_address)
-        # show/hide columns
+
         if self.should_show_fiat():
             self.showColumn(self.Columns.FIAT_BALANCE)
         else:
             self.hideColumn(self.Columns.FIAT_BALANCE)
         self.filter()
         self.proxy.setDynamicSortFilter(True)
-        # update counter
+
         self.num_addr_label.setText(_("{} addresses").format(num_shown))
 
     def refresh_row(self, key, row):
@@ -252,7 +252,7 @@ class AddressList(MyTreeView):
         balance = c + u + x
         balance_text = self.main_window.format_amount(balance, whitespaces=True)
         balance_text_nots = self.main_window.format_amount(balance, whitespaces=False, add_thousands_sep=False)
-        # create item
+
         fx = self.main_window.fx
         if self.should_show_fiat():
             rate = fx.exchange_rate()
@@ -300,7 +300,7 @@ class AddressList(MyTreeView):
             self.add_copy_menu(menu, idx)
             persistent = QPersistentModelIndex(addr_idx)
             menu.addAction(_("Edit {}").format(addr_column_title), lambda p=persistent: self.edit(QModelIndex(p)))
-            #menu.addAction(_("Request payment"), lambda: self.main_window.receive_at(addr))
+
             if self.wallet.can_export():
                 menu.addAction(_("Private key"), lambda: self.main_window.show_private_key(addr))
             if not is_multisig and not self.wallet.is_watching_only():
@@ -319,7 +319,7 @@ class AddressList(MyTreeView):
             act.setToolTip(MSG_FREEZE_ADDRESS)
 
         else:
-            # multiple items selected
+
             act = menu.addAction(_("Freeze"), lambda: self.main_window.set_frozen_state_of_addresses(addrs, True))
             act.setToolTip(MSG_FREEZE_ADDRESS)
             act = menu.addAction(_("Unfreeze"), lambda: self.main_window.set_frozen_state_of_addresses(addrs, False))

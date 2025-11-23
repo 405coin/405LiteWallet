@@ -58,7 +58,7 @@ class TestLNMsg(ElectrumTestCase):
             read_bigsize_int(io.BytesIO(bfh("ff")))
 
     def test_read_tlv_stream_tests1(self):
-        # from https://github.com/lightningnetwork/lightning-rfc/blob/452a0eb916fedf4c954137b4fd0b61b5002b34ad/01-messaging.md#tlv-decoding-failures
+                                                                                                                                                    
         lnser = LNSerializer()
         for tlv_stream_name in ("n1", "n2"):
             with self.subTest(tlv_stream_name=tlv_stream_name):
@@ -116,9 +116,9 @@ class TestLNMsg(ElectrumTestCase):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("0329023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb0000000000000001")), tlv_stream_name="n1")
         with self.assertRaises(UnexpectedEndOfStream):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("0330023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb000000000000000100000000000001")), tlv_stream_name="n1")
-        # check if ECC point is valid?... skip for now.
-        #with self.assertRaises(Exception):
-        #    lnser.read_tlv_stream(fd=io.BytesIO(bfh("0331043da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb00000000000000010000000000000002")), tlv_stream_name="n1")
+                                                       
+                                           
+                                                                                                                                                                                      
         with self.assertRaises(MsgTrailingGarbage):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("0332023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb0000000000000001000000000000000001")), tlv_stream_name="n1")
         with self.assertRaises(UnexpectedEndOfStream):
@@ -131,7 +131,7 @@ class TestLNMsg(ElectrumTestCase):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("0000")), tlv_stream_name="n1")
 
     def test_read_tlv_stream_tests2(self):
-        # from https://github.com/lightningnetwork/lightning-rfc/blob/452a0eb916fedf4c954137b4fd0b61b5002b34ad/01-messaging.md#tlv-decoding-successes
+                                                                                                                                                     
         lnser = LNSerializer()
         for tlv_stream_name in ("n1", "n2"):
             with self.subTest(tlv_stream_name=tlv_stream_name):
@@ -171,7 +171,7 @@ class TestLNMsg(ElectrumTestCase):
                          lnser.read_tlv_stream(fd=io.BytesIO(bfh("fd00fe020226")), tlv_stream_name="n1"))
 
     def test_read_tlv_stream_tests3(self):
-        # from https://github.com/lightningnetwork/lightning-rfc/blob/452a0eb916fedf4c954137b4fd0b61b5002b34ad/01-messaging.md#tlv-stream-decoding-failure
+                                                                                                                                                          
         lnser = LNSerializer()
         with self.assertRaises(MsgInvalidFieldOrder):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("0208000000000000022601012a")), tlv_stream_name="n1")
@@ -185,7 +185,7 @@ class TestLNMsg(ElectrumTestCase):
             lnser.read_tlv_stream(fd=io.BytesIO(bfh("ffffffffffffffffff000000")), tlv_stream_name="n2")
 
     def test_encode_decode_msg__missing_mandatory_field_gets_set_to_zeroes(self):
-        # "channel_update": "signature" missing -> gets set to zeroes
+                                                                     
         self.assertEqual(bfh("01020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea33090000000000d43100006f00025e6ed0830100009000000000000000c8000001f400000023000000003b9aca00"),
                          encode_msg(
                              "channel_update",
@@ -244,7 +244,7 @@ class TestLNMsg(ElectrumTestCase):
                           'timestamp': 1584320643}
                           ),
                          decode_msg(bfh("01020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000043497fd7f826957108f4a30fd9cec3aeba79972084e90ead01ea33090000000000d43100006f00025e6ed0830100009000000000000000c8000001f400000023000000003b9aca00")))
-        # "htlc_minimum_msat" is passed as bytes but with incorrect length
+                                                                          
         with self.assertRaises(UnexpectedFieldSizeForEncoder):
             encode_msg(
                 "channel_update",
@@ -261,9 +261,9 @@ class TestLNMsg(ElectrumTestCase):
             )
 
     def test_encode_decode_msg__commitment_signed(self):
-        # "commitment_signed" is interesting because of the "htlc_signature" field,
-        #  which is a concatenation of multiple ("num_htlcs") signatures.
-        # 5 htlcs
+                                                                                   
+                                                                         
+                 
         self.assertEqual(bfh("0084010101010101010101010101010101010101010101010101010101010101010106112951d0a6d7fc1dbca3bd1cdbda9acfee7f668b3c0a36bd944f7e2f305b274ba46a61279e15163b2d376c664bb3481d7c5e107a5b268301e39aebbda27d2d00056548bd093a2bd2f4f053f0c6eb2c5f541d55eb8a2ede4d35fe974e5d3cd0eec3138bfd4115f4483c3b14e7988b48811d2da75f29f5e6eee691251fb4fba5a2610ba8fe7007117fe1c9fa1a6b01805c84cfffbb0eba674b64342c7cac567dea50728c1bb1aadc6d23fc2f4145027eafca82d6072cc9ce6529542099f728a0521e4b2044df5d02f7f2cdf84404762b1979528aa689a3e060a2a90ba8ef9a83d24d31ffb0d95c71d9fb9049b24ecf2c949c1486e7eb3ae160d70d54e441dc785dc57f7f3c9901b9537398c66f546cfc1d65e0748895d14699342c407fe119ac17db079b103720124a5ba22d4ba14c12832324dea9cb60c61ee74376ee7dcffdd1836e354aa8838ce3b37854fa91465cc40c73b702915e3580bfebaace805d52373b57ac755ebe4a8fe97e5fc21669bea124b809c79968479148f7174f39b8014542"),
                          encode_msg(
                              "commitment_signed",
@@ -279,7 +279,7 @@ class TestLNMsg(ElectrumTestCase):
                           'htlc_signature': bfh("6548bd093a2bd2f4f053f0c6eb2c5f541d55eb8a2ede4d35fe974e5d3cd0eec3138bfd4115f4483c3b14e7988b48811d2da75f29f5e6eee691251fb4fba5a2610ba8fe7007117fe1c9fa1a6b01805c84cfffbb0eba674b64342c7cac567dea50728c1bb1aadc6d23fc2f4145027eafca82d6072cc9ce6529542099f728a0521e4b2044df5d02f7f2cdf84404762b1979528aa689a3e060a2a90ba8ef9a83d24d31ffb0d95c71d9fb9049b24ecf2c949c1486e7eb3ae160d70d54e441dc785dc57f7f3c9901b9537398c66f546cfc1d65e0748895d14699342c407fe119ac17db079b103720124a5ba22d4ba14c12832324dea9cb60c61ee74376ee7dcffdd1836e354aa8838ce3b37854fa91465cc40c73b702915e3580bfebaace805d52373b57ac755ebe4a8fe97e5fc21669bea124b809c79968479148f7174f39b8014542")}
                           ),
                          decode_msg(bfh("0084010101010101010101010101010101010101010101010101010101010101010106112951d0a6d7fc1dbca3bd1cdbda9acfee7f668b3c0a36bd944f7e2f305b274ba46a61279e15163b2d376c664bb3481d7c5e107a5b268301e39aebbda27d2d00056548bd093a2bd2f4f053f0c6eb2c5f541d55eb8a2ede4d35fe974e5d3cd0eec3138bfd4115f4483c3b14e7988b48811d2da75f29f5e6eee691251fb4fba5a2610ba8fe7007117fe1c9fa1a6b01805c84cfffbb0eba674b64342c7cac567dea50728c1bb1aadc6d23fc2f4145027eafca82d6072cc9ce6529542099f728a0521e4b2044df5d02f7f2cdf84404762b1979528aa689a3e060a2a90ba8ef9a83d24d31ffb0d95c71d9fb9049b24ecf2c949c1486e7eb3ae160d70d54e441dc785dc57f7f3c9901b9537398c66f546cfc1d65e0748895d14699342c407fe119ac17db079b103720124a5ba22d4ba14c12832324dea9cb60c61ee74376ee7dcffdd1836e354aa8838ce3b37854fa91465cc40c73b702915e3580bfebaace805d52373b57ac755ebe4a8fe97e5fc21669bea124b809c79968479148f7174f39b8014542")))
-        # single htlc
+                     
         self.assertEqual(bfh("008401010101010101010101010101010101010101010101010101010101010101013b14af0c549dfb1fb287ff57c012371b3932996db5929eda5f251704751fb49d0dc2dcb88e5021575cb572fb71693758543f97d89e9165f913bfb7488d7cc26500012d31103b9f6e71131e4fee86fdfbdeba90e52b43fcfd11e8e53811cd4d59b2575ae6c3c82f85bea144c88cc35e568f1e6bdd0c57337e86de0b5da7cd9994067a"),
                          encode_msg(
                              "commitment_signed",
@@ -295,7 +295,7 @@ class TestLNMsg(ElectrumTestCase):
                           'htlc_signature': bfh("2d31103b9f6e71131e4fee86fdfbdeba90e52b43fcfd11e8e53811cd4d59b2575ae6c3c82f85bea144c88cc35e568f1e6bdd0c57337e86de0b5da7cd9994067a")}
                           ),
                          decode_msg(bfh("008401010101010101010101010101010101010101010101010101010101010101013b14af0c549dfb1fb287ff57c012371b3932996db5929eda5f251704751fb49d0dc2dcb88e5021575cb572fb71693758543f97d89e9165f913bfb7488d7cc26500012d31103b9f6e71131e4fee86fdfbdeba90e52b43fcfd11e8e53811cd4d59b2575ae6c3c82f85bea144c88cc35e568f1e6bdd0c57337e86de0b5da7cd9994067a")))
-        # zero htlcs
+                    
         self.assertEqual(bfh("008401010101010101010101010101010101010101010101010101010101010101014e206ecf904d9237b1c5b4e08513555e9a5932c45b5f68be8764ce998df635ae04f6ce7bbcd3b4fd08e2daab7f9059b287ecab4155367b834682633497173f450000"),
                          encode_msg(
                              "commitment_signed",
@@ -313,7 +313,7 @@ class TestLNMsg(ElectrumTestCase):
                          decode_msg(bfh("008401010101010101010101010101010101010101010101010101010101010101014e206ecf904d9237b1c5b4e08513555e9a5932c45b5f68be8764ce998df635ae04f6ce7bbcd3b4fd08e2daab7f9059b287ecab4155367b834682633497173f450000")))
 
     def test_encode_decode_msg__init(self):
-        # "init" is interesting because it has TLVs optionally
+                                                              
         self.assertEqual(bfh("00100000000220c2"),
                          encode_msg(
                              "init",
@@ -376,38 +376,38 @@ class TestLNMsg(ElectrumTestCase):
         taf = NodeInfo.to_addresses_field
         paf = NodeInfo.parse_addresses_field
 
-        # -- INVALID INPUTS --
+                              
         invalid_inputs_parsing = (
-            b'', # empty input
-            b'\x06\x00', # address type 6 (\x06) is not specified
+            b'',              
+            b'\x06\x00',                                         
         )
         invalid_inputs_serialization = (
-            ("::1", 9735),  # local ipv6
-            ("::", 9735),  # local ipv6
-            ("::1", 0),  # local host, invalid port
-            ("::1", 65536),  # local host, invalid port
-            ("127.0.0.1", 9735),  # local ipv4
-            ("localhost", 9735),  # local host
-            ("domain.com", 0),  # domain, invalid port
-            ("domain.com", 65536),  # domain, invalid port
-            ("domain.com", -1),  # domain, invalid port
-            ("expyuzz4wqqyqhjn.onion", 9735),  # onion v2, not supported
-            ("", 9735),  # empty address
+            ("::1", 9735),              
+            ("::", 9735),              
+            ("::1", 0),                            
+            ("::1", 65536),                            
+            ("127.0.0.1", 9735),              
+            ("localhost", 9735),              
+            ("domain.com", 0),                        
+            ("domain.com", 65536),                        
+            ("domain.com", -1),                        
+            ("expyuzz4wqqyqhjn.onion", 9735),                           
+            ("", 9735),                 
         )
         for invalid_input in invalid_inputs_parsing:
             self.assertEqual(paf(invalid_input), [])
         for host, port in invalid_inputs_serialization:
             self.assertEqual(taf(host, port), b'')
 
-        # -- VALID INPUTS --
+                            
         valid_inputs = (
-            ("34.138.100.228", 9735),  # ipv4
-            ("2001:41d0:0001:b40d:0000:0000:0000:0001", 9735),  # ipv6
-            ("2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion", 9735), # onion v3
-            ("ecb.europa.eu", 8624),  # domain
+            ("34.138.100.228", 9735),        
+            ("2001:41d0:0001:b40d:0000:0000:0000:0001", 9735),        
+            ("2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion", 9735),           
+            ("ecb.europa.eu", 8624),          
         )
         valid_inputs_with_defined_output = [
-            [["2001:41d0:1:b40d::1", 9735], [("2001:41d0:0001:b40d:0000:0000:0000:0001", 9735)]]  # ipv6
+            [["2001:41d0:1:b40d::1", 9735], [("2001:41d0:0001:b40d:0000:0000:0000:0001", 9735)]]        
         ]
         for host, port in valid_inputs:
             self.assertEqual(paf(taf(host, port)), [(host, port)])

@@ -1,24 +1,24 @@
-# Electrum - lightweight Bitcoin client
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                                       
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import json
 import locale
@@ -88,14 +88,14 @@ class BaseCrashReporter(Logger):
         self.exc_args = (exctype, excvalue, tb)
 
     def send_report(self, asyncio_loop, proxy: 'ProxySettings', *, timeout=None) -> CrashReportResponse:
-        # FIXME the caller needs to catch generic "Exception", as this method does not have a well-defined API...
+                                                                                                                 
         if (constants.net.GENESIS[-4:] not in [
-            "e26f",  # mainnet
-            "4943",  # testnet 3
-            "f043",  # testnet 4
-            "1ef6",  # signet
+            "e26f",           
+            "4943",             
+            "f043",             
+            "1ef6",          
         ] and ".electrum.org" in BaseCrashReporter.report_server):
-            # Gah! Some kind of altcoin wants to send us crash reports.
+                                                                       
             raise Exception(_("Missing report URL."))
         report = self.get_traceback_info(*self.exc_args)
         report.update(self.get_additional_info())
@@ -106,7 +106,7 @@ class BaseCrashReporter(Logger):
             f"Crash report sent. Got response [DO NOT TRUST THIS MESSAGE]: {error_text_str_to_safe_str(response)}")
         response = json.loads(response)
         assert isinstance(response, dict), type(response)
-        # sanitize URL
+                      
         if location := response.get("location"):
             assert isinstance(location, str)
             base_issues_url = constants.GIT_REPO_ISSUES_URL
@@ -140,7 +140,7 @@ class BaseCrashReporter(Logger):
             "file": stack[-1].filename if len(stack) else '<no stack>',
             "name": stack[-1].name if len(stack) else '<no stack>',
             "type": exctype.__name__
-        }  # note: this is the "id" the crash reporter server uses to group together reports.
+        }                                                                                    
         return {
             "exc_string": exc_string,
             "stack": readable_trace,
@@ -173,7 +173,7 @@ class BaseCrashReporter(Logger):
         try:
             args["wallet_type"] = self.get_wallet_type()
         except Exception:
-            # Maybe the wallet isn't loaded yet
+                                               
             pass
         return args
 
@@ -184,13 +184,13 @@ class BaseCrashReporter(Logger):
         excvalue: BaseException,
         tb: TracebackType | None,
     ) -> str:
-        # make sure that traceback sent to crash reporter contains
-        # e.__context__ and e.__cause__, i.e. if there was a chain of
-        # exceptions, we want the full traceback for the whole chain.
+                                                                  
+                                                                     
+                                                                     
         return "".join(traceback.format_exception(exctype, excvalue, tb))
 
     def _get_traceback_str_to_display(self) -> str:
-        # overridden in Qt subclass
+                                   
         return self._get_traceback_str_to_send(*self.exc_args)
 
     def get_report_string(self):
@@ -244,10 +244,10 @@ send_exception_to_crash_reporter = EarlyExceptionsQueue.send_exception_to_crash_
 
 
 def trigger_crash():
-    # note: do not change the type of the exception, the message,
-    # or the name of this method. All reports generated through this
-    # method will be grouped together by the crash reporter, and thus
-    # don't spam the issue tracker.
+                                                                 
+                                                                    
+                                                                     
+                                   
 
     class TestingException(Exception):
         pass

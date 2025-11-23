@@ -11,52 +11,52 @@ class SafeTTransport:
         """Reimplemented safetlib.transport.all_transports so that we can
         enable/disable specific transports.
         """
-        # NOTE: the bridge and UDP transports are disabled as they are using
-        # the same ports as trezor
+                                                                            
+                                  
         try:
-            # only to detect safetlib version
+                                             
             from safetlib.transport import all_transports
         except ImportError:
-            # old safetlib. compat for safetlib < 0.9.2
+                                                       
             transports = []
-            #try:
-            #    from safetlib.transport_bridge import BridgeTransport
-            #    transports.append(BridgeTransport)
-            #except BaseException:
-            #    pass
+                 
+                                                                      
+                                                   
+                                  
+                     
             try:
                 from safetlib.transport_hid import HidTransport
                 transports.append(HidTransport)
             except BaseException:
                 pass
-            #try:
-            #    from safetlib.transport_udp import UdpTransport
-            #    transports.append(UdpTransport)
-            #except BaseException:
-            #    pass
+                 
+                                                                
+                                                
+                                  
+                     
             try:
                 from safetlib.transport_webusb import WebUsbTransport
                 transports.append(WebUsbTransport)
             except BaseException:
                 pass
         else:
-            # new safetlib.
+                           
             transports = []
-            #try:
-            #    from safetlib.transport.bridge import BridgeTransport
-            #    transports.append(BridgeTransport)
-            #except BaseException:
-            #    pass
+                 
+                                                                      
+                                                   
+                                  
+                     
             try:
                 from safetlib.transport.hid import HidTransport
                 transports.append(HidTransport)
             except BaseException:
                 pass
-            #try:
-            #    from safetlib.transport.udp import UdpTransport
-            #    transports.append(UdpTransport)
-            #except BaseException:
-            #    pass
+                 
+                                                                
+                                                
+                                  
+                     
             try:
                 from safetlib.transport.webusb import WebUsbTransport
                 transports.append(WebUsbTransport)

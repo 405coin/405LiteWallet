@@ -1,28 +1,28 @@
-# The MIT License (MIT)
-#
-# Copyright (c) 2014-2022 Thomas Kemmer
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-# the Software, and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
-# -----
-#
-# This is a stripped down LRU-cache from the "cachetools" library.
-# https://github.com/tkem/cachetools/blob/d991ac71b4eb6394be5ec572b835434081393215/src/cachetools/__init__.py
+                       
+ 
+                                       
+ 
+                                                                                 
+                                                                               
+                                                                              
+                                                                                  
+                                                                                 
+                                      
+ 
+                                                                                
+                                                 
+ 
+                                                                            
+                                                                                  
+                                                                                
+                                                                                
+                                                                         
+                                                                            
+ 
+       
+ 
+                                                                  
+                                                                                                             
 
 import collections
 import collections.abc
@@ -57,7 +57,7 @@ class Cache(collections.abc.MutableMapping[_KT, _VT]):
             self.getsizeof = getsizeof
         if self.getsizeof is not Cache.getsizeof:
             self.__size = dict()
-        self.__data = dict()  # type: Dict[_KT, _VT]
+        self.__data = dict()                        
         self.__currsize = 0
         self.__maxsize = maxsize
 
@@ -156,7 +156,7 @@ class LRUCache(Cache[_KT, _VT]):
 
     def __getitem__(self, key: _KT, cache_getitem=Cache.__getitem__) -> _VT | None:
         value = cache_getitem(self, key)
-        if key in self:  # __missing__ may not store item
+        if key in self:                                  
             self.__update(key)
         return value
 

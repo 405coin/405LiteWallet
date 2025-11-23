@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# from https://github.com/metabrainz/picard/blob/e1354632d2db305b7a7624282701d34d73afa225/scripts/package/macos-notarize-app.sh
+
 
 set -e
 
@@ -18,11 +18,11 @@ APP_BUNDLE_DIR=$(dirname "$1")
 
 cd "$APP_BUNDLE_DIR" || exit 1
 
-# Package app for submission
+
 echo "Generating ZIP archive ${APP_BUNDLE}.zip..."
 ditto -c -k --rsrc --keepParent "$APP_BUNDLE" "${APP_BUNDLE}.zip"
 
-# Submit for notarization
+
 echo "Submitting $APP_BUNDLE for notarization..."
 RESULT=$(xcrun notarytool submit \
     --team-id "$APPLE_TEAM_ID" \
@@ -51,8 +51,8 @@ else
     exit 1
 fi
 
-# Staple the notary ticket
+
 xcrun stapler staple "$APP_BUNDLE"
 
-# rm zip
+
 rm "${APP_BUNDLE}.zip"

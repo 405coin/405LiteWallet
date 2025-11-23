@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import hashlib
 import json
@@ -62,7 +62,7 @@ class LabelsPlugin(BasePlugin):
     def encode(self, wallet: 'Abstract_Wallet', msg: str) -> str:
         password, iv, wallet_id = self.wallets[wallet]
         encrypted = aes_encrypt_with_iv(password, iv, msg.encode('utf8'))
-        # FIXME: ^ we are reusing the IV between all labels in the wallet, in CBC mode...
+                                                                                         
         return base64.b64encode(encrypted).decode()
 
     def decode(self, wallet: 'Abstract_Wallet', message: str) -> str:
@@ -72,7 +72,7 @@ class LabelsPlugin(BasePlugin):
         return decrypted.decode('utf8')
 
     def get_nonce(self, wallet: 'Abstract_Wallet'):
-        # nonce is the nonce to be used with the next change
+                                                            
         nonce = wallet.db.get('wallet_nonce')
         if nonce is None:
             nonce = 1
@@ -90,9 +90,9 @@ class LabelsPlugin(BasePlugin):
         if not item:
             return
         if label is None:
-            # note: the server should not know whether a label is empty
-            #       FIXME but it does! we are reusing the IV with AES-CBC: there is no randomness between labels,
-            #       all empty labels in given wallet look the same.
+                                                                       
+                                                                                                                 
+                                                                   
             label = ''
         nonce = self.get_nonce(wallet)
         wallet_id = self.wallets[wallet][2]
@@ -103,7 +103,7 @@ class LabelsPlugin(BasePlugin):
             "encryptedLabel": self.encode(wallet, label)
         }
         asyncio.run_coroutine_threadsafe(self.do_post_safe("/label", bundle), wallet.network.asyncio_loop)
-        # Caller will write the wallet
+                                      
         self.set_nonce(wallet, nonce + 1)
 
     @ignore_exceptions
@@ -213,7 +213,7 @@ class LabelsPlugin(BasePlugin):
 
     def start_wallet(self, wallet: 'Abstract_Wallet'):
         if not wallet.network:
-            return  # 'offline' mode
+            return                  
         mpk = wallet.get_fingerprint()
         if not mpk:
             return
@@ -224,7 +224,7 @@ class LabelsPlugin(BasePlugin):
         self.wallets[wallet] = (password, iv, wallet_id)
         nonce = self.get_nonce(wallet)
         self.logger.info(f"wallet {wallet.basename()} nonce is {nonce}")
-        # If there is an auth token we can try to actually start syncing
+                                                                        
         asyncio.run_coroutine_threadsafe(self.pull_safe_thread(wallet, False), wallet.network.asyncio_loop)
 
     def stop_wallet(self, wallet):

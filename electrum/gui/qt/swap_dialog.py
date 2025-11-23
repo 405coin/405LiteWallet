@@ -49,7 +49,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         window: 'ElectrumWindow',
         transport: 'SwapServerTransport',
         is_reverse: Optional[bool] = None,
-        recv_amount_sat_or_max: Optional[Union[int, str]] = None,  # sat or '!'
+        recv_amount_sat_or_max: Optional[Union[int, str]] = None,
         channels: Optional[Sequence['Channel']] = None,
     ):
         WindowModalDialog.__init__(self, window, _('Submarine Swap'))
@@ -63,7 +63,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         vbox = QVBoxLayout(self)
 
         self.server_button = QPushButton()
-        self.set_server_button_text(len(transport.get_recent_offers()) \
+        self.set_server_button_text(len(transport.get_recent_offers())\
             if not self.config.SWAPSERVER_URL and isinstance(transport, NostrTransport) else 0
         )
         self.server_button.clicked.connect(lambda: self.choose_swap_server(transport))
@@ -75,18 +75,18 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         btn_width = 10 * char_width_in_lineedit()
         self.max_button.setFixedWidth(btn_width)
         self.max_button.setCheckable(True)
-        self.toggle_button = QPushButton('  \U000021c4  ')  # whitespace to force larger min width
+        self.toggle_button = QPushButton('  \U000021c4  ')
         self.toggle_button.setEnabled(is_reverse is None)
-        # send_follows is used to know whether the send amount field / receive
-        # amount field should be adjusted after the fee slider was moved
+
+
         self.send_follows = False
         self.send_amount_e.follows = False
         self.recv_amount_e.follows = False
         self.toggle_button.clicked.connect(self.toggle_direction)
-        # textChanged is triggered for both user and automatic action
+
         self.send_amount_e.textChanged.connect(self.on_send_edited)
         self.recv_amount_e.textChanged.connect(self.on_recv_edited)
-        # textEdited is triggered only for user editing of the fields
+
         self.send_amount_e.textEdited.connect(self.uncheck_max)
         self.recv_amount_e.textEdited.connect(self.uncheck_max)
 
@@ -161,10 +161,10 @@ class SwapDialog(WindowModalDialog, QtEventListener):
     def on_event_swap_offers_changed(self, recent_offers: Sequence['SwapOffer']):
         self.set_server_button_text(len(recent_offers))
         if not self.ok_button.isEnabled():
-            # only update the dialog with the new offer if the user hasn't entered an amount yet.
-            # if the user has already entered an amount we prefer the swap to fail due to outdated
-            # fees than the possibility of a swap happening with fees the user hasn't seen
-            # due to an update happening just before the user initiated the swap
+
+
+
+
             self.update()
 
     def set_server_button_text(self, offer_count: int):
@@ -203,7 +203,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         else:
             self.fee_slider.setEnabled(False)
             self.fee_combo.setEnabled(False)
-            # show the eta of the swap claim
+
             self.fee_target_label.setText(FeePolicy(self.config.FEE_POLICY_SWAPS).get_target_text())
 
     def toggle_direction(self):
@@ -219,7 +219,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
             if self.is_reverse:
                 self._spend_max_reverse_swap()
             else:
-                # spend_max_forward_swap will be called in update_tx
+
                 pass
         else:
             self.send_amount_e.setAmount(None)
@@ -239,7 +239,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
 
     def _spend_max_reverse_swap(self) -> None:
         amount = min(self.lnworker.num_sats_can_send(), self.swap_manager.get_provider_max_forward_amount())
-        amount = int(amount)  # round down msats
+        amount = int(amount)
         self.send_amount_e.setAmount(amount)
 
     def on_send_edited(self):
@@ -249,10 +249,10 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         send_amount = self.send_amount_e.get_amount()
         recv_amount = self.swap_manager.get_recv_amount(send_amount, is_reverse=self.is_reverse)
         if self.is_reverse and send_amount and send_amount > self.lnworker.num_sats_can_send():
-            # cannot send this much on lightning
+
             recv_amount = None
         if (not self.is_reverse) and recv_amount and recv_amount > self.lnworker.num_sats_can_receive():
-            # cannot receive this much on lightning
+
             recv_amount = None
         self.recv_amount_e.follows = True
         self.recv_amount_e.setAmount(recv_amount)
@@ -284,7 +284,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         recv_icon = read_QIcon("lightning.png" if not self.is_reverse else "bitcoin.png")
         self.recv_label.setIcon(recv_icon)
         self.description_label.setText(self.get_description())
-        self.description_label.repaint()  # macOS hack for #6269
+        self.description_label.repaint()
         min_swap_limit, max_swap_limit = self.get_client_swap_limits_sat()
         if max_swap_limit == 0:
             swap_name = _("reverse") if self.is_reverse else _("forward")
@@ -293,18 +293,18 @@ class SwapDialog(WindowModalDialog, QtEventListener):
             swap_limit_str = (f"{self.window.format_amount(min_swap_limit)} - "
                               f"{self.window.format_amount(max_swap_limit)} {w_base_unit}")
         self.swap_limits_label.setText(swap_limit_str)
-        self.swap_limits_label.repaint()  # macOS hack for #6269
+        self.swap_limits_label.repaint()
         self.last_server_mining_fee_sat = sm.mining_fee
         server_fee_str = '%.2f'%sm.percentage + '%  +  '  + self.window.format_amount(sm.mining_fee) + ' ' + w_base_unit
         self.server_fee_label.setText(server_fee_str)
-        self.server_fee_label.repaint()  # macOS hack for #6269
+        self.server_fee_label.repaint()
         self.needs_tx_update = True
-        # update icon
+
         pubkey = from_nip19(self.config.SWAPSERVER_NPUB)['object'].hex() if self.config.SWAPSERVER_NPUB else ''
         self.server_button.setIcon(SwapServerDialog._pubkey_to_q_icon(pubkey))
 
     def get_client_swap_limits_sat(self) -> Tuple[int, int]:
-        """Returns the (min, max) client swap limits in sat."""
+
         sm = self.swap_manager
 
         if self.is_reverse:
@@ -315,12 +315,12 @@ class SwapDialog(WindowModalDialog, QtEventListener):
             upper_limit = sm.client_max_amount_forward_swap() or 0
 
         if lower_limit > upper_limit:
-            # if the max possible amount is below the lower limit no swap is possible
+
             lower_limit, upper_limit = 0, 0
         return lower_limit, upper_limit
 
     def update_fee(self, tx: Optional[PartialTransaction]) -> None:
-        """Updates self.fee_label. No other side-effects."""
+
         if self.is_reverse:
             sm = self.swap_manager
             fee = sm.get_fee_for_txbatcher()
@@ -328,10 +328,10 @@ class SwapDialog(WindowModalDialog, QtEventListener):
             fee = tx.get_fee() if tx else None
         fee_text = self.window.format_amount(fee) + ' ' + self.window.base_unit() if fee else _("no input")
         self.fee_label.setText(fee_text)
-        self.fee_label.repaint()  # macOS hack for #6269
+        self.fee_label.repaint()
 
     def run(self, transport: 'SwapServerTransport') -> bool:
-        """Can raise InvalidSwapParameters."""
+
         if not self.exec():
             return False
         if self.is_reverse:
@@ -347,7 +347,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
                 prepayment_sat=2 * self.last_server_mining_fee_sat,
             )
             try:
-                # we must not leave the context, so we use run_couroutine_dialog
+
                 funding_txid = self.window.run_coroutine_dialog(coro, _('Initiating swap...'))
             except Exception as e:
                 self.window.show_error(f"Reverse swap failed: {str(e)}")
@@ -409,7 +409,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
             return None
 
     def update_ok_button(self):
-        """Updates self.ok_button. No other side-effects."""
+
         send_amount = self.send_amount_e.get_amount()
         recv_amount = self.recv_amount_e.get_amount()
         self.ok_button.setEnabled(bool(send_amount) and bool(recv_amount))
@@ -454,7 +454,7 @@ class SwapDialog(WindowModalDialog, QtEventListener):
         )
 
     def choose_swap_server(self, transport: 'SwapServerTransport') -> None:
-        self.window.choose_swapserver_dialog(transport)  # type: ignore
+        self.window.choose_swapserver_dialog(transport)
         self.update()
         self.on_send_edited()
         self.on_recv_edited()

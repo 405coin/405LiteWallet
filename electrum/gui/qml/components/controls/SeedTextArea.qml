@@ -52,14 +52,14 @@ Pane {
             }
 
             onTextChanged: {
-                // work around Qt issue, TextArea fires spurious textChanged events
-                // NOTE: might be Qt virtual keyboard, or Qt upgrade from 5.15.2 to 5.15.7
+                
+                
                 if (root.text != text)
                     root.text = text
 
-                // update suggestions
+                
                 _suggestions = bitcoin.mnemonicsFor(seedtextarea.text.split(' ').pop())
-                // TODO: cursorPosition only on suggestion apply
+                
                 cursorPosition = text.length
             }
 

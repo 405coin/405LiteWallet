@@ -1,5 +1,5 @@
 #!/bin/bash
-# Generates the file paymentrequest_pb2.py
+
 
 set -e
 

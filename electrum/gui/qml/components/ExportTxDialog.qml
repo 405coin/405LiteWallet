@@ -10,7 +10,7 @@ ElDialog {
 
     required property string text
     property string text_qr
-    // if text_qr is undefined text will be used
+    
     property string text_help
     property string text_warn
     property string tx_label

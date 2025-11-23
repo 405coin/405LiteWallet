@@ -60,7 +60,7 @@ class QtHandler(QtHandlerBase):
         return self.response
 
     def pin_dialog(self, msg, show_strength):
-        # Needed e.g. when resetting a device
+                                             
         self.clear_dialog()
         dialog = WindowModalDialog(self.top_level_window(), _("Enter PIN"))
         matrix = self.pin_matrix_widget_class(show_strength)
@@ -75,9 +75,9 @@ class QtHandler(QtHandlerBase):
 
 
 class QtPlugin(QtPluginBase):
-    # Derived classes must provide the following class-static variables:
-    #   icon_file
-    #   pin_matrix_widget_class
+                                                                        
+                 
+                               
 
     @only_hook_if_libraries_available
     @hook
@@ -143,7 +143,7 @@ class SafeTInitLayout(QVBoxLayout):
             self.text_e.setMaximumHeight(60)
             if method == TIM_MNEMONIC:
                 msg = _("Enter your BIP39 mnemonic:")
-                # TODO: no validation?
+                                      
             else:
                 msg = _("Enter the master private key beginning with xprv:")
 
@@ -199,7 +199,7 @@ class Plugin(SafeTPlugin, QtPlugin):
     def pin_matrix_widget_class(self):
         return PinMatrixWidget
 
-    # insert safe_t pages in new wallet wizard
+                                              
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {
@@ -309,7 +309,7 @@ class SettingsDialog(WindowModalDialog):
                 config=config,
             )
             if not filename:
-                return  # user cancelled
+                return                  
 
             if filename.endswith('.toif'):
                 img = open(filename, 'rb').read()
@@ -317,7 +317,7 @@ class SettingsDialog(WindowModalDialog):
                     handler.show_error('File is not a TOIF file with size of 144x144')
                     return
             else:
-                from PIL import Image # FIXME
+                from PIL import Image        
                 im = Image.open(filename)
                 if im.size != (128, 64):
                     handler.show_error('Image must be 128 x 64 pixels')
@@ -360,7 +360,7 @@ class SettingsDialog(WindowModalDialog):
         def slider_released():
             config.set_session_timeout(timeout_slider.sliderPosition() * 60)
 
-        # Information tab
+                         
         info_tab = QWidget()
         info_layout = QVBoxLayout(info_tab)
         info_glayout = QGridLayout()
@@ -389,12 +389,12 @@ class SettingsDialog(WindowModalDialog):
             info_glayout.addWidget(widget, row_num, 1)
         info_layout.addLayout(info_glayout)
 
-        # Settings tab
+                      
         settings_tab = QWidget()
         settings_layout = QVBoxLayout(settings_tab)
         settings_glayout = QGridLayout()
 
-        # Settings tab - Label
+                              
         label_msg = QLabel(_("Name this {}.  If you have multiple devices "
                              "their labels help distinguish them.")
                            .format(plugin.device))
@@ -411,7 +411,7 @@ class SettingsDialog(WindowModalDialog):
         settings_glayout.addWidget(label_apply, 0, 3)
         settings_glayout.addWidget(label_msg, 1, 1, 1, -1)
 
-        # Settings tab - PIN
+                            
         pin_label = QLabel(_("PIN Protection"))
         pin_button = QPushButton()
         pin_button.clicked.connect(set_pin)
@@ -425,7 +425,7 @@ class SettingsDialog(WindowModalDialog):
         pin_msg.setStyleSheet("color: red")
         settings_glayout.addWidget(pin_msg, 3, 1, 1, -1)
 
-        # Settings tab - Homescreen
+                                   
         homescreen_label = QLabel(_("Homescreen"))
         homescreen_change_button = QPushButton(_("Change..."))
         homescreen_clear_button = QPushButton(_("Reset"))
@@ -448,7 +448,7 @@ class SettingsDialog(WindowModalDialog):
         settings_glayout.addWidget(homescreen_clear_button, 4, 2)
         settings_glayout.addWidget(homescreen_msg, 5, 1, 1, -1)
 
-        # Settings tab - Session Timeout
+                                        
         timeout_label = QLabel(_("Session Timeout"))
         timeout_minutes = QLabel()
         timeout_slider = QSlider(Qt.Orientation.Horizontal)
@@ -474,12 +474,12 @@ class SettingsDialog(WindowModalDialog):
         settings_layout.addLayout(settings_glayout)
         settings_layout.addStretch(1)
 
-        # Advanced tab
+                      
         advanced_tab = QWidget()
         advanced_layout = QVBoxLayout(advanced_tab)
         advanced_glayout = QGridLayout()
 
-        # Advanced tab - clear PIN
+                                  
         clear_pin_button = QPushButton(_("Disable PIN"))
         clear_pin_button.clicked.connect(clear_pin)
         clear_pin_warning = QLabel(
@@ -490,7 +490,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(clear_pin_button, 0, 2)
         advanced_glayout.addWidget(clear_pin_warning, 1, 0, 1, 5)
 
-        # Advanced tab - toggle passphrase protection
+                                                     
         passphrase_button = QPushButton()
         passphrase_button.clicked.connect(toggle_passphrase)
         passphrase_msg = WWLabel(PASSPHRASE_HELP)
@@ -500,7 +500,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(passphrase_msg, 4, 0, 1, 5)
         advanced_glayout.addWidget(passphrase_warning, 5, 0, 1, 5)
 
-        # Advanced tab - wipe device
+                                    
         wipe_device_button = QPushButton(_("Wipe Device"))
         wipe_device_button.clicked.connect(wipe_device)
         wipe_device_msg = QLabel(
@@ -527,7 +527,7 @@ class SettingsDialog(WindowModalDialog):
         dialog_vbox.addWidget(tabs)
         dialog_vbox.addLayout(Buttons(CloseButton(self)))
 
-        # Update information
+                            
         invoke_client(None)
 
 
@@ -547,7 +547,7 @@ class WCSafeTInitMethod(WalletWizardComponent):
                 "and free of malware."
                 ).format(_info.model_name, _info.model_name)
         choices = [
-            # Must be short as QT doesn't word-wrap radio button text
+                                                                     
             ChoiceItem(key=TIM_NEW, label=_("Let the device generate a completely new seed randomly")),
             ChoiceItem(key=TIM_RECOVER, label=_("Recover from a seed you have previously written down")),
             ChoiceItem(key=TIM_MNEMONIC, label=_("Upload a BIP39 mnemonic to generate the seed")),
@@ -614,7 +614,7 @@ class WCSafeTInit(WalletWizardComponent, Logger):
                 self.plugin._initialize_device(settings, method, device_id, handler)
                 self.logger.info('Done initialize device')
                 self.valid = True
-                self.wizard.requestNext.emit()  # triggers Next GUI thread from event loop
+                self.wizard.requestNext.emit()                                            
             except Exception as e:
                 self.valid = False
                 self.error = repr(e)

@@ -73,7 +73,7 @@ ElDialog {
                     color: Material.accentColor
                 }
 
-                // gossip
+                
                 TextArea {
                     id: node
                     visible: Config.useGossip
@@ -141,7 +141,7 @@ ElDialog {
                     }
                 }
 
-                // trampoline
+                
                 ComboBox {
                     visible: !Config.useGossip
                     Layout.columnSpan: 3
@@ -151,7 +151,7 @@ ElDialog {
                         if (activeFocus)
                             channelopener.connectStr = currentValue
                     }
-                    // preselect a random node
+                    
                     Component.onCompleted: {
                         if (!Config.useGossip) {
                             currentIndex = Math.floor(Math.random() * channelopener.trampolineNodeNames.length)
@@ -182,7 +182,7 @@ ElDialog {
                     Connections {
                         target: channelopener.amount
                         function onSatsIntChanged() {
-                            if (is_max.checked)  // amount updated by max amount estimate
+                            if (is_max.checked)  
                                 amountBtc.text = Config.formatSatsForEditing(channelopener.amount.satsInt)
                         }
                     }
@@ -311,14 +311,14 @@ ElDialog {
                     + qsTr('This channel will be usable after %1 confirmations').arg(min_depth)
             if (!tx_complete) {
                 message = message + '\n\n' + qsTr('Please sign and broadcast the funding transaction.')
-                channelopener.wallet.historyModel.initModel(true) // local tx doesn't trigger model update
+                channelopener.wallet.historyModel.initModel(true) 
             }
             app.channelOpenProgressDialog.state = 'success'
             app.channelOpenProgressDialog.info = message
             if (!has_onchain_backup) {
                 app.channelOpenProgressDialog.channelBackup = channelopener.channelBackup(cid)
             }
-            // TODO: handle incomplete TX
+            
             root.close()
         }
     }

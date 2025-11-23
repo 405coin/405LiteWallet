@@ -19,8 +19,8 @@ ElDialog {
         (pages.currentItem.title ? ' - ' + pages.currentItem.title : '')
     iconSource: '../../../icons/electrum.png'
 
-    // android back button triggers close() on Popups. Disabling close here,
-    // we handle that via Keys.onReleased event handler in the root layout.
+    
+    
     closePolicy: Popup.NoAutoClose
 
     property string wizardTitle
@@ -39,17 +39,17 @@ ElDialog {
 
     function _setWizardData(wdata) {
         wizard_data = {}
-        Object.assign(wizard_data, wdata) // deep copy
-        // console.log('wizard data is now :' + JSON.stringify(wizard_data))
+        Object.assign(wizard_data, wdata) 
+        
     }
 
-    // helper function to dynamically load wizard page components
-    // and add them to the SwipeView
-    // Here we do some manual binding of page.valid -> pages.pagevalid and
-    // page.last -> pages.lastpage to propagate the state without the binding
-    // going stale.
+    
+    
+    
+    
+    
     function _loadNextComponent(view, wdata={}) {
-        // remove any existing pages after current page
+        
         while (pages.contentChildren[pages.currentIndex+1]) {
             pages.takeItem(pages.currentIndex+1).destroy()
         }
@@ -61,7 +61,7 @@ ElDialog {
             return null
         }
 
-        // make a deepcopy of wdata and pass it to the component
+        
         var wdata_copy={}
         Object.assign(wdata_copy, wdata)
         var page = comp.createObject(pages, {wizard_data: wdata_copy})
@@ -85,11 +85,11 @@ ElDialog {
             }
         })
         page.finish.connect(function() {
-            // run wizard.submit() a final time, so that the navmap[view]['accept'] handler can run (if any)
+            
             var newview = wiz.submit(page.wizard_data)
             _setWizardData(newview.wizard_data)
             console.log('wizard finished')
-            // finish wizard
+            
             wizard.doAccept()
         })
         page.prev.connect(function() {
@@ -106,11 +106,11 @@ ElDialog {
         anchors.fill: parent
         spacing: 0
 
-        // root Item in Wizard, capture back button here and delegate to main
+        
         Keys.onReleased: {
             if (event.key == Qt.Key_Back) {
                 console.log("Back button within wizard")
-                app.close() // this handles unwind of dialogs/stack
+                app.close() 
             }
         }
 

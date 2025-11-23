@@ -31,7 +31,7 @@ ElDialog {
     padding: 0
 
     function validateAddress() {
-        // TODO: not all types of addresses are valid (e.g. p2wsh)
+        
         _addressValid = bitcoin.isAddress(addressField.text)
         _addressMine = Daemon.currentWallet.isAddressMine(addressField.text)
     }

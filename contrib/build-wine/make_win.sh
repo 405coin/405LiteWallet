@@ -6,7 +6,7 @@ here="$(dirname "$(readlink -e "$0")")"
 test -n "$here" -a -d "$here" || exit
 
 if [ -z "$WIN_ARCH" ] ; then
-    export WIN_ARCH="win64"  # default
+    export WIN_ARCH="win64"
 fi
 if [ "$WIN_ARCH" = "win32" ] ; then
     export GCC_TRIPLET_HOST="i686-w64-mingw32"
@@ -53,9 +53,9 @@ if [ -f "$DLL_TARGET_DIR/libzbar-0.dll" ]; then
     info "libzbar already built, skipping"
 else
     (
-        # As debian bullseye doesn't provide win-iconv-mingw-w64-dev, we need to build it:
+
         WIN_ICONV_COMMIT="9f98392dfecadffd62572e73e9aba878e03496c4"
-        # ^ tag "v0.0.8"
+
         info "Building win-iconv..."
         cd "$CACHEDIR"
         if [ ! -d win-iconv ]; then
@@ -70,10 +70,10 @@ else
         git clean -dfxq
         git checkout "${WIN_ICONV_COMMIT}^{commit}"
 
-        # note: "-j1" as parallel jobs lead to non-reproducibility seemingly due to ordering issues
-        #       see https://github.com/win-iconv/win-iconv/issues/42
+
+
         CC="${GCC_TRIPLET_HOST}-gcc" make -j1 || fail "Could not build win-iconv"
-        # FIXME avoid using sudo
+
         sudo make install prefix="/usr/${GCC_TRIPLET_HOST}"  || fail "Could not install win-iconv"
     )
     "$CONTRIB"/make_zbar.sh || fail "Could not build zbar"
@@ -88,7 +88,7 @@ fi
 "$here/prepare-wine.sh" || fail "prepare-wine failed"
 
 info "Resetting modification time in C:\Python..."
-# (Because of some bugs in pyinstaller)
+
 pushd /opt/wine64/drive_c/python*
 find -exec touch -h -d '2000-11-11T11:11:11+00:00' {} +
 popd

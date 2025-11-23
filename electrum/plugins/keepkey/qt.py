@@ -58,7 +58,7 @@ class CharacterButton(QPushButton):
         QPushButton.__init__(self, text)
 
     def keyPressEvent(self, event):
-        event.setAccepted(False)   # Pass through Enter and Space keys
+        event.setAccepted(False)                                      
 
 
 class CharacterDialog(WindowModalDialog):
@@ -110,10 +110,10 @@ class CharacterDialog(WindowModalDialog):
                 button.setFocus()
 
     def is_valid_alpha_space(self, key):
-        # Auto-completion requires at least 3 characters
+                                                        
         if key == ord(' ') and self.character_pos >= 3:
             return True
-        # Firmware aborts protocol if the 5th character is non-space
+                                                                    
         if self.character_pos >= 4:
             return False
         return (key >= ord('a') and key <= ord('z')
@@ -140,7 +140,7 @@ class CharacterDialog(WindowModalDialog):
         self.character_pos = character_pos
         self.refresh()
         if self.loop.exec():
-            self.data = None  # User cancelled
+            self.data = None                  
 
 
 class QtHandler(QtHandlerBase):
@@ -177,7 +177,7 @@ class QtHandler(QtHandlerBase):
         return self.response
 
     def pin_dialog(self, msg, show_strength):
-        # Needed e.g. when resetting a device
+                                             
         self.clear_dialog()
         dialog = WindowModalDialog(self.top_level_window(), _("Enter PIN"))
         matrix = self.pin_matrix_widget_class(show_strength)
@@ -198,9 +198,9 @@ class QtHandler(QtHandlerBase):
 
 
 class QtPlugin(QtPluginBase):
-    # Derived classes must provide the following class-static variables:
-    #   icon_file
-    #   pin_matrix_widget_class
+                                                                        
+                 
+                               
 
     @only_hook_if_libraries_available
     @hook
@@ -248,7 +248,7 @@ class KeepkeyInitLayout(QVBoxLayout):
             gb = QGroupBox()
             hbox1 = QHBoxLayout()
             gb.setLayout(hbox1)
-            # KeepKey recovery doesn't need a word count
+                                                        
             if self.method == TIM_NEW:
                 self.addWidget(gb)
             gb.setTitle(_("Select your seed length:"))
@@ -267,7 +267,7 @@ class KeepkeyInitLayout(QVBoxLayout):
             self.text_e.setMaximumHeight(60)
             if method == TIM_MNEMONIC:
                 msg = _("Enter your BIP39 mnemonic:")
-                # TODO: validation?
+                                   
             else:
                 msg = _("Enter the master private key beginning with xprv:")
 
@@ -323,7 +323,7 @@ class Plugin(KeepKeyPlugin, QtPlugin):
     def pin_matrix_widget_class(self):
         return PinMatrixWidget
 
-    # insert keepkey pages in new wallet wizard
+                                               
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {
@@ -448,7 +448,7 @@ class SettingsDialog(WindowModalDialog):
         def slider_released():
             config.set_session_timeout(timeout_slider.sliderPosition() * 60)
 
-        # Information tab
+                         
         info_tab = QWidget()
         info_layout = QVBoxLayout(info_tab)
         info_glayout = QGridLayout()
@@ -480,12 +480,12 @@ class SettingsDialog(WindowModalDialog):
             info_glayout.addWidget(widget, row_num, 1)
         info_layout.addLayout(info_glayout)
 
-        # Settings tab
+                      
         settings_tab = QWidget()
         settings_layout = QVBoxLayout(settings_tab)
         settings_glayout = QGridLayout()
 
-        # Settings tab - Label
+                              
         label_msg = QLabel(_("Name this {}.  If you have multiple devices "
                              "their labels help distinguish them.")
                            .format(plugin.device))
@@ -502,7 +502,7 @@ class SettingsDialog(WindowModalDialog):
         settings_glayout.addWidget(label_apply, 0, 3)
         settings_glayout.addWidget(label_msg, 1, 1, 1, -1)
 
-        # Settings tab - PIN
+                            
         pin_label = QLabel(_("PIN Protection"))
         pin_button = QPushButton()
         pin_button.clicked.connect(set_pin)
@@ -516,7 +516,7 @@ class SettingsDialog(WindowModalDialog):
         pin_msg.setStyleSheet("color: red")
         settings_glayout.addWidget(pin_msg, 3, 1, 1, -1)
 
-        # Settings tab - Session Timeout
+                                        
         timeout_label = QLabel(_("Session Timeout"))
         timeout_minutes = QLabel()
         timeout_slider = QSlider(Qt.Orientation.Horizontal)
@@ -542,12 +542,12 @@ class SettingsDialog(WindowModalDialog):
         settings_layout.addLayout(settings_glayout)
         settings_layout.addStretch(1)
 
-        # Advanced tab
+                      
         advanced_tab = QWidget()
         advanced_layout = QVBoxLayout(advanced_tab)
         advanced_glayout = QGridLayout()
 
-        # Advanced tab - clear PIN
+                                  
         clear_pin_button = QPushButton(_("Disable PIN"))
         clear_pin_button.clicked.connect(clear_pin)
         clear_pin_warning = QLabel(
@@ -558,7 +558,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(clear_pin_button, 0, 2)
         advanced_glayout.addWidget(clear_pin_warning, 1, 0, 1, 5)
 
-        # Advanced tab - toggle passphrase protection
+                                                     
         passphrase_button = QPushButton()
         passphrase_button.clicked.connect(toggle_passphrase)
         passphrase_msg = WWLabel(PASSPHRASE_HELP)
@@ -568,7 +568,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(passphrase_msg, 4, 0, 1, 5)
         advanced_glayout.addWidget(passphrase_warning, 5, 0, 1, 5)
 
-        # Advanced tab - wipe device
+                                    
         wipe_device_button = QPushButton(_("Wipe Device"))
         wipe_device_button.clicked.connect(wipe_device)
         wipe_device_msg = QLabel(
@@ -595,7 +595,7 @@ class SettingsDialog(WindowModalDialog):
         dialog_vbox.addWidget(tabs)
         dialog_vbox.addLayout(Buttons(CloseButton(self)))
 
-        # Update information
+                            
         invoke_client(None)
 
 
@@ -615,7 +615,7 @@ class WCKeepkeyInitMethod(WalletWizardComponent):
                 "and free of malware."
                 ).format(_info.model_name, _info.model_name)
         choices = [
-            # Must be short as QT doesn't word-wrap radio button text
+                                                                     
             ChoiceItem(key=TIM_NEW, label=_("Let the device generate a completely new seed randomly")),
             ChoiceItem(key=TIM_RECOVER, label=_("Recover from a seed you have previously written down")),
             ChoiceItem(key=TIM_MNEMONIC, label=_("Upload a BIP39 mnemonic to generate the seed")),
@@ -646,7 +646,7 @@ class WCKeepkeyInitParams(WalletWizardComponent):
         self.layout().addLayout(self.settings_layout)
         self.layout().addStretch(1)
 
-        self.valid = current_cosigner['keepkey_init'] != TIM_PRIVKEY  # TODO: only privkey is validated
+        self.valid = current_cosigner['keepkey_init'] != TIM_PRIVKEY                                   
         self.busy = False
 
     def on_settings_valid_changed(self, is_valid: bool):
@@ -682,7 +682,7 @@ class WCKeepkeyInit(WalletWizardComponent, Logger):
                 self.plugin._initialize_device(settings, method, device_id, handler)
                 self.logger.info('Done initialize device')
                 self.valid = True
-                self.wizard.requestNext.emit()  # triggers Next GUI thread from event loop
+                self.wizard.requestNext.emit()                                            
             except Exception as e:
                 self.valid = False
                 self.error = repr(e)

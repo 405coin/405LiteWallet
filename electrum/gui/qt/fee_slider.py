@@ -15,19 +15,20 @@ class FeeComboBox(QComboBox):
     def __init__(self, fee_slider: 'FeeSlider'):
         QComboBox.__init__(self)
         self.fee_slider = fee_slider
-        self.addItems([x.name_for_GUI() for x in FeeMethod.slider_values()])
+        self._methods = FeeMethod.slider_values()
+        self.addItems([x.name_for_GUI() for x in self._methods])
         index = FeeMethod.slider_index_of_method(self.fee_slider.fee_policy.method)
         self.setCurrentIndex(index)
         self.currentIndexChanged.connect(self.on_fee_type)
-        self.help_msg = '\n'.join([
-            _('Feerate: the fee slider uses static feerate values'),
-            _('ETA: fee rate is based on average confirmation time estimates'),
-            _('Mempool based: fee rate is targeting a depth in the memory pool')
-            ]
-        )
+        self.help_msg = _('Feerate: the fee slider uses static feerate values')
+        if len(self._methods) <= 1:
+            self.setEnabled(False)
+            self.setVisible(False)
 
     def on_fee_type(self, x):
-        method = FeeMethod.slider_values()[x]
+        if len(self._methods) <= 1:
+            return
+        method = self._methods[x]
         self.fee_slider.fee_policy.set_method(method)
         self.fee_slider.update(is_initialized=True)
 
@@ -86,8 +87,8 @@ class FeeSlider(QSlider):
 
     def deactivate(self):
         self._active = False
-        # TODO it would be nice to find a platform-independent solution
-        # that makes the slider look as if it was disabled
+
+
         self.setStyleSheet(
             """
             QSlider::groove:horizontal {

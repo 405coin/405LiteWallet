@@ -1,17 +1,17 @@
-# Note: we deliberately use an old Debian stable as base image.
-# from https://docs.appimage.org/introduction/concepts.html :
-# "[AppImages] should be built on the oldest possible system, allowing them to run on newer system[s]"
+
+
+
 
 FROM debian:bullseye@sha256:cf48c31af360e1c0a0aedd33aae4d928b68c2cdf093f1612650eb1ff434d1c34
 
 ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 
-# need ca-certificates before using snapshot packages
+
 RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends \
     ca-certificates
 
-# pin the distro packages
+
 COPY apt.sources.list /etc/apt/sources.list
 COPY apt.preferences /etc/apt/preferences.d/snapshot
 
@@ -73,7 +73,7 @@ RUN apt-get update -q && \
     apt-get autoremove -y && \
     apt-get clean
 
-# create new user to avoid using root; but with sudo access and no password for convenience.
+
 ARG UID=1000
 RUN if [ "$UID" != "0" ] ; then useradd --uid $UID --create-home --shell /bin/bash "user" ; fi
 RUN usermod -append --groups sudo $(id -nu $UID || echo "user")

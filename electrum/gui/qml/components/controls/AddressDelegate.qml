@@ -11,7 +11,7 @@ ItemDelegate {
     height: delegateLayout.height
     highlighted: ListView.isCurrentItem
 
-    font.pixelSize: constants.fontSizeMedium // set default font size for child controls
+    font.pixelSize: constants.fontSizeMedium 
 
     ColumnLayout {
         id: delegateLayout

@@ -72,4 +72,4 @@ class RebalanceDialog(WindowModalDialog):
         amount_msat = self.amount_e.get_amount() * 1000
         coro = self.wallet.lnworker.rebalance_channels(self.chan1, self.chan2, amount_msat=amount_msat)
         self.window.run_coroutine_from_thread(coro, _('Rebalancing channels'))
-        self.window.receive_tab.update_current_request()  # this will gray out the button
+        self.window.receive_tab.update_current_request()

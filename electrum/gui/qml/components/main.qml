@@ -17,12 +17,12 @@ ApplicationWindow
 {
     id: app
 
-    visible: false // initial value
+    visible: false 
 
     readonly property int statusBarHeight: AppController ? AppController.getStatusBarHeight() : 0
     readonly property int navigationBarHeight: AppController ? AppController.getNavigationBarHeight() : 0
 
-    // dimensions ignored on android
+    
     width: 480
     height: 800
 
@@ -92,7 +92,7 @@ ApplicationWindow
             currentIndex = -1
         }
 
-        // determine widest element and store in implicitChildrenWidth
+        
         function updateImplicitWidth() {
             for (let i = 0; i < menu.count; i++) {
                 var item = menu.itemAt(i)
@@ -121,7 +121,7 @@ ApplicationWindow
     header: ToolBar {
         id: toolbar
  
-        // Add top margin for status bar on Android when using edge-to-edge
+        
         topPadding: app.statusBarHeight
 
         background: Rectangle {
@@ -157,7 +157,7 @@ ApplicationWindow
                         enabled: Daemon.currentWallet &&
                             (!stack.currentItem || !stack.currentItem.title || stack.currentItem.title == Daemon.currentWallet.name)
                         onClicked: {
-                            stack.getRoot().menu.open()  // open wallet-menu
+                            stack.getRoot().menu.open()  
                             stack.getRoot().menu.y = toolbar.height
                         }
                     }
@@ -198,7 +198,7 @@ ApplicationWindow
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: openAppMenu()  // open global-app-menu
+                        onClicked: openAppMenu()  
                     }
 
                     RowLayout {
@@ -241,8 +241,8 @@ ApplicationWindow
                 }
             }
 
-            // hack to force relayout of toolbar
-            // since qt6 LightningNetworkStatusIndicator.visible doesn't trigger relayout(?)
+            
+            
             Item {
                 Layout.preferredHeight: 1
                 Layout.topMargin: -1
@@ -284,7 +284,7 @@ ApplicationWindow
             }
         }
 
-        // Add bottom padding for navigation bar on Android when UI is edge-to-edge
+        
         Item {
             visible: app.navigationBarHeight > 0
             Layout.fillWidth: true
@@ -320,9 +320,9 @@ ApplicationWindow
 
     Item {
         id: _keyboardFreeZone
-        // Item as first child in Overlay that adjusts its size to the available
-        // screen space minus the virtual keyboard (e.g. to center dialogs in)
-        // see also ElDialog.resizeWithKeyboard property
+        
+        
+        
         parent: Overlay.overlay
         width: parent.width
         height: parent.height
@@ -445,7 +445,7 @@ ApplicationWindow
         }
     }
 
-    property Component scanDialog  // set in Component.onCompleted
+    property Component scanDialog  
     Component {
         id: _scanDialog
         QRScanner {
@@ -541,7 +541,7 @@ ApplicationWindow
         function continueWithServerConnection() {
             if (!Network.autoConnectDefined) {
                 var dialog = serverConnectWizard.createObject(app)
-                // without completed serverConnectWizard we can't start
+                
                 dialog.rejected.connect(function() {
                     app.visible = false
                     AppController.wantClose = true
@@ -552,7 +552,7 @@ ApplicationWindow
                     var newww = app.newWalletWizard.createObject(app)
                     newww.walletCreated.connect(function() {
                         Daemon.availableWallets.reload()
-                        // and load the new wallet
+                        
                         Daemon.loadWallet(newww.path, newww.wizard_data['password'])
                     })
                     newww.open()
@@ -566,7 +566,7 @@ ApplicationWindow
                     var newww = app.newWalletWizard.createObject(app)
                     newww.walletCreated.connect(function() {
                         Daemon.availableWallets.reload()
-                        // and load the new wallet
+                        
                         Daemon.loadWallet(newww.path, newww.wizard_data['password'])
                     })
                     newww.open()
@@ -594,7 +594,7 @@ ApplicationWindow
 
     onClosing: (close) => {
         if (AppController.wantClose) {
-            // destroy most GUI components so that we don't dump so many null reference warnings on exit
+            
             app.header.visible = false
             mainStackView.clear()
             return
@@ -701,7 +701,7 @@ ApplicationWindow
     }
 
     function pluginsComponentsByName(comp_name) {
-        // return named QML components from plugins
+        
         var plugins = AppController.plugins
         var result = []
         for (var i=0; i < plugins.length; i++) {
@@ -726,7 +726,7 @@ ApplicationWindow
         function onAuthRequired(method, authMessage) {
             handleAuthRequired(Daemon.currentWallet, method, authMessage)
         }
-        // TODO: add to notification queue instead of barging through
+        
         function onPaymentSucceeded(key) {
             notificationPopup.show(Daemon.currentWallet.name, qsTr('Payment succeeded'))
         }
@@ -746,8 +746,8 @@ ApplicationWindow
         console.log('auth using method ' + method)
 
         if (method == 'wallet_else_pin') {
-            // if there is a loaded wallet and all wallets use the same password, use that
-            // else delegate to pin auth
+            
+            
             if (Daemon.currentWallet && Daemon.singlePasswordEnabled) {
                 method = 'wallet'
             } else {
@@ -757,7 +757,7 @@ ApplicationWindow
 
         if (method == 'wallet') {
             if (Daemon.currentWallet.verifyPassword('')) {
-                // wallet has no password
+                
                 qtobject.authProceed()
             } else {
                 var dialog = app.passwordDialog.createObject(app, {'title': qsTr('Enter current password')})
@@ -775,7 +775,7 @@ ApplicationWindow
             }
         } else if (method == 'pin') {
             if (Config.pinCode == '') {
-                // no PIN configured
+                
                 handleAuthConfirmationOnly(qtobject, authMessage)
             } else {
                 var dialog = app.pinDialog.createObject(app, {
@@ -821,7 +821,7 @@ ApplicationWindow
         swapdialog.open()
     }
 
-    property var _lastActive: 0 // record time of last activity
+    property var _lastActive: 0 
     property bool _lockDialogShown: false
 
 }

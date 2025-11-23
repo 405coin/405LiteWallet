@@ -101,7 +101,7 @@ Pane {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 text: qsTr('View')
-                icon.source: '../../icons/tab_receive.png'
+                icon.source: '../../icons/tab_receive.svg'
                 visible: listview.currentIndex >= 0
                 onClicked: {
                     var dialog = app.stack.getRoot().openInvoice(listview.currentItem.getKey())

@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2012 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from functools import partial
 from typing import Optional, TYPE_CHECKING, Union
@@ -73,7 +73,7 @@ class ResizingTextEdit(QTextEdit):
         self.update_size()
 
     def on_text_changed(self):
-        # QTextEdit emits spurious textChanged events
+
         if self.toPlainText() != self._text:
             self._text = self.toPlainText()
             self.textReallyChanged.emit()
@@ -113,7 +113,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         def text_edit_changed():
             text = self.text_edit.toPlainText()
             if self._text != text:
-                # sync and emit
+
                 self._text = text
                 self.line_edit.setText(text)
                 self.textChanged.emit()
@@ -124,7 +124,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         def line_edit_changed():
             text = self.line_edit.text()
             if self._text != text:
-                # sync and emit
+
                 self._text = text
                 self.text_edit.setPlainText(text)
                 self.textChanged.emit()
@@ -156,6 +156,8 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self._layout.addWidget(self.line_edit)
         self._layout.addWidget(self.text_edit)
 
+        self._single_line_height = self.line_edit.sizeHint().height()
+        self._multiline = False
         self.multiline = False
 
         self._is_paytomany = False
@@ -164,7 +166,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self.send_tab = send_tab
         self.config = send_tab.config
 
-        # button handlers
+
         self.on_qr_from_camera_input_btn = partial(
             self.input_qr_from_camera,
             config=self.config,
@@ -201,7 +203,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self.edit_timer.setInterval(1000)
         self.edit_timer.timeout.connect(self._on_edit_timer)
 
-        self.payment_identifier = None  # type: Optional[PaymentIdentifier]
+        self.payment_identifier = None
 
         self.register_callbacks()
         self.destroyed.connect(lambda: self.unregister_callbacks())
@@ -237,8 +239,23 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self.update_height()
 
     def update_height(self) -> None:
-        h = self._layout.currentWidget().sizeHint().height()
-        self.setMaximumHeight(h)
+        if self.multiline:
+            h = self._layout.currentWidget().sizeHint().height()
+            self.setMinimumHeight(h)
+            self.setMaximumHeight(h)
+        else:
+            if self._single_line_height:
+                self.setMinimumHeight(self._single_line_height)
+                self.setMaximumHeight(self._single_line_height)
+            else:
+                self.setMinimumHeight(0)
+                self.setMaximumHeight(16777215)
+
+    def set_single_line_height(self, height: int) -> None:
+        self._single_line_height = max(0, height)
+        if not self.multiline:
+            self.setMinimumHeight(self._single_line_height)
+            self.setMaximumHeight(self._single_line_height)
 
     def setText(self, text: str) -> None:
         if self._text != text:
@@ -256,7 +273,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self.text_edit.setToolTip(tt)
 
     def try_payment_identifier(self, text) -> None:
-        '''set payment identifier only if valid, else exception'''
+
         pi = PaymentIdentifier(self.send_tab.wallet, text)
         if not pi.is_valid():
             raise InvalidPaymentIdentifier('Invalid payment identifier')
@@ -264,17 +281,17 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
 
     def set_payment_identifier(self, text) -> None:
         if self.payment_identifier and self.payment_identifier.text == text.strip():
-            # no change.
+
             return
 
         self.payment_identifier = PaymentIdentifier(self.send_tab.wallet, text)
 
-        # toggle to multiline if payment identifier is a multiline
+
         if self.payment_identifier.is_multiline() and not self._is_paytomany:
             self.set_paytomany(True)
 
-        # if payment identifier gets set externally, we want to update the edit control
-        # Note: this triggers the change handler, but we shortcut if it's the same payment identifier
+
+
         self.setText(text)
 
         self.paymentIdentifierChanged.emit()
@@ -283,6 +300,7 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
         self._is_paytomany = b
         self.multiline = b
         self.send_tab.paytomany_menu.setChecked(b)
+        self.update_height()
 
     def toggle_paytomany(self) -> None:
         self.set_paytomany(not self._is_paytomany)
@@ -322,11 +340,11 @@ class PayToEdit(QWidget, Logger, GenericInputHandler, EventListener):
 
     def _handle_text_change(self) -> None:
         if self.isFrozen():
-            # if editor is frozen, we ignore text changes as they might not be a payment identifier
-            # but a user friendly representation.
+
+
             return
 
-        # pushback timer if timer active or PI needs resolving
+
         pi = PaymentIdentifier(self.send_tab.wallet, self._text)
         if not pi.is_valid() or pi.need_resolve() or self.edit_timer.isActive():
             self.edit_timer.start()

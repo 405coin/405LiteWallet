@@ -1,26 +1,26 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import sys
 import html
 from typing import TYPE_CHECKING, Optional, Set
@@ -31,12 +31,11 @@ from PyQt6.QtWidgets import (QWidget, QLabel, QPushButton, QTextEdit,
                              QMessageBox, QHBoxLayout, QVBoxLayout, QDialog, QScrollArea)
 
 from electrum.i18n import _
-from electrum.base_crash_reporter import BaseCrashReporter, EarlyExceptionsQueue, CrashReportResponse
+from electrum.base_crash_reporter import BaseCrashReporter, EarlyExceptionsQueue
 from electrum.logging import Logger
-from electrum import constants
 from electrum.network import Network
 
-from .util import MessageBoxMixin, read_QIcon, WaitingDialog, font_height
+from .util import MessageBoxMixin, read_QIcon, font_height
 
 if TYPE_CHECKING:
     from electrum.simple_config import SimpleConfig
@@ -52,7 +51,7 @@ class Exception_Window(BaseCrashReporter, QWidget, MessageBoxMixin, Logger):
         self.config = config
 
         QWidget.__init__(self)
-        self.setWindowTitle('Electrum - ' + _('An Error Occurred'))
+        self.setWindowTitle('405LiteWallet - ' + _('An Error Occurred'))
         self.setMinimumSize(600, 300)
 
         Logger.__init__(self)
@@ -65,7 +64,7 @@ class Exception_Window(BaseCrashReporter, QWidget, MessageBoxMixin, Logger):
 
         main_box.addWidget(QLabel(BaseCrashReporter.REQUEST_HELP_MESSAGE))
 
-        self._report_contents_dlg = None  # type: Optional[ReportContentsDialog]
+        self._report_contents_dlg = None
         collapse_info = QPushButton(_("Show report contents"))
         collapse_info.clicked.connect(lambda _checked: self.show_report_contents_dlg())
 
@@ -84,7 +83,7 @@ class Exception_Window(BaseCrashReporter, QWidget, MessageBoxMixin, Logger):
 
         report_button = QPushButton(_('Send Bug Report'))
         report_button.clicked.connect(lambda _checked: self._ask_for_confirm_to_send_report())
-        report_button.setIcon(read_QIcon("tab_send.png"))
+        report_button.setIcon(read_QIcon("tab_send.svg"))
         buttons.addWidget(report_button)
 
         close_button = QPushButton(_('Not Now'))
@@ -93,41 +92,17 @@ class Exception_Window(BaseCrashReporter, QWidget, MessageBoxMixin, Logger):
 
         main_box.addLayout(buttons)
 
-        # prioritizes the window input over all other windows
+
         self.setWindowModality(QtCore.Qt.WindowModality.ApplicationModal)
 
         self.setLayout(main_box)
         self.show()
 
     def _ask_for_confirm_to_send_report(self):
-        if self.question("Confirm to send bugreport?"):
-            self.send_report()
+        self.close()
 
     def send_report(self):
-        def on_success(response: CrashReportResponse):
-            text = response.text
-            if response.url:
-                text += f" You can track further progress on <a href='{response.url}'>GitHub</a>."
-            self.show_message(parent=self,
-                              title=_("Crash report"),
-                              msg=text,
-                              rich_text=True)
-            self.close()
-
-        def on_failure(exc_info):
-            e = exc_info[1]
-            self.logger.error('There was a problem with the automatic reporting', exc_info=exc_info)
-            self.show_critical(parent=self,
-                               msg=(_('There was a problem with the automatic reporting:') + '<br/>' +
-                                    repr(e)[:120] + '<br/><br/>' +
-                                    _("Please report this issue manually") +
-                                    f' <a href="{constants.GIT_REPO_ISSUES_URL}">on GitHub</a>.'),
-                               rich_text=True)
-
-        proxy = self.network.proxy
-        task = lambda: BaseCrashReporter.send_report(self, self.network.asyncio_loop, proxy)
-        msg = _('Sending crash report...')
-        WaitingDialog(self, msg, task, on_success, on_failure)
+        self.close()
 
     def on_close(self):
         Exception_Window._active_window = None
@@ -145,9 +120,9 @@ class Exception_Window(BaseCrashReporter, QWidget, MessageBoxMixin, Logger):
         return ",".join(wallet_types)
 
     def _get_traceback_str_to_display(self) -> str:
-        # The msg_box that shows the report uses rich_text=True, so
-        # if traceback contains special HTML characters, e.g. '<',
-        # they need to be escaped to avoid formatting issues.
+
+
+
         traceback_str = super()._get_traceback_str_to_display()
         return html.escape(traceback_str)
 
@@ -169,15 +144,15 @@ def _show_window(*args):
 class Exception_Hook(QObject, Logger):
     _report_exception = QtCore.pyqtSignal(object, object, object, object)
 
-    _INSTANCE = None  # type: Optional[Exception_Hook]  # singleton
+    _INSTANCE = None
 
     def __init__(self, *, config: 'SimpleConfig'):
         QObject.__init__(self)
         Logger.__init__(self)
         assert self._INSTANCE is None, "Exception_Hook is supposed to be a singleton"
         self.config = config
-        self.wallet_types_seen = set()  # type: Set[str]
-        self.exception_ids_seen = set()  # type: Set[bytes]
+        self.wallet_types_seen = set()
+        self.exception_ids_seen = set()
 
         sys.excepthook = self.handler
         self._report_exception.connect(_show_window)
@@ -191,12 +166,10 @@ class Exception_Hook(QObject, Logger):
             cls._INSTANCE.wallet_types_seen.add(wallet.wallet_type)
 
     def handler(self, *exc_info):
-        self.logger.error('exception caught by crash reporter', exc_info=exc_info)
         groupid_hash = BaseCrashReporter.get_traceback_groupid_hash(*exc_info)
         if groupid_hash in self.exception_ids_seen:
-            return  # to avoid annoying the user, only show crash reporter once per exception groupid
+            return
         self.exception_ids_seen.add(groupid_hash)
-        self._report_exception.emit(self.config, *exc_info)
 
 
 class ReportContentsDialog(QDialog):
@@ -210,7 +183,7 @@ class ReportContentsDialog(QDialog):
 
         report_text = QLabel(text)
         report_text.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        report_text.setTextFormat(Qt.TextFormat.AutoText)  # likely rich text
+        report_text.setTextFormat(Qt.TextFormat.AutoText)
 
         scroll_area.setWidget(report_text)
         vbox.addWidget(scroll_area)

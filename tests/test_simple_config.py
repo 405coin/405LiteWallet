@@ -18,10 +18,10 @@ class Test_SimpleConfig(ElectrumTestCase):
 
     def setUp(self):
         super(Test_SimpleConfig, self).setUp()
-        # make sure "read_user_config" and "user_dir" return a temporary directory.
+                                                                                   
         self.electrum_dir = tempfile.mkdtemp()
-        # Do the same for the user dir to avoid overwriting the real configuration
-        # for development machines with electrum installed :)
+                                                                                  
+                                                             
         self.user_dir = tempfile.mkdtemp()
 
         self.options = {"electrum_path": self.electrum_dir}
@@ -31,12 +31,12 @@ class Test_SimpleConfig(ElectrumTestCase):
 
     def tearDown(self):
         super(Test_SimpleConfig, self).tearDown()
-        # Remove the temporary directory after each test (to make sure we don't
-        # pollute /tmp for nothing.
+                                                                               
+                                   
         shutil.rmtree(self.electrum_dir)
         shutil.rmtree(self.user_dir)
 
-        # Restore the "real" stdout
+                                   
         sys.stdout = self._saved_stdout
 
     def test_simple_config_key_rename(self):
@@ -132,7 +132,7 @@ class Test_SimpleConfig(ElectrumTestCase):
             self.assertEqual("example.com:443:s", config.get("server"))
             self.assertEqual("example.com:443:s", config.NETWORK_SERVER)
             self.assertEqual("example.com:443:s", config.cv.NETWORK_SERVER.get())
-            # revert:
+                     
             config.NETWORK_SERVER = None
 
     def test_configvars_setter_catches_typo(self):

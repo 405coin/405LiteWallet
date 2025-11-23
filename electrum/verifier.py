@@ -1,25 +1,25 @@
-# Electrum - Lightweight Bitcoin Client
-# Copyright (c) 2012 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import asyncio
 from typing import Sequence, Optional, TYPE_CHECKING
@@ -54,8 +54,8 @@ class SPV(NetworkJobOnDefaultServer):
 
     def _reset(self):
         super()._reset()
-        self.merkle_roots = {}  # txid -> merkle root (once it has been verified)
-        self.requested_merkle = set()  # txid set of pending requests
+        self.merkle_roots = {}                                                   
+        self.requested_merkle = set()                                
 
     async def _run_tasks(self, *, taskgroup):
         await super()._run_tasks(taskgroup=taskgroup)
@@ -77,20 +77,20 @@ class SPV(NetworkJobOnDefaultServer):
         unverified = self.wallet.get_unverified_txs()
 
         for tx_hash, tx_height in unverified.items():
-            # do not request merkle branch if we already requested it
+                                                                     
             if tx_hash in self.requested_merkle or tx_hash in self.merkle_roots:
                 continue
-            # or before headers are available
+                                             
             if not (0 < tx_height <= local_height):
                 continue
-            # if it's in the checkpoint region, we still might not have the header
+                                                                                  
             header = self.blockchain.read_header(tx_height)
             if header is None:
                 if tx_height <= constants.net.max_checkpoint():
-                    # FIXME these requests are not counted (self._requests_sent += 1)
+                                                                                     
                     await self.taskgroup.spawn(self.interface.request_chunk_below_max_checkpoint(height=tx_height))
                 continue
-            # request now
+                         
             self.logger.info(f'requested merkle {tx_hash}')
             self.requested_merkle.add(tx_hash)
             await self.taskgroup.spawn(self._request_and_verify_single_proof, tx_hash, tx_height)
@@ -107,15 +107,15 @@ class SPV(NetworkJobOnDefaultServer):
             return
         finally:
             self._requests_answered += 1
-        # Verify the hash of the server-provided merkle branch to a
-        # transaction matches the merkle root of its block
+                                                                   
+                                                          
         if tx_height != merkle.get('block_height'):
             self.logger.info('requested tx_height {} differs from received tx_height {} for txid {}'
                              .format(tx_height, merkle.get('block_height'), tx_hash))
         tx_height = merkle.get('block_height')
         pos = merkle.get('pos')
         merkle_branch = merkle.get('merkle')
-        # we need to wait if header sync/reorg is still ongoing, hence lock:
+                                                                            
         async with self.network.bhi_lock:
             header = self.network.blockchain().read_header(tx_height)
         try:
@@ -126,7 +126,7 @@ class SPV(NetworkJobOnDefaultServer):
             else:
                 self.logger.info(repr(e))
                 raise GracefulDisconnect(e) from e
-        # we passed all the tests
+                                 
         self.merkle_roots[tx_hash] = header.get('merkle_root')
         self.requested_merkle.discard(tx_hash)
         self.logger.info(f"verified {tx_hash}")
@@ -143,7 +143,7 @@ class SPV(NetworkJobOnDefaultServer):
         try:
             h = hash_decode(tx_hash)
             merkle_branch_bytes = [hash_decode(item) for item in merkle_branch]
-            leaf_pos_in_tree = int(leaf_pos_in_tree)  # raise if invalid
+            leaf_pos_in_tree = int(leaf_pos_in_tree)                    
         except Exception as e:
             raise MerkleVerificationFailure(e)
         if leaf_pos_in_tree < 0:
@@ -162,10 +162,10 @@ class SPV(NetworkJobOnDefaultServer):
 
     @classmethod
     def _raise_if_valid_tx(cls, raw_tx: str):
-        # If an inner node of the merkle proof is also a valid tx, chances are, this is an attack.
-        # https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2018-June/016105.html
-        # https://lists.linuxfoundation.org/pipermail/bitcoin-dev/attachments/20180609/9f4f5b1f/attachment-0001.pdf
-        # https://bitcoin.stackexchange.com/questions/76121/how-is-the-leaf-node-weakness-in-merkle-trees-exploitable/76122#76122
+                                                                                                  
+                                                                                       
+                                                                                                                   
+                                                                                                                                 
         tx = Transaction(raw_tx)
         try:
             tx.deserialize()

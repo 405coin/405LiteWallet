@@ -1,27 +1,27 @@
-# -*- coding: utf-8 -*-
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2018 The Electrum developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                       
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import os
 import json
@@ -39,8 +39,8 @@ def read_json(filename, default=None):
             r = json.loads(f.read())
     except Exception:
         if default is None:
-            # Sometimes it's better to hard-fail: the file might be missing
-            # due to a packaging issue, which might otherwise go unnoticed.
+                                                                           
+                                                                           
             raise
         r = default
     return r
@@ -79,6 +79,13 @@ class AbstractNet:
     XPRV_HEADERS_INV: Mapping[int, str]
     XPUB_HEADERS: Mapping[str, int]
     XPUB_HEADERS_INV: Mapping[int, str]
+    APP_NAME: str = "405 Lite Wallet"
+    MAX_TARGET: int = 0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    SKIP_PROOF_OF_WORK_CHECK: bool = False
+    CHAINWORK_HEIGHT_ONLY: bool = False
+    DISABLE_BIP39: bool = False
+    DEFAULT_SEED_TYPE: str = 'segwit'
+    DEFAULT_SCRIPT_TYPE: str = 'p2wpkh'
 
     @classmethod
     def max_checkpoint(cls) -> int:
@@ -97,7 +104,7 @@ class AbstractNet:
     @classproperty
     def DEFAULT_SERVERS(cls) -> Mapping[str, Mapping[str, str]]:
         if cls._cached_default_servers is None:
-            default_file = {} if cls.TESTNET else None  # for mainnet we hard-fail if the file is missing.
+            default_file = {} if cls.TESTNET else None                                                    
             cls._cached_default_servers = read_json(os.path.join('chains', cls.NET_NAME, 'servers.json'), default_file)
         return cls._cached_default_servers
 
@@ -105,7 +112,7 @@ class AbstractNet:
     @classproperty
     def FALLBACK_LN_NODES(cls) -> Sequence[LNPeerAddr]:
         if cls._cached_fallback_lnnodes is None:
-            default_file = {} if cls.TESTNET else None  # for mainnet we hard-fail if the file is missing.
+            default_file = {} if cls.TESTNET else None                                                    
             d = read_json(os.path.join('chains', cls.NET_NAME, 'fallback_lnnodes.json'), default_file)
             cls._cached_fallback_lnnodes = create_fallback_node_list(d)
         return cls._cached_fallback_lnnodes
@@ -114,7 +121,7 @@ class AbstractNet:
     @classproperty
     def CHECKPOINTS(cls) -> Sequence[Tuple[str, int]]:
         if cls._cached_checkpoints is None:
-            default_file = [] if cls.TESTNET else None  # for mainnet we hard-fail if the file is missing.
+            default_file = [] if cls.TESTNET else None                                                    
             cls._cached_checkpoints = read_json(os.path.join('chains', cls.NET_NAME, 'checkpoints.json'), default_file)
         return cls._cached_checkpoints
 
@@ -127,13 +134,54 @@ class AbstractNet:
 
     @classmethod
     def cli_flag(cls) -> str:
-        """as used in e.g. `$ run_electrum --testnet4`"""
+        """as used in e.g. `$ run_405litewallet --testnet4`"""
         return cls.NET_NAME
 
     @classmethod
     def config_key(cls) -> str:
         """as used for SimpleConfig.get()"""
         return cls.NET_NAME
+
+
+class FourZeroFiveMainnet(AbstractNet):
+
+    NET_NAME = "fourzerofive"
+    TESTNET = False
+    APP_NAME = "405 Lite Wallet"
+    WIF_PREFIX = 0x80
+    ADDRTYPE_P2PKH = 0x7bea
+    ADDRTYPE_P2SH = 0x10
+    SEGWIT_HRP = "405"
+    BOLT11_HRP = SEGWIT_HRP
+    GENESIS = "cdd77255d68edd62e7e41ba53f044976a57f396fdb1b4b4486f304d27e8d57d0"
+    DEFAULT_PORTS = {'t': '50001'}
+    BLOCK_HEIGHT_FIRST_LIGHTNING_CHANNELS = 0
+    MAX_TARGET = int("00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", 16)
+    SKIP_PROOF_OF_WORK_CHECK = True
+    CHAINWORK_HEIGHT_ONLY = True
+    DISABLE_BIP39 = True
+    DEFAULT_SEED_TYPE = 'standard'
+    DEFAULT_SCRIPT_TYPE = 'standard'
+
+    XPRV_HEADERS = {
+        'standard':    0x0488ade4,
+        'p2wpkh-p2sh': 0x049d7878,
+        'p2wsh-p2sh':  0x0295b005,
+        'p2wpkh':      0x04b2430c,
+        'p2wsh':       0x02aa7a99,
+    }
+    XPRV_HEADERS_INV = inv_dict(XPRV_HEADERS)
+    XPUB_HEADERS = {
+        'standard':    0x0488b21e,
+        'p2wpkh-p2sh': 0x049d7cb2,
+        'p2wsh-p2sh':  0x0295b43f,
+        'p2wpkh':      0x04b24746,
+        'p2wsh':       0x02aa7ed3,
+    }
+    XPUB_HEADERS_INV = inv_dict(XPUB_HEADERS)
+    BIP44_COIN_TYPE = 200
+    LN_REALM_BYTE = 0
+    LN_DNS_SEEDS: Sequence[str] = []
 
 
 class BitcoinMainnet(AbstractNet):
@@ -150,19 +198,19 @@ class BitcoinMainnet(AbstractNet):
     BLOCK_HEIGHT_FIRST_LIGHTNING_CHANNELS = 497000
 
     XPRV_HEADERS = {
-        'standard':    0x0488ade4,  # xprv
-        'p2wpkh-p2sh': 0x049d7878,  # yprv
-        'p2wsh-p2sh':  0x0295b005,  # Yprv
-        'p2wpkh':      0x04b2430c,  # zprv
-        'p2wsh':       0x02aa7a99,  # Zprv
+        'standard':    0x0488ade4,        
+        'p2wpkh-p2sh': 0x049d7878,        
+        'p2wsh-p2sh':  0x0295b005,        
+        'p2wpkh':      0x04b2430c,        
+        'p2wsh':       0x02aa7a99,        
     }
     XPRV_HEADERS_INV = inv_dict(XPRV_HEADERS)
     XPUB_HEADERS = {
-        'standard':    0x0488b21e,  # xpub
-        'p2wpkh-p2sh': 0x049d7cb2,  # ypub
-        'p2wsh-p2sh':  0x0295b43f,  # Ypub
-        'p2wpkh':      0x04b24746,  # zpub
-        'p2wsh':       0x02aa7ed3,  # Zpub
+        'standard':    0x0488b21e,        
+        'p2wpkh-p2sh': 0x049d7cb2,        
+        'p2wsh-p2sh':  0x0295b43f,        
+        'p2wpkh':      0x04b24746,        
+        'p2wsh':       0x02aa7ed3,        
     }
     XPUB_HEADERS_INV = inv_dict(XPUB_HEADERS)
     BIP44_COIN_TYPE = 0
@@ -191,26 +239,26 @@ class BitcoinTestnet(AbstractNet):
     DEFAULT_PORTS = {'t': '51001', 's': '51002'}
 
     XPRV_HEADERS = {
-        'standard':    0x04358394,  # tprv
-        'p2wpkh-p2sh': 0x044a4e28,  # uprv
-        'p2wsh-p2sh':  0x024285b5,  # Uprv
-        'p2wpkh':      0x045f18bc,  # vprv
-        'p2wsh':       0x02575048,  # Vprv
+        'standard':    0x04358394,        
+        'p2wpkh-p2sh': 0x044a4e28,        
+        'p2wsh-p2sh':  0x024285b5,        
+        'p2wpkh':      0x045f18bc,        
+        'p2wsh':       0x02575048,        
     }
     XPRV_HEADERS_INV = inv_dict(XPRV_HEADERS)
     XPUB_HEADERS = {
-        'standard':    0x043587cf,  # tpub
-        'p2wpkh-p2sh': 0x044a5262,  # upub
-        'p2wsh-p2sh':  0x024289ef,  # Upub
-        'p2wpkh':      0x045f1cf6,  # vpub
-        'p2wsh':       0x02575483,  # Vpub
+        'standard':    0x043587cf,        
+        'p2wpkh-p2sh': 0x044a5262,        
+        'p2wsh-p2sh':  0x024289ef,        
+        'p2wpkh':      0x045f1cf6,        
+        'p2wsh':       0x02575483,        
     }
     XPUB_HEADERS_INV = inv_dict(XPUB_HEADERS)
     BIP44_COIN_TYPE = 1
     LN_REALM_BYTE = 1
-    LN_DNS_SEEDS = [  # TODO investigate this again
-        #'test.nodes.lightning.directory.',  # times out.
-        #'lseed.bitcoinstats.com.',  # ignores REALM byte and returns mainnet peers...
+    LN_DNS_SEEDS = [                               
+                                                         
+                                                                                      
     ]
 
 
@@ -258,7 +306,7 @@ class BitcoinMutinynet(BitcoinTestnet):
     LN_DNS_SEEDS = []
 
 
-NETS_LIST = tuple(all_subclasses(AbstractNet))  # type: Sequence[Type[AbstractNet]]
+NETS_LIST = tuple(all_subclasses(AbstractNet))                                     
 NETS_LIST = tuple(sorted(NETS_LIST, key=lambda x: x.NET_NAME))
 
 assert len(NETS_LIST) == len(set([chain.NET_NAME for chain in NETS_LIST])), "NET_NAME must be unique for each concrete AbstractNet"
@@ -266,5 +314,5 @@ assert len(NETS_LIST) == len(set([chain.datadir_subdir() for chain in NETS_LIST]
 assert len(NETS_LIST) == len(set([chain.cli_flag() for chain in NETS_LIST])), "cli_flag must be unique for each concrete AbstractNet"
 assert len(NETS_LIST) == len(set([chain.config_key() for chain in NETS_LIST])), "config_key must be unique for each concrete AbstractNet"
 
-# don't import net directly, import the module instead (so that net is singleton)
-net = BitcoinMainnet  # type: Type[AbstractNet]
+                                                                                 
+net = FourZeroFiveMainnet                           

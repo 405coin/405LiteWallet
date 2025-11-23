@@ -52,12 +52,12 @@ class FeeSlider(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._sliderSteps = 0
         self._sliderPos = 0
-        self._fee_policy = None  # type: Optional[FeePolicy]
+        self._fee_policy = None                             
         self._target = ''
-        self._config = None  # type: Optional[SimpleConfig]
+        self._config = None                                
 
     walletChanged = pyqtSignal()
     @pyqtProperty(QEWallet, notify=walletChanged)
@@ -150,7 +150,7 @@ class TxFeeSlider(FeeSlider):
         self._fee = QEAmount()
         self._feeRate = ''
         self._rbf = False
-        self._tx = None  # type: Optional[PartialTransaction]
+        self._tx = None                                      
         self._inputs = []
         self._outputs = []
         self._finalized_txid = ''
@@ -247,7 +247,7 @@ class TxFeeSlider(FeeSlider):
     def update_from_tx(self, tx: PartialTransaction):
         tx_size = tx.estimated_size()
         fee = tx.get_fee()
-        feerate = Decimal(fee) / tx_size  # sat/byte
+        feerate = Decimal(fee) / tx_size            
 
         self.fee = QEAmount(amount_sat=int(fee))
         self.feeRate = f'{feerate:.1f}'
@@ -259,7 +259,7 @@ class TxFeeSlider(FeeSlider):
     def update_inputs_from_tx(self, tx: Transaction):
         inputs = []
         for inp in tx.inputs():
-            # addr = self.wallet.adb.get_txin_address(txin)
+                                                           
             addr = inp.address
             address_str = '<address unknown>' if addr is None else addr
 
@@ -381,7 +381,7 @@ class QETxFinalizer(TxFeeSlider):
         if self._canRbf != canRbf:
             self._canRbf = canRbf
             self.canRbfChanged.emit()
-        self.rbf = self._canRbf  # if we can RbF, we do RbF
+        self.rbf = self._canRbf                            
 
     @profiler
     def make_tx(self, amount):
@@ -390,7 +390,7 @@ class QETxFinalizer(TxFeeSlider):
         if self.f_make_tx:
             tx = self.f_make_tx(amount, self._fee_policy)
         else:
-            # default impl
+                          
             coins = self._wallet.wallet.get_spendable_coins(None)
             outputs = [PartialTxOutput.from_address_and_value(self.address, amount)]
             tx = self._wallet.wallet.make_unsigned_transaction(
@@ -409,7 +409,7 @@ class QETxFinalizer(TxFeeSlider):
             return
 
         try:
-            # make unsigned transaction
+                                       
             amount = '!' if self._amount.isMax else self._amount.satsInt
             tx = self.make_tx(amount=amount)
         except NotEnoughFunds:
@@ -559,15 +559,15 @@ class TxMonMixin(QtEventListener):
             self.get_tx()
             self.txidChanged.emit()
 
-    # override
+              
     def get_tx(self) -> None:
         pass
 
-    # override
+              
     def tx_verified(self) -> None:
         pass
 
-    # override
+              
     def tx_removed(self) -> None:
         pass
 
@@ -658,12 +658,12 @@ class QETxRbfFeeBumper(TxFeeSlider, TxMonMixin):
 
     def update(self):
         if not self._txid or not self._orig_tx:
-            # not initialized yet
+                                 
             return
 
         fee_per_kb = self._fee_policy.fee_per_kb(self._wallet.wallet.network)
         if fee_per_kb is None:
-            # dynamic method and no network
+                                           
             self._logger.debug('no fee_per_kb')
             self.warning = _('Cannot determine dynamic fees, not connected')
             return
@@ -765,12 +765,12 @@ class QETxCanceller(TxFeeSlider, TxMonMixin):
 
     def update(self):
         if not self._txid or not self._orig_tx:
-            # not initialized yet
+                                 
             return
 
         fee_per_kb = self._fee_policy.fee_per_kb(self._wallet.wallet.network)
         if fee_per_kb is None:
-            # dynamic method and no network
+                                           
             self._logger.debug('no fee_per_kb')
             self.warning = _('Cannot determine dynamic fees, not connected')
             return
@@ -897,7 +897,7 @@ class QETxCpfpFeeBumper(TxFeeSlider, TxMonMixin):
         package_fee = FeePolicy.estimate_fee_for_feerate(fee_per_kb=fee_per_kb, size=self._total_size)
         child_fee = package_fee - self._parent_fee
         child_fee = min(self._max_fee, child_fee)
-        # pay at least minrelayfee for combined size:
+                                                     
         min_child_fee = FeePolicy.estimate_fee_for_feerate(fee_per_kb=self._wallet.wallet.relayfee(), size=self._total_size)
         child_fee = max(min_child_fee, child_fee)
         return child_fee
@@ -913,7 +913,7 @@ class QETxCpfpFeeBumper(TxFeeSlider, TxMonMixin):
         self.warning = _('Base transaction disappeared')
 
     def update(self):
-        if not self._txid:  # not initialized yet
+        if not self._txid:                       
             return
 
         assert self._parent_tx
@@ -924,7 +924,7 @@ class QETxCpfpFeeBumper(TxFeeSlider, TxMonMixin):
 
         fee_per_kb = self._fee_policy.fee_per_kb(self._wallet.wallet.network)
         if fee_per_kb is None:
-            # dynamic method and no network
+                                           
             self._logger.debug('no fee_per_kb')
             self.warning = _('Cannot determine dynamic fees, not connected')
             return
@@ -1045,7 +1045,7 @@ class QETxSweepFinalizer(QETxFinalizer):
             return
 
         try:
-            # make unsigned transaction
+                                       
             tx = self.make_sweep_tx()
         except Exception as e:
             self._logger.error(str(e))

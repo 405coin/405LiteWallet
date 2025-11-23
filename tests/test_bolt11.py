@@ -44,15 +44,15 @@ class TestBolt11(ElectrumTestCase):
             h2 = [t[1] for t in b.tags if t[0] == 'h'][0]
             assert h1 == h2
 
-        # Need to filter out these, since they are being modified during
-        # encoding, i.e., hashed
+                                                                        
+                                
         a.tags = [t for t in a.tags if t[0] != 'h' and t[0] != 'n']
         b.tags = [t for t in b.tags if t[0] != 'h' and t[0] != 'n']
 
         assert b.pubkey.serialize() == PUBKEY, (hexlify(b.pubkey.serialize()), hexlify(PUBKEY))
         assert b.signature is not None
 
-        # Unset these, they are generated during encoding/decoding
+                                                                  
         b.pubkey = None
         b.signature = None
 
@@ -98,8 +98,8 @@ class TestBolt11(ElectrumTestCase):
             (LnAddr(date=timestamp, paymenthash=RHASH, payment_secret=PAYMENT_SECRET,  amount=24, tags=[('h', longdescription), ('9', 10 + (1 << 9) + (1 << 14))]),
              "lnbc241ps9zprzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygshp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqs9qrss2f8kr98446xls02yndup2ynwjh46u8kdeuuncexx2hnets0j0064nyq25gkd6jnttldzt5qqtszum5dufvuvryxt204w2p24557udxgcp0nlwtw"),
         ]
-        # Some old tests follow that do not have payment_secret. Note that if the parser raised due to the lack of features/payment_secret,
-        # old wallets that have these invoices saved (as paid/expired), could not be opened (though we could do a db upgrade and delete them).
+                                                                                                                                           
+                                                                                                                                              
         tests.extend([
             (LnAddr(date=timestamp, paymenthash=RHASH, tags=[('d', '')]),
              "lnbc1ps9zprzpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdqqd9n3kwjjwglnfne5p4rvkze998m3xcxrc8kunl5khkchlaqhwhlyztuuwkrglv47mqg96mcqjjx70hh9luaj4te0u4ww6aclxwve3fqpkmdxlj"),
@@ -112,7 +112,7 @@ class TestBolt11(ElectrumTestCase):
 
         ])
 
-        # Roundtrip
+                   
         for lnaddr1, invoice_str1 in tests:
             invoice_str2 = lnencode(lnaddr1, PRIVKEY)
             self.assertEqual(invoice_str1, invoice_str2)
@@ -120,8 +120,8 @@ class TestBolt11(ElectrumTestCase):
             self.compare(lnaddr1, lnaddr2)
 
     def test_n_decoding(self):
-        # We flip the signature recovery bit, which would normally give a different
-        # pubkey.
+                                                                                   
+                 
         _, hrp, data = bech32_decode(
             lnencode(LnAddr(paymenthash=RHASH, payment_secret=PAYMENT_SECRET, amount=24, tags=[('d', ''), ('9', 33282)]), PRIVKEY),
             ignore_long_length=True)
@@ -129,7 +129,7 @@ class TestBolt11(ElectrumTestCase):
         lnaddr = lndecode(bech32_encode(segwit_addr.Encoding.BECH32, hrp, data), verbose=True)
         self.assertNotEqual(lnaddr.pubkey.serialize(), PUBKEY)
 
-        # But not if we supply expliciy `n` specifier!
+                                                      
         _, hrp, data = bech32_decode(
             lnencode(LnAddr(paymenthash=RHASH, payment_secret=PAYMENT_SECRET, amount=24, tags=[('d', ''), ('n', PUBKEY), ('9', 33282)]), PRIVKEY),
             ignore_long_length=True)

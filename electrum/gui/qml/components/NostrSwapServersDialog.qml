@@ -103,8 +103,8 @@ ElDialog {
                             }
                             Label {
                                 Layout.fillWidth: true
-                                // only show the prefix of the pubkey for readability, but
-                                // keep it long enough so that collisions are hard to brute-force:
+                                
+                                
                                 text: model.server_pubkey.substring(0,32)
                                 wrapMode: Text.Wrap
                             }

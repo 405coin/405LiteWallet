@@ -75,7 +75,7 @@ ElDialog {
                     Layout.preferredWidth: rootLayout.width /3
                     text: Config.formatSatsForEditing(invoiceParser.lnurlData['min_sendable_sat'])
                     enabled: invoiceParser.lnurlData['min_sendable_sat'] != invoiceParser.lnurlData['max_sendable_sat']
-                    color: Material.foreground // override gray-out on disabled
+                    color: Material.foreground 
                     fiatfield: amountFiat
                     onTextAsSatsChanged: {
                         invoiceParser.amountOverride = textAsSats

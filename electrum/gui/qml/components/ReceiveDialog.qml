@@ -12,7 +12,7 @@ ElDialog {
     id: dialog
 
     title: qsTr('Receive Payment')
-    iconSource: Qt.resolvedUrl('../../icons/tab_receive.png')
+    iconSource: Qt.resolvedUrl('../../icons/tab_receive.svg')
 
     property string key
     property bool isLightning: request.isLightning
@@ -20,7 +20,7 @@ ElDialog {
     property string _bolt11: request.bolt11
     property string _bip21uri: request.bip21
     property string _address: request.address
-    property bool _render_qr: false // delay qr rendering until dialog is shown
+    property bool _render_qr: false 
 
     signal requestPaid
 
@@ -206,7 +206,7 @@ ElDialog {
         request.key = dialog.key
     }
 
-    // hack. delay qr rendering until dialog is shown
+    
     Connections {
         target: dialog.enter
         function onRunningChanged() {

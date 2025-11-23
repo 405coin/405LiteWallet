@@ -7,10 +7,10 @@ from decimal import Decimal
 import getpass
 from typing import TYPE_CHECKING, Optional
 
-# 3rd-party dependency:
+                       
 try:
     import pyperclip
-except ImportError:  # only use vendored lib as fallback, to allow Linux distros to bring their own
+except ImportError:                                                                                
     from electrum._vendor import pyperclip
 
 from electrum.gui import BaseElectrumGui
@@ -33,10 +33,10 @@ if TYPE_CHECKING:
     from electrum.plugin import Plugins
 
 
-_ = lambda x:x  # i18n
+_ = lambda x:x        
 
 
-# ascii key codes
+                 
 KEY_BACKSPACE = 8
 KEY_ESC = 27
 KEY_DELETE = 127
@@ -363,7 +363,7 @@ class ElectrumGui(BaseElectrumGui, EventListener):
         self.add_button(9, 25, _("[Clear]"), self.do_clear)
         self.add_button(9, 35, _("[Save]"), self.do_save_invoice)
         self.add_button(9, 44, _("[Pay]"), self.do_pay)
-        #
+         
         self.print_invoices_list(13, 2, offset_pos=7)
 
     def add_edit_line(self, y, x, title, data, length):
@@ -474,14 +474,14 @@ class ElectrumGui(BaseElectrumGui, EventListener):
             if c: exec_func(c)
 
     def run_history_tab(self, c):
-        # Get txid from cursor position
+                                       
         if c == ord("\n"):
             out = self.run_popup('', ['Transaction ID:', self.txid[self.pos]])
 
     def edit_str(self, target, c, is_num=False):
         if target is None:
             target = ''
-        # detect backspace
+                          
         cc = curses.unctrl(c).decode()
         if c in [KEY_BACKSPACE, KEY_DELETE, curses.KEY_BACKSPACE] and target:
             target = target[:-1]
@@ -671,13 +671,13 @@ class ElectrumGui(BaseElectrumGui, EventListener):
     def pay_lightning_invoice(self, invoice):
         amount_msat = invoice.get_amount_msat()
         msg = _("Pay lightning invoice?")
-        #+ '\n\n' + _("This will send {}?").format(self.format_amount_and_units(Decimal(amount_msat)/1000))
+                                                                                                           
         if not self.question(msg):
             return
         self.save_pending_invoice(invoice)
         coro = self.wallet.lnworker.pay_invoice(invoice, amount_msat=amount_msat)
 
-        #self.window.run_coroutine_from_thread(coro, _('Sending payment'))
+                                                                          
         self.show_message(_("Please wait..."), getchar=False)
         try:
             self.network.run_from_another_thread(coro)
@@ -719,7 +719,7 @@ class ElectrumGui(BaseElectrumGui, EventListener):
         else:
             self.show_message(_('Payment sent.'))
             self.do_clear()
-            #self.update_contacts_tab()
+                                       
 
     def show_message(self, message, getchar = True):
         w = self.w

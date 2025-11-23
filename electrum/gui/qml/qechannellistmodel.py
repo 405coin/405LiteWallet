@@ -15,7 +15,7 @@ from .qemodelfilter import QEFilterProxyModel
 class QEChannelListModel(QAbstractListModel, QtEventListener):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES=('cid', 'state', 'state_code', 'initiator', 'capacity', 'can_send',
                  'can_receive', 'l_csv_delay', 'r_csv_delay', 'send_frozen', 'receive_frozen',
                  'type', 'node_id', 'node_alias', 'short_cid', 'funding_tx', 'is_trampoline',
@@ -36,10 +36,10 @@ class QEChannelListModel(QAbstractListModel, QtEventListener):
 
         self.initModel()
 
-        # To avoid leaking references to "self" that prevent the
-        # window from being GC-ed when closed, callbacks should be
-        # methods of this class only, and specifically not be
-        # partials, lambdas or methods of subobjects.  Hence...
+                                                                
+                                                                  
+                                                             
+                                                               
         self.register_callbacks()
         self.destroyed.connect(lambda: self.on_destroy())
 
@@ -59,7 +59,7 @@ class QEChannelListModel(QAbstractListModel, QtEventListener):
     def rowCount(self, index):
         return len(self._channels)
 
-    # also expose rowCount as a property
+                                        
     countChanged = pyqtSignal()
     @pyqtProperty(int, notify=countChanged)
     def count(self):
@@ -133,7 +133,7 @@ class QEChannelListModel(QAbstractListModel, QtEventListener):
             item = self.channel_to_model(channel)
             channels.append(item)
 
-        # sort, for now simply by state
+                                       
         def chan_sort_score(c):
             return c['state_code'] + (10 if c['is_backup'] else 0)
         channels.sort(key=chan_sort_score)

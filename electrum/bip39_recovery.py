@@ -1,6 +1,6 @@
-# Copyright (C) 2020 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+                                            
+                                                                  
+                                                                    
 
 from typing import TYPE_CHECKING, Optional
 import itertools
@@ -47,9 +47,9 @@ async def scan_for_active_accounts(network: 'Network', get_account_xpub, wallet_
 
 
 async def account_has_history(network: 'Network', account_node: BIP32Node, script_type: str) -> bool:
-    # note: scan both receiving and change addresses. some wallets send change across accounts.
+                                                                                               
     path_suffixes = itertools.chain(
-        itertools.product((0,), range(20)),  # ad-hoc gap limits
+        itertools.product((0,), range(20)),                     
         itertools.product((1,), range(10)),
     )
     async with OldTaskGroup() as group:

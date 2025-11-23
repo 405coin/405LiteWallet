@@ -22,7 +22,7 @@ class QEventReceiver(QObject):
             self.signals.append(signal)
             signal.connect(partial(self.doReceive, signal))
 
-    # intentionally no pyqtSlot decorator, to catch all
+                                                       
     def doReceive(self, signal, *args):
         self.received.append((signal, args))
 
@@ -77,8 +77,8 @@ def qt_test(func):
                 self._e = Exception('testcase timed out')
             if self._e:
                 print("".join(traceback.format_exception(self._e)))
-                # deallocate stored exception from qt thread otherwise we SEGV garbage collector
-                # instead, re-create using the exception message, special casing AssertionError and SkipTest
+                                                                                                
+                                                                                                            
                 e = None
                 if isinstance(self._e, AssertionError):
                     e = AssertionError(str(self._e))

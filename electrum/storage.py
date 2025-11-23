@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import os
 import threading
 import stat
@@ -43,8 +43,8 @@ from .logging import Logger
 
 def get_derivation_used_for_hw_device_encryption():
     return ("m"
-            "/4541509'"      # ascii 'ELE'  as decimal ("BIP43 purpose")
-            "/1112098098'")  # ascii 'BIE2' as decimal
+            "/4541509'"                                                 
+            "/1112098098'")                           
 
 
 class StorageEncryptionVersion(IntEnum):
@@ -59,11 +59,11 @@ class StorageReadWriteError(Exception): pass
 class StorageOnDiskUnexpectedlyChanged(Exception): pass
 
 
-# TODO: Rename to Storage
+                         
 class WalletStorage(Logger):
 
-    # TODO maybe split this into separate create() and open() classmethods, to prevent some bugs.
-    #      Until then, the onus is on the caller to check file_exists().
+                                                                                                 
+                                                                        
     def __init__(
         self,
         path,
@@ -105,14 +105,14 @@ class WalletStorage(Logger):
         temp_path = "%s.tmp.%s" % (self.path, os.getpid())
         with open(temp_path, "wb") as f:
             try:
-                os_chmod(temp_path, mode)  # set restrictive perms *before* we write data
-            except PermissionError as e:  # tolerate NFS or similar weirdness?
+                os_chmod(temp_path, mode)                                                
+            except PermissionError as e:                                      
                 self.logger.warning(f"cannot chmod temp wallet file: {e!r}")
             f.write(s.encode("utf-8"))
             self.pos = f.seek(0, os.SEEK_END)
             f.flush()
             os.fsync(f.fileno())
-        # assert that wallet file does not exist, to prevent wallet corruption (see issue #5082)
+                                                                                                
         if not self.file_exists():
             assert not os.path.exists(self.path)
         os.replace(temp_path, self.path)
@@ -239,7 +239,7 @@ class WalletStorage(Logger):
                 raise InvalidPassword("password given but wallet has no password")
             return
         if not self.is_past_initial_decryption():
-            self.decrypt(password)  # this sets self.pubkey
+            self.decrypt(password)                         
         assert self.pubkey is not None
         if self.pubkey != self.get_eckey_from_password(password).get_public_key_hex():
             raise InvalidPassword()

@@ -1,8 +1,8 @@
 #!/bin/bash
-#
-# env vars:
-# - ELECBUILD_NOCACHE: if set, forces rebuild of docker image
-# - ELECBUILD_COMMIT: if set, do a fresh clone and git checkout
+
+
+
+
 
 set -e
 
@@ -15,7 +15,7 @@ BUILD_UID=$(/usr/bin/stat -c %u "$PROJECT_ROOT")
 
 . "$CONTRIB"/build_tools_util.sh
 
-# check arguments
+
 if [[ -n "$3" \
 	  && ( "$1" == "qml" ) \
 	  && ( "$2" == "all"  || "$2" == "armeabi-v7a" || "$2" == "arm64-v8a" || "$2" == "x86" || "$2" == "x86_64" ) \
@@ -26,7 +26,7 @@ else
     exit 1
 fi
 
-# create symlink
+
 rm -f ${PROJECT_ROOT}/.buildozer
 mkdir -p "${PROJECT_ROOT}/.buildozer_$1"
 ln -s ".buildozer_$1" ${PROJECT_ROOT}/.buildozer
@@ -37,7 +37,7 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
     DOCKER_BUILD_FLAGS="--pull --no-cache"
 fi
 
-if [ -z "$ELECBUILD_COMMIT" ] ; then  # local dev build
+if [ -z "$ELECBUILD_COMMIT" ] ; then
     DOCKER_BUILD_FLAGS="$DOCKER_BUILD_FLAGS --build-arg UID=$BUILD_UID"
 fi
 
@@ -48,7 +48,7 @@ docker build \
     --file "$CONTRIB_ANDROID/Dockerfile" \
     "$PROJECT_ROOT"
 
-# maybe do fresh clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE=${FRESH_CLONE:-"/tmp/electrum_build/android/fresh_clone/electrum"}
@@ -74,8 +74,8 @@ fi
 
 info "building binary..."
 mkdir --parents "$PROJECT_ROOT_OR_FRESHCLONE_ROOT"/.buildozer/.gradle
-# check uid and maybe chown. see #8261
-if [ ! -z "$ELECBUILD_COMMIT" ] ; then  # fresh clone (reproducible build)
+
+if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     if [ $(id -u) != "1000" ] || [ $(id -g) != "1000" ] ; then
         info "need to chown -R FRESH_CLONE dir. prompting for sudo."
         sudo chown -R 1000:1000 "$FRESH_CLONE"
@@ -90,7 +90,7 @@ docker run --rm \
     electrum-android-builder-img \
     ./contrib/android/make_apk.sh "$@"
 
-# make sure resulting binary location is independent of fresh_clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     mkdir --parents "$DISTDIR/"
     cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"

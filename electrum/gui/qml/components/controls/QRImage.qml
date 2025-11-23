@@ -4,9 +4,9 @@ import QtQuick.Controls
 Item {
     id: root
     property string qrdata
-    property bool render: true // init to false, then set true if render needs delay
-    property bool enableToggleText: false  // if true, clicking the QR code shows the encoded text
-    property bool isTextState: false    // internal state, if the above is enabled
+    property bool render: true 
+    property bool enableToggleText: false  
+    property bool isTextState: false    
 
     property var _qrprops: QRIP.getDimensions(qrdata)
 
@@ -24,7 +24,7 @@ Item {
         source: qrdata && render ? 'image://qrgen/' + qrdata : ''
         visible: !isTextState
 
-        Rectangle {  // container for logo inside qr code
+        Rectangle {  
             visible: root.render && _qrprops.valid
             color: 'white'
             x: (parent.width - width) / 2
@@ -77,7 +77,7 @@ Item {
 
     onVisibleChanged: {
         if (root.visible) {
-            // set max brightness to make qr code easier to scan
+            
             if (AppController.isMaxBrightnessOnQrDisplayEnabled()) {
                 AppController.setMaxScreenBrightness()
             }

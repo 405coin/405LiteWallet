@@ -13,7 +13,7 @@ Container {
     function fillContentItem() {
         var contentRoot = containerLayout.createObject(root)
 
-        contentRoot.children.length = 0 // empty array
+        contentRoot.children.length = 0 
         let total = contentChildren.length
 
         let rowheight = 0
@@ -35,7 +35,7 @@ Container {
         contentItem = contentRoot
     }
 
-    // override this function to dynamically add buttons.
+    
     function beforeLayout() {}
 
     Component.onCompleted: {
@@ -61,7 +61,7 @@ Container {
             Layout.alignment: Qt.AlignVCenter
             color: constants.darkerBackground
             Component.onCompleted: {
-                // create binding here, we need to be able to have stable ref master_idx
+                
                 visible = Qt.binding(function() {
                     let anybefore_visible = false
                     for (let j = master_idx-1; j >= 0; j--) {

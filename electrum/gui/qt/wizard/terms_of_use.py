@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING
 
-from PyQt6.QtCore import QTimer, QEvent
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QHBoxLayout, QScrollArea
+from PyQt6.QtWidgets import QLabel
 
 from electrum.i18n import _
 from electrum.wizard import TermsOfUseWizard
-from electrum.gui.qt.util import icon_path, WWLabel
+from electrum.gui.qt.util import WWLabel, icon_path
 from electrum.gui import messages
 from .wizard import QEAbstractWizard, WizardComponent
 
@@ -22,31 +22,24 @@ class QETermsOfUseWizard(TermsOfUseWizard, QEAbstractWizard):
         self.window_title = _('Terms of Use')
         self.finish_label = _('I Accept')
         self.title.setVisible(False)
-        # self.window().setMinimumHeight(565)  # Enough to show the whole text without scrolling
+
         self.next_button.setToolTip("You accept the Terms of Use by clicking this button.")
 
-        # attach gui classes
+
         self.navmap_merge({
-            'terms_of_use': {'gui': WCTermsOfUseScreen, 'params': {'icon': ''}},
+            'terms_of_use': {'gui': WCTermsOfUseScreen, 'params': {'icon': None}},
         })
 
 class WCTermsOfUseScreen(WizardComponent):
     def __init__(self, parent, wizard):
         WizardComponent.__init__(self, parent, wizard, title='')
-        self.wizard_title = _('Electrum Terms of Use')
-        self.img_label = QLabel()
-        pixmap = QPixmap(icon_path('electrum_darkblue_1.png'))
-        self.img_label.setPixmap(pixmap)
-        self.img_label2 = QLabel()
-        pixmap = QPixmap(icon_path('electrum_text.png'))
-        self.img_label2.setPixmap(pixmap)
-        hbox_img = QHBoxLayout()
-        hbox_img.addStretch(1)
-        hbox_img.addWidget(self.img_label)
-        hbox_img.addWidget(self.img_label2)
-        hbox_img.addStretch(1)
-
-        self.layout().addLayout(hbox_img)
+        self.wizard_title = _('405LiteWallet Terms of Use')
+        hero = QLabel()
+        pixmap = QPixmap(icon_path('electrum_presplash.png'))
+        if not pixmap.isNull():
+            hero.setPixmap(pixmap.scaledToWidth(360, mode=Qt.TransformationMode.SmoothTransformation))
+            hero.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.layout().addWidget(hero)
         self.layout().addSpacing(15)
 
         self.tos_label = WWLabel()

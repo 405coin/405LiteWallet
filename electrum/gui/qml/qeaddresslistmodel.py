@@ -35,7 +35,7 @@ class QEAddressCoinFilterProxyModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, s_row, s_parent):
         parent_model = self.sourceModel()
         addridx = parent_model.data(parent_model.index(s_row, 0, s_parent), parent_model._ROLE_RMAP['addridx'])
-        if addridx is None:  # coin
+        if addridx is None:        
             if not self._show_coins:
                 return False
         else:
@@ -107,7 +107,7 @@ class QEAddressCoinFilterProxyModel(QSortFilterProxyModel):
 class QEAddressCoinListModel(QAbstractListModel, QtEventListener):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES=('type', 'addridx', 'address', 'label', 'balance', 'numtx', 'held', 'height', 'amount', 'outpoint',
                  'short_outpoint', 'short_id', 'txid')
     _ROLE_KEYS = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + len(_ROLE_NAMES))
@@ -176,7 +176,7 @@ class QEAddressCoinListModel(QAbstractListModel, QtEventListener):
     def coin_to_model(self, addrtype: str, coin: 'PartialTxInput'):
         txid = coin.prevout.txid.hex()
         short_id = ''
-        # check below duplicated from TxInput as we cannot get short_id unambiguously
+                                                                                     
         if coin.block_txpos is not None and coin.block_txpos >= 0:
             short_id = str(coin.short_id)
         item = {
@@ -198,7 +198,7 @@ class QEAddressCoinListModel(QAbstractListModel, QtEventListener):
     def setDirty(self):
         self._dirty = True
 
-    # initial model data
+                        
     @pyqtSlot()
     @pyqtSlot(bool)
     def initModel(self, force: bool = False):

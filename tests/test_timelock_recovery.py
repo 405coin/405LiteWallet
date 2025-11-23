@@ -28,7 +28,7 @@ class TestTimelockRecovery(ElectrumTestCase):
 
     def tearDown(self):
         super(TestTimelockRecovery, self).tearDown()
-        # Restore the "real" stdout
+                                   
         sys.stdout = self._saved_stdout
 
     def _create_default_wallet(self):

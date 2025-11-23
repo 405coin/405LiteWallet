@@ -101,7 +101,7 @@ SEED_TEST_CASES = {
 class Test_NewMnemonic(ElectrumTestCase):
 
     def test_mnemonic_to_seed_basic(self):
-        # note: not a valid electrum seed
+                                         
         seed = mnemonic.Mnemonic.mnemonic_to_seed(mnemonic='foobar', passphrase='none')
         self.assertEqual('741b72fd15effece6bfe5a26a52184f66811bd2be363190e07a42cca442b1a5bb22b3ad0eb338197287e6d314866c7fba863ac65d3f156087a5052ebc7157fce',
                          seed.hex())
@@ -153,7 +153,7 @@ class Test_BIP39(ElectrumTestCase):
         self.assertTrue(is_checksum_valid)
 
     def test_cjk_normalization(self):
-        # test case from https://github.com/Electron-Cash/Electron-Cash/issues/2740
+                                                                                   
         cjk_toku_kanchi_hex = "e381a8e3818ae3818fe38080e3818be38293e381a1e38080e3819de38186e38193e38299e38080e381bee38293e3818be38299e38080e3818de3818be3818fe38080e381bbe38184e3818fe38080e3818fe38186e381b5e3818fe38080e381a6e381b5e3819fe38299e38080e38191e3828fe38197e38184e38080e3819fe381a1e381afe38299e381aae38080e381b2e381a4e38288e38186e38080e381bbe38182e38293"
         cjk_toku_kanchi = bfh(cjk_toku_kanchi_hex).decode("utf-8")
         assert cjk_toku_kanchi == "とおく　かんち　そうご　まんが　きかく　ほいく　くうふく　てふだ　けわしい　たちばな　ひつよう　ほあん"
@@ -178,7 +178,7 @@ class Test_seeds(ElectrumTestCase):
         ('cell dumb heartbeat north boom tease ship baby bright kingdom rare badword', ''),
         ('cElL DuMb hEaRtBeAt nOrTh bOoM TeAsE ShIp bAbY BrIgHt kInGdOm rArE SqUeEzE', 'old'),
         ('   cElL  DuMb hEaRtBeAt nOrTh bOoM  TeAsE ShIp    bAbY BrIgHt kInGdOm rArE SqUeEzE   ', 'old'),
-        # below seed is actually 'invalid old' as it maps to 33 hex chars
+                                                                         
         ('hurry idiot prefer sunset mention mist jaw inhale impossible kingdom rare squeeze', 'old'),
         ('cram swing cover prefer miss modify ritual silly deliver chunk behind inform able', 'standard'),
         ('cram swing cover prefer miss modify ritual silly deliver chunk behind inform', ''),
@@ -188,19 +188,19 @@ class Test_seeds(ElectrumTestCase):
         ('science dawn member doll dutch real can brick knife deny drive list', '2fa'),
         ('science dawn member doll dutch real ca brick knife deny drive list', ''),
         (' sCience dawn   member doll Dutch rEAl can brick knife deny drive  lisT', '2fa'),
-        # pre-version-2.7 2fa seed with 25 words:
+                                                 
         ('bind clever room kidney crucial sausage spy edit canvas soul liquid ribbon slam open alpha suffer gate relax voice carpet law hill woman tonight abstract', '2fa'),
         ('  bInd cLEveR    room kidney crucial sausage spy edit canvas soul liquid ribbon SLAM open alpha suffer gate relax voice carpet law hill woman tonight abstract ', '2fa'),
-        # pre-version-2.7 2fa seed with 24 words:
+                                                 
         ('sibling leg cable timber patient foot occur plate travel finger chef scale radio citizen promote immune must chef fluid sea sphere common acid lab', '2fa'),
         ('frost pig brisk excite novel report camera enlist axis nation novel desert', 'segwit'),
         ('  fRoSt pig brisk excIte novel rePort CamEra enlist axis nation nOVeL dEsert ', 'segwit'),
-        # short seed cheat sheet:
+                                 
         ('x8', 'standard'),
         ('9dk', 'segwit'),
-        ('abandon bike', 'segwit'),  # <- has valid English words
+        ('abandon bike', 'segwit'),                              
         ('6vs', '2fa_segwit'),
-        ('agree install', '2fa_segwit'),  # <- has valid English words
+        ('agree install', '2fa_segwit'),                              
     }
 
     def test_new_seed(self):

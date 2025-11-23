@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import os
 import asyncio
 from collections import defaultdict
@@ -53,7 +53,7 @@ class HttpSwapServer(Logger, EventListener):
         self.wallet = wallet
         self.sm = self.wallet.lnworker.swap_manager
         self.port = self.config.SWAPSERVER_PORT
-        self.register_callbacks() # eventlistener
+        self.register_callbacks()                
 
         self.pending = defaultdict(asyncio.Event)
         self.pending_msg = {}
@@ -89,8 +89,8 @@ class HttpSwapServer(Logger, EventListener):
                 "BTC/BTC": {
                     "rate": 1,
                     "limits": {
-                        "maximal": min(sm._max_forward, sm._max_reverse),  # legacy
-                        "max_forward_amount": sm._max_forward,  # new version, uses 2 separate limits
+                        "maximal": min(sm._max_forward, sm._max_reverse),          
+                        "max_forward_amount": sm._max_forward,                                       
                         "max_reverse_amount": sm._max_reverse,
                         "minimal": sm._min_amount,
                     },

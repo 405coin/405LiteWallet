@@ -1,27 +1,27 @@
-# -*- coding: utf-8 -*-
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2018 The Electrum developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                       
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import base64
 import binascii
@@ -146,7 +146,7 @@ def aes_encrypt_with_iv(key: bytes, iv: bytes, data: bytes) -> bytes:
     elif HAS_PYAES:
         aes_cbc = pyaes.AESModeOfOperationCBC(key, iv=iv)
         aes = pyaes.Encrypter(aes_cbc, padding=pyaes.PADDING_NONE)
-        e = aes.feed(data) + aes.feed()  # empty aes.feed() flushes buffer
+        e = aes.feed(data) + aes.feed()                                   
     else:
         raise Exception("no AES backend found")
     return e
@@ -164,7 +164,7 @@ def aes_decrypt_with_iv(key: bytes, iv: bytes, data: bytes) -> bytes:
     elif HAS_PYAES:
         aes_cbc = pyaes.AESModeOfOperationCBC(key, iv=iv)
         aes = pyaes.Decrypter(aes_cbc, padding=pyaes.PADDING_NONE)
-        data = aes.feed(data) + aes.feed()  # empty aes.feed() flushes buffer
+        data = aes.feed(data) + aes.feed()                                   
     else:
         raise Exception("no AES backend found")
     try:
@@ -235,9 +235,9 @@ def _hash_password(password: Union[bytes, str], *, version: int) -> bytes:
 def _pw_encode_raw(data: bytes, password: Union[bytes, str], *, version: int) -> bytes:
     if version not in KNOWN_PW_HASH_VERSIONS:
         raise UnexpectedPasswordHashVersion(version)
-    # derive key from password
+                              
     secret = _hash_password(password, version=version)
-    # encrypt given data
+                        
     ciphertext = EncodeAES_bytes(secret, data)
     return ciphertext
 
@@ -245,9 +245,9 @@ def _pw_encode_raw(data: bytes, password: Union[bytes, str], *, version: int) ->
 def _pw_decode_raw(data_bytes: bytes, password: Union[bytes, str], *, version: int) -> bytes:
     if version not in KNOWN_PW_HASH_VERSIONS:
         raise UnexpectedPasswordHashVersion(version)
-    # derive key from password
+                              
     secret = _hash_password(password, version=version)
-    # decrypt given data
+                        
     try:
         d = DecodeAES_bytes(secret, data_bytes)
     except Exception as e:
@@ -275,8 +275,8 @@ def pw_decode_bytes(data: str, password: Union[bytes, str], *, version:int) -> b
 
 def pw_encode_with_version_and_mac(data: bytes, password: Union[bytes, str]) -> str:
     """plaintext bytes -> base64 ciphertext"""
-    # https://crypto.stackexchange.com/questions/202/should-we-mac-then-encrypt-or-encrypt-then-mac
-    # Encrypt-and-MAC. The MAC will be used to detect invalid passwords
+                                                                                                   
+                                                                       
     version = PW_HASH_VERSION_LATEST
     mac = sha256(data)[0:4]
     ciphertext = _pw_encode_raw(data, password, version=version)
@@ -341,10 +341,10 @@ def ripemd(x: bytes) -> bytes:
         md.update(x)
         return md.digest()
     except BaseException:
-        # ripemd160 is not guaranteed to be available in hashlib on all platforms.
-        # Historically, our Android builds had hashlib/openssl which did not have it.
-        # see https://github.com/spesmilo/electrum/issues/7093
-        # We bundle a pure python implementation as fallback that gets used now:
+                                                                                  
+                                                                                     
+                                                              
+                                                                                
         from . import ripemd
         md = ripemd.new(x)
         return md.digest()
@@ -396,7 +396,7 @@ def chacha20_poly1305_decrypt(
         cipher = CD_ChaCha20_Poly1305.new(key=key, nonce=nonce)
         if associated_data is not None:
             cipher.update(associated_data)
-        # raises ValueError if not valid (e.g. incorrect MAC)
+                                                             
         return cipher.decrypt_and_verify(ciphertext=data[:-16], received_mac_tag=data[-16:])
     if HAS_CRYPTOGRAPHY:
         a = CG_aead.ChaCha20Poly1305(key)
@@ -420,7 +420,7 @@ def chacha20_encrypt(*, key: bytes, nonce: bytes, data: bytes) -> bytes:
         cipher = CD_ChaCha20.new(key=key, nonce=nonce)
         return cipher.encrypt(data)
     if HAS_CRYPTOGRAPHY:
-        nonce = bytes(16 - len(nonce)) + nonce  # cryptography wants 16 byte nonces
+        nonce = bytes(16 - len(nonce)) + nonce                                     
         algo = CG_algorithms.ChaCha20(key=key, nonce=nonce)
         cipher = CG_Cipher(algo, mode=None, backend=CG_default_backend())
         encryptor = cipher.encryptor()
@@ -438,7 +438,7 @@ def chacha20_decrypt(*, key: bytes, nonce: bytes, data: bytes) -> bytes:
         cipher = CD_ChaCha20.new(key=key, nonce=nonce)
         return cipher.decrypt(data)
     if HAS_CRYPTOGRAPHY:
-        nonce = bytes(16 - len(nonce)) + nonce  # cryptography wants 16 byte nonces
+        nonce = bytes(16 - len(nonce)) + nonce                                     
         algo = CG_algorithms.ChaCha20(key=key, nonce=nonce)
         cipher = CG_Cipher(algo, mode=None, backend=CG_default_backend())
         decryptor = cipher.decryptor()
@@ -473,7 +473,7 @@ def ecies_decrypt_message(
     *,
     magic: bytes = b'BIE1',
 ) -> bytes:
-    encrypted = base64.b64decode(encrypted, validate=True)  # type: bytes
+    encrypted = base64.b64decode(encrypted, validate=True)               
     if len(encrypted) < 85:
         raise Exception('invalid ciphertext: length')
     magic_found = encrypted[:4]

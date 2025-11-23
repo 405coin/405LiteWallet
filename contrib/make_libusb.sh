@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LIBUSB_VERSION="d52e355daa09f17ce64819122cb067b8a2ee0d4b"
-# ^ tag v1.0.27
+
 
 set -e
 
@@ -34,13 +34,13 @@ info "Building $pkgname..."
     ./bootstrap.sh || fail "Could not bootstrap libusb"
     if ! [ -r config.status ] ; then
         if [ "$BUILD_TYPE" = "wine" ] ; then
-            # windows target
+
             LDFLAGS="-Wl,--no-insert-timestamp"
         elif [ $(uname) == "Darwin" ]; then
-            # macos target
+
             LDFLAGS="-Wl -lm"
         else
-            # linux target
+
             LDFLAGS=""
         fi
         LDFLAGS="$LDFLAGS" ./configure \
@@ -52,7 +52,7 @@ info "Building $pkgname..."
     . "$here/$pkgname/libusb/.libs/libusb-1.0.la"
     host_strip "$here/$pkgname/libusb/.libs/$dlname"
     TARGET_NAME="$dlname"
-    if [ $(uname) == "Darwin" ]; then  # on mac, dlname is "libusb-1.0.0.dylib"
+    if [ $(uname) == "Darwin" ]; then
         TARGET_NAME="libusb-1.0.dylib"
     fi
     cp -fpv "$here/$pkgname/libusb/.libs/$dlname" "$PROJECT_ROOT/electrum/$TARGET_NAME" || fail "Could not copy the $pkgname binary to its destination"

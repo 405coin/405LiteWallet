@@ -1,18 +1,18 @@
-# Copyright (c) 2017 Andrew Chow
-# Copyright (c) 2023 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
-#
-# forked from https://github.com/bitcoin-core/HWI/blob/5f300d3dee7b317a6194680ad293eaa0962a3cc7/hwilib/descriptor.py
-#
-# Output Script Descriptors
-# See https://github.com/bitcoin/bitcoin/blob/master/doc/descriptors.md
-#
-# TODO allow xprv
-# TODO hardened derivation
-# TODO allow WIF privkeys
-# TODO impl ADDR descriptors
-# TODO impl RAW descriptors
+                                
+                                            
+                                                                  
+                                                                    
+ 
+                                                                                                                    
+ 
+                           
+                                                                       
+ 
+                 
+                          
+                         
+                            
+                           
 
 from binascii import unhexlify
 import enum
@@ -40,12 +40,12 @@ from . import segwit_addr
 
 MAX_TAPROOT_DEPTH = 128
 
-# we guess that signatures will be 72 bytes long
-# note: DER-encoded ECDSA signatures are 71 or 72 bytes in practice
-#       See https://bitcoin.stackexchange.com/questions/77191/what-is-the-maximum-size-of-a-der-encoded-ecdsa-signature
-#       We assume low S (as that is a bitcoin standardness rule).
-#       We do not assume low R (even though the sigs we create conform), as external sigs,
-#       e.g. from a hw signer cannot be expected to have a low R.
+                                                
+                                                                   
+                                                                                                                       
+                                                                 
+                                                                                          
+                                                                 
 DUMMY_DER_SIG = 72 * b"\x00"
 
 
@@ -54,7 +54,7 @@ class ExpandedScripts:
     def __init__(
         self,
         *,
-        output_script: bytes,  # "scriptPubKey"
+        output_script: bytes,                  
         redeem_script: Optional[bytes] = None,
         witness_script: Optional[bytes] = None,
         scriptcode_for_sighash: Optional[bytes] = None
@@ -187,13 +187,13 @@ class PubkeyProvider(object):
                     raise ValueError("wildcard in descriptor only allowed in last position")
             if deriv_path[0] != "/":
                 raise ValueError(f"deriv_path suffix must start with a '/'. got {deriv_path!r}")
-        # Make ExtendedKey from pubkey if it isn't hex
+                                                      
         self.extkey = None
         try:
             unhexlify(self.pubkey)
-            # Is hex, normal pubkey
+                                   
         except Exception:
-            # Not hex, maybe xpub (but don't allow ypub/zpub)
+                                                             
             self.extkey = BIP32Node.from_xkey(pubkey, allow_custom_headers=False)
         if deriv_path and self.extkey is None:
             raise ValueError("deriv_path suffix present for simple pubkey")
@@ -239,9 +239,9 @@ class PubkeyProvider(object):
     def get_pubkey_bytes(self, *, pos: Optional[int] = None) -> bytes:
         if self.is_range() and pos is None:
             raise ValueError("pos must be set for ranged descriptor")
-        # note: if not ranged, we ignore pos.
+                                             
         if self.extkey is not None:
-            compressed = True  # bip32 implies compressed pubkeys
+            compressed = True                                    
             if self.deriv_path is None:
                 assert not self.is_range()
                 return self.extkey.eckey.get_public_key_bytes(compressed=compressed)
@@ -294,12 +294,12 @@ class PubkeyProvider(object):
     def is_range(self) -> bool:
         if not self.deriv_path:
             return False
-        if self.deriv_path[-1] == "*":  # TODO hardened
+        if self.deriv_path[-1] == "*":                 
             return True
         return False
 
     def has_uncompressed_pubkey(self) -> bool:
-        if self.is_range():  # bip32 implies compressed
+        if self.is_range():                            
             return False
         return b"\x04" == self.get_pubkey_bytes()[:1]
 
@@ -358,7 +358,7 @@ class Descriptor(object):
     def _satisfy_inner(
         self,
         *,
-        sigdata: Mapping[bytes, bytes] = None,  # pubkey -> sig
+        sigdata: Mapping[bytes, bytes] = None,                 
         allow_dummy: bool = False,
     ) -> ScriptSolutionInner:
         raise NotImplementedError("The Descriptor base class does not implement this method")
@@ -366,7 +366,7 @@ class Descriptor(object):
     def satisfy(
         self,
         *,
-        sigdata: Mapping[bytes, bytes] = None,  # pubkey -> sig
+        sigdata: Mapping[bytes, bytes] = None,                 
         allow_dummy: bool = False,
     ) -> ScriptSolutionTop:
         """Construct a witness and/or scriptSig to be used in a txin, to satisfy the bitcoin SCRIPT.
@@ -390,7 +390,7 @@ class Descriptor(object):
     def get_satisfaction_progress(
         self,
         *,
-        sigdata: Mapping[bytes, bytes] = None,  # pubkey -> sig
+        sigdata: Mapping[bytes, bytes] = None,                 
     ) -> Tuple[int, int]:
         """Returns (num_sigs_we_have, num_sigs_required) towards satisfying this script.
         Besides signatures, later this can also consider hash-preimages.
@@ -613,12 +613,12 @@ class MultisigDescriptor(Descriptor):
         self.is_sorted = is_sorted
         if self.is_sorted:
             if not self.is_range():
-                # sort xpubs using the order of pubkeys
+                                                       
                 der_pks = [p.get_pubkey_bytes() for p in self.pubkeys]
                 self.pubkeys = [x[1] for x in sorted(zip(der_pks, self.pubkeys))]
             else:
-                # not possible to sort according to final order in expanded scripts,
-                # but for easier visual comparison, we do a lexicographical sort
+                                                                                    
+                                                                                
                 self.pubkeys.sort()
 
     def to_string_no_checksum(self) -> str:
@@ -698,10 +698,10 @@ class SHDescriptor(Descriptor):
         subdesc = self.subdescriptors[0]
         redeem_script = self.expand().redeem_script
         witness = None
-        if isinstance(subdesc, (WSHDescriptor, WPKHDescriptor)):  # witness_v0 nested in p2sh
+        if isinstance(subdesc, (WSHDescriptor, WPKHDescriptor)):                             
             witness = subdesc.satisfy(sigdata=sigdata, allow_dummy=allow_dummy).witness
             script_sig = construct_script([redeem_script])
-        else:  # legacy p2sh
+        else:               
             subsol = subdesc._satisfy_inner(sigdata=sigdata, allow_dummy=allow_dummy)
             script_sig = construct_script([*subsol.witness_items, redeem_script])
         return ScriptSolutionTop(
@@ -778,7 +778,7 @@ class TRDescriptor(Descriptor):
             desc_list = flatten(desc_tree)
         super().__init__(
             pubkeys=[internal_key],
-            subdescriptors=desc_list,  # FIXME we could do without the flattened list (dupl)
+            subdescriptors=desc_list,                                                       
             name="tr",
         )
 
@@ -801,7 +801,7 @@ class TRDescriptor(Descriptor):
     def is_taproot(self) -> bool:
         return True
 
-    # TODO add more test vectors from BIP-0386
+                                              
     def expand(self, *, pos: Optional[int] = None) -> "ExpandedScripts":
         internal_pubkey = self.pubkeys[0].get_pubkey_bytes(pos=pos)
         script_tree = None
@@ -809,7 +809,7 @@ class TRDescriptor(Descriptor):
             def transform(tree_node):
                 if isinstance(tree_node, Descriptor):
                     leaf_version = 0xc0
-                    leaf_script = tree_node.expand(pos=pos).scriptcode_for_sighash  # FIXME maybe rename scriptcode_for_sighash
+                    leaf_script = tree_node.expand(pos=pos).scriptcode_for_sighash                                             
                     return (leaf_version, leaf_script)
                 assert len(tree_node) == 2, len(tree_node)
                 return [transform(tree_node[0]), transform(tree_node[1])]
@@ -911,11 +911,11 @@ class _ParseDescriptorContext(Enum):
     Some expressions aren't allowed at certain levels, this helps us track those.
     """
 
-    TOP = enum.auto()     # The top level, not within any descriptor
-    P2SH = enum.auto()    # Within an sh() descriptor
-    P2WPKH = enum.auto()  # Within wpkh() descriptor
-    P2WSH = enum.auto()   # Within a wsh() descriptor
-    P2TR = enum.auto()    # Within a tr() descriptor
+    TOP = enum.auto()                                               
+    P2SH = enum.auto()                               
+    P2WPKH = enum.auto()                            
+    P2WSH = enum.auto()                              
+    P2TR = enum.auto()                              
 
 
 def _parse_descriptor(desc: str, *, ctx: '_ParseDescriptorContext') -> 'Descriptor':
@@ -989,7 +989,7 @@ def _parse_descriptor(desc: str, *, ctx: '_ParseDescriptorContext') -> 'Descript
             def parse_tree(tree_str):
                 if len(tree_str) == 0:
                     raise ValueError("Invalid Taproot tree expression")
-                if tree_str[0] != "{":  # leaf
+                if tree_str[0] != "{":        
                     sarg, remaining = _get_expr(tree_str)
                     return _parse_descriptor(sarg, ctx=_ParseDescriptorContext.P2TR), remaining
                 if len(tree_str) < len("{x,y}") or tree_str[-1] != "}":
@@ -1028,7 +1028,7 @@ def parse_descriptor(desc: str) -> 'Descriptor':
     return _parse_descriptor(desc, ctx=_ParseDescriptorContext.TOP)
 
 
-#####
+     
 
 
 class NotLegacySinglesigScriptType(Exception): pass
@@ -1050,17 +1050,17 @@ def get_singlesig_descriptor_from_legacy_leaf(*, pubkey: str, script_type: str) 
 
 
 def create_dummy_descriptor_from_address(addr: Optional[str]) -> 'Descriptor':
-    # It's not possible to tell the script type in general just from an address.
-    # - "1" addresses are of course p2pkh
-    # - "3" addresses are p2sh but we don't know the redeem script...
-    # - "bc1" addresses (if they are 42-long) are p2wpkh
-    # - "bc1" addresses that are 62-long are p2wsh but we don't know the script...
-    # If we don't know the script, we _guess_ it is pubkeyhash.
-    # As this method is used e.g. for tx size estimation,
-    # the estimation will not be precise.
+                                                                                
+                                         
+                                                                     
+                                                        
+                                                                                  
+                                                               
+                                                         
+                                         
     def guess_script_type(addr: Optional[str]) -> str:
         if addr is None:
-            return 'p2wpkh'  # the default guess
+            return 'p2wpkh'                     
         witver, witprog = segwit_addr.decode_segwit_address(constants.net.SEGWIT_HRP, addr)
         if witprog is not None:
             return 'p2wpkh'
@@ -1072,7 +1072,7 @@ def create_dummy_descriptor_from_address(addr: Optional[str]) -> 'Descriptor':
         raise Exception(f'unrecognized address: {repr(addr)}')
 
     script_type = guess_script_type(addr)
-    # guess pubkey-len to be 33-bytes:
+                                      
     pubkey = ecc.GENERATOR.get_public_key_bytes(compressed=True).hex()
     desc = get_singlesig_descriptor_from_legacy_leaf(pubkey=pubkey, script_type=script_type)
     return desc

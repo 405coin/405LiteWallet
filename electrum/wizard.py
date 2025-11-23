@@ -33,13 +33,13 @@ class WizardViewState(NamedTuple):
 
 
 class AbstractWizard:
-    # serve as a base for all UIs, so no qt
-    # encapsulate wizard state
-    # encapsulate navigation decisions, UI agnostic
-    # encapsulate stack, go backwards
-    # allow extend/override flow in subclasses e.g.
-    # - override: replace 'next' value to own fn
-    # - extend: add new keys to navmap, wire up flow by override
+                                           
+                              
+                                                   
+                                     
+                                                   
+                                                
+                                                                
 
     _logger = get_logger(__name__)
 
@@ -47,23 +47,23 @@ class AbstractWizard:
         self.navmap = {}
 
         self._current = WizardViewState(None, {}, {})
-        self._stack = []  # type: List[WizardViewState]
+        self._stack = []                               
 
     def navmap_merge(self, additional_navmap: dict):
-        # NOTE: only merges one level deep. Deeper dict levels will overwrite
+                                                                             
         for k, v in additional_navmap.items():
             if k in self.navmap:
                 self.navmap[k].update(v)
             else:
                 self.navmap[k] = v
 
-    # from current view and wizard_data, resolve the new view
-    # returns WizardViewState tuple (view name, wizard_data, view params)
-    # view name is the string id of the view in the nav map
-    # wizard data is the (stacked) wizard data dict containing user input and choices
-    # view params are transient, meant for extra configuration of a view (e.g. info
-    #   msg in a generic choice dialog)
-    # exception: stay on this view
+                                                             
+                                                                         
+                                                           
+                                                                                     
+                                                                                   
+                                       
+                                  
     def resolve_next(self, view: str, wizard_data: dict) -> WizardViewState:
         assert view, f'view not defined: {repr(self.sanitize_stack_item(wizard_data))}'
         self._logger.debug(f'view={view}')
@@ -72,15 +72,15 @@ class AbstractWizard:
         nav = self.navmap[view]
 
         if 'accept' in nav:
-            # allow python scope to append to wizard_data before
-            # adding to stack or finishing
+                                                                
+                                          
             view_accept = nav['accept']
             if callable(view_accept):
                 view_accept(wizard_data)
             else:
                 raise Exception(f'accept handler for view {view} is not callable')
 
-        # make a clone for next view
+                                    
         wizard_data = copy.deepcopy(wizard_data)
 
         if 'next' not in nav:
@@ -88,14 +88,14 @@ class AbstractWizard:
         else:
             view_next = nav['next']
             if isinstance(view_next, str):
-                # string literal
+                                
                 new_view = WizardViewState(view_next, wizard_data, {})
             elif callable(view_next):
-                # handler fn based
+                                  
                 nv = view_next(wizard_data)
                 self._logger.debug(repr(nv))
 
-                # append wizard_data and params if not returned
+                                                               
                 if isinstance(nv, str):
                     new_view = WizardViewState(nv, wizard_data, {})
                 elif len(nv) == 1:
@@ -129,7 +129,7 @@ class AbstractWizard:
 
         return self._current
 
-    # check if this view is the final view
+                                          
     def is_last_view(self, view: str, wizard_data: dict) -> bool:
         assert view, f'view not defined: {repr(self.sanitize_stack_item(wizard_data))}'
         assert view in self.navmap
@@ -141,11 +141,11 @@ class AbstractWizard:
 
         view_last = nav['last']
         if isinstance(view_last, bool):
-            # bool literal
+                          
             self._logger.debug(f'view "{view}" last: {view_last}')
             return view_last
         elif callable(view_last):
-            # handler fn based
+                              
             is_last = view_last(wizard_data)
             self._logger.debug(f'view "{view}" last: {is_last}')
             return is_last
@@ -172,13 +172,13 @@ class AbstractWizard:
             "wallet_name", "wallet_exists", "wallet_is_open", "wallet_needs_hw_unlock",
             "wallet_type", "keystore_type", "seed_variant", "seed_type", "seed_extend",
             "script_type", "derivation_path", "encrypt",
-            # hardware devices:
+                               
             "hardware_device", "hw_type", "label", "soft_device_id", "xpub_encrypt",
-            # inside keystore:
+                              
             "type", "pw_hash_version", "derivation", "root_fingerprint",
-            # multisig:
+                       
             "multisig_participants", "multisig_signatures", "multisig_current_cosigner", "cosigner_keystore_type",
-            # trustedcoin:
+                          
             "trustedcoin_keepordisable", "trustedcoin_go_online",
         ]
 
@@ -239,7 +239,7 @@ class KeystoreWizard(AbstractWizard):
         self.update_keystore(wizard_data)
 
     def check_multisig_constraints(self, wizard_data: dict) -> Tuple[bool, str]:
-        # called by GUI. overloaded in NewWalletWizard
+                                                      
         return True, ''
 
     def update_keystore(self, wizard_data):
@@ -255,13 +255,13 @@ class KeystoreWizard(AbstractWizard):
         }.get(t)
 
     def last_cosigner(self, wizard_data: dict) -> bool:
-        # one at a time
+                       
         return True
 
     def _convert_wallet_type(self, wizard_data: dict) -> None:
         assert 'wallet_type' in wizard_data
         if multisig_type(wizard_data['wallet_type']):
-            wizard_data['wallet_type'] = 'multisig'  # convert from e.g. "2of2" to "multisig"
+            wizard_data['wallet_type'] = 'multisig'                                          
             wizard_data['multisig_participants'] = 2
             wizard_data['multisig_signatures'] = 2
             wizard_data['multisig_cosigner_data'] = {}
@@ -274,10 +274,10 @@ class KeystoreWizard(AbstractWizard):
             self._current = WizardViewState(start_view, {}, params)
         else:
             self._current = start_viewstate
-        self._convert_wallet_type(self._current.wizard_data)  # mutating in-place
+        self._convert_wallet_type(self._current.wizard_data)                     
         return self._current
 
-    # returns (sub)dict of current cosigner (or root if first)
+                                                              
     def current_cosigner(self, wizard_data: dict) -> dict:
         wdata = wizard_data
         if wizard_data.get('wallet_type') == 'multisig' and 'multisig_current_cosigner' in wizard_data:
@@ -308,7 +308,7 @@ class KeystoreWizard(AbstractWizard):
         current_cosigner = self.current_cosigner(wizard_data)
         _type, _info = current_cosigner['hardware_device']
         plugin = self.plugins.get_plugin(_type)
-        run_hook('init_wallet_wizard', self)  # TODO: currently only used for hww, hook name might be confusing
+        run_hook('init_wallet_wizard', self)                                                                   
         return plugin.wizard_entry_for_device(_info, new_wallet=new_wallet)
 
     def validate_seed(self, seed: str, seed_variant: str, wallet_type: str) -> Tuple[bool, str, str, bool]:
@@ -328,11 +328,16 @@ class KeystoreWizard(AbstractWizard):
             if not bool(seed):
                 validation_message = ''
             seed_type = 'bip39'
-            # bip39 always valid, even if checksum failed, see #8720
-            # however, reject empty string
+                                                                    
+                                          
             seed_valid = bool(seed)
+            if not is_wordlist:
+                electrum_type = mnemonic.calc_seed_type(seed)
+                if electrum_type:
+                    seed_valid = False
+                    validation_message = _('This seed appears to be an Electrum seed. Please disable the BIP39 option.')
         elif seed_variant == 'slip39':
-            # seed shares should be already validated by wizard page, we have a combined encrypted seed
+                                                                                                       
             if seed and isinstance(seed, EncryptedSeed):
                 seed_valid = True
                 seed_type = 'slip39'
@@ -341,7 +346,7 @@ class KeystoreWizard(AbstractWizard):
         else:
             raise Exception(f'unknown seed variant {seed_variant}')
 
-        # check if seed matches wallet type
+                                           
         if wallet_type == '2fa' and not is_any_2fa_seed_type(seed_type):
             seed_valid = False
         elif wallet_type == 'standard' and seed_type not in ['old', 'standard', 'segwit', 'bip39', 'slip39']:
@@ -459,7 +464,7 @@ class NewWalletWizard(KeystoreWizard):
             'multisig': {
                 'next': 'keystore_type'
             },
-            'multisig_cosigner_keystore': {  # this view should set 'multisig_current_cosigner'
+            'multisig_cosigner_keystore': {                                                    
                 'next': self.on_cosigner_keystore_type
             },
             'multisig_cosigner_key': {
@@ -495,7 +500,7 @@ class NewWalletWizard(KeystoreWizard):
         }
         self._daemon = daemon
         self.plugins = plugins
-        # todo: load only if needed, like hw plugins
+                                                    
         self.plugins.load_plugin_by_name('trustedcoin')
 
     def start(self, *, start_viewstate: WizardViewState = None) -> WizardViewState:
@@ -563,8 +568,8 @@ class NewWalletWizard(KeystoreWizard):
             return 'multisig_cosigner_keystore'
 
     def last_cosigner(self, wizard_data: dict) -> bool:
-        # check if we have the final number of cosigners. Doesn't check if cosigner data itself is complete
-        # (should be validated by wizardcomponents)
+                                                                                                           
+                                                   
         if not self.is_multisig(wizard_data):
             return True
 
@@ -595,12 +600,12 @@ class NewWalletWizard(KeystoreWizard):
         try:
             k_xpub_type = xpub_type(xpubs[0])
         except Exception:
-            return True  # maybe old_mpk?
+            return True                  
         for xpub in xpubs:
             try:
                 my_xpub_type = xpub_type(xpub)
             except Exception:
-                return True  # maybe old_mpk?
+                return True                  
             if my_xpub_type != k_xpub_type:
                 return True
         return False
@@ -616,7 +621,7 @@ class NewWalletWizard(KeystoreWizard):
         if not self.is_multisig(wizard_data):
             return True, ''
 
-        # current cosigner might be incomplete. In that case, return valid
+                                                                          
         cosigner_data = self.current_cosigner(wizard_data)
         if self.needs_derivation_path(wizard_data):
             if 'derivation_path' not in cosigner_data:
@@ -647,7 +652,7 @@ class NewWalletWizard(KeystoreWizard):
         return multisig_keys_valid, user_info
 
     def validate_master_key(self, key: str, wallet_type: str):
-        # TODO: deduplicate with master key check in create_storage()
+                                                                     
         validation_message = ''
         key_valid = False
 
@@ -656,9 +661,9 @@ class NewWalletWizard(KeystoreWizard):
         else:
             k = keystore.from_master_key(key)
             if wallet_type == 'standard':
-                if isinstance(k, keystore.Xpub):  # has bip32 xpub
+                if isinstance(k, keystore.Xpub):                  
                     t1 = xpub_type(k.xpub)
-                    if t1 not in ['standard', 'p2wpkh', 'p2wpkh-p2sh']:  # disallow Ypub/Zpub
+                    if t1 not in ['standard', 'p2wpkh', 'p2wpkh-p2sh']:                      
                         validation_message = '%s: %s' % (_('Wrong key type'), t1)
                     else:
                         key_valid = True
@@ -667,10 +672,10 @@ class NewWalletWizard(KeystoreWizard):
                 else:
                     self._logger.error(f"unexpected keystore type: {type(keystore)}")
             elif wallet_type == 'multisig':
-                if not isinstance(k, keystore.Xpub):  # old mpk?
+                if not isinstance(k, keystore.Xpub):            
                     validation_message = '%s: %s' % (_('Wrong key type'), "not bip32")
                 t1 = xpub_type(k.xpub)
-                if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:  # disallow ypub/zpub
+                if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:                      
                     validation_message = '%s: %s' % (_('Wrong key type'), t1)
                 else:
                     key_valid = True
@@ -687,7 +692,7 @@ class NewWalletWizard(KeystoreWizard):
             raise Exception('file already exists at path')
         storage = WalletStorage(path)
 
-        # TODO: refactor using self.keystore_from_data
+                                                      
         k = None
         if 'keystore_type' not in data:
             assert data['wallet_type'] == 'imported'
@@ -704,9 +709,9 @@ class NewWalletWizard(KeystoreWizard):
                 for addr in data['address_list'].split():
                     assert isinstance(addr, str)
                     assert bitcoin.is_address(addr), f"expected bitcoin addr. got {addr[:5] + '..' + addr[-2:]}"
-                    # note: we do not normalize addresses. :/
-                    #       In particular, bech32 addresses can be either all-lowercase or all-uppercase.
-                    #       TODO we should normalize them, but it only makes sense if we also do a walletDB-upgrade.
+                                                             
+                                                                                                         
+                                                                                                                    
                     addresses[addr] = {}
         elif data['keystore_type'] in ['createseed', 'haveseed']:
             seed_extension = data['seed_extra_words'] if data['seed_extend'] else ''
@@ -732,7 +737,7 @@ class NewWalletWizard(KeystoreWizard):
                 raise Exception('unsupported/unknown seed_type %s' % data['seed_type'])
         elif data['keystore_type'] == 'masterkey':
             k = keystore.from_master_key(data['master_key'])
-            if isinstance(k, keystore.Xpub):  # has xpub
+            if isinstance(k, keystore.Xpub):            
                 t1 = xpub_type(k.xpub)
                 if data['wallet_type'] == 'multisig':
                     if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:
@@ -746,7 +751,7 @@ class NewWalletWizard(KeystoreWizard):
                 raise Exception(f'unexpected keystore type: {type(k)}')
         elif data['keystore_type'] == 'hardware':
             k = self.hw_keystore(data)
-            if isinstance(k, keystore.Xpub):  # has xpub
+            if isinstance(k, keystore.Xpub):            
                 t1 = xpub_type(k.xpub)
                 if data['wallet_type'] == 'multisig':
                     if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:

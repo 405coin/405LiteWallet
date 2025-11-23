@@ -8,7 +8,7 @@ ItemDelegate {
 
     height: item.height
     width: ListView.view.width
-    font.pixelSize: constants.fontSizeSmall // set default font size for child controls
+    font.pixelSize: constants.fontSizeSmall 
 
     highlighted: ListView.isCurrentItem
 

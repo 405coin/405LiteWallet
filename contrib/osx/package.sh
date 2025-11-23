@@ -6,7 +6,7 @@ PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
 CONTRIB="$PROJECT_ROOT/contrib"
 . "$CONTRIB"/build_tools_util.sh
 
-# note: GCC 10.1 will need an extra option, see https://github.com/bitcoin/bitcoin/pull/19553
+
 
 cdrkit_version=1.1.11
 cdrkit_download_path=http://distro.ibiblio.org/fatdog/source/600/c

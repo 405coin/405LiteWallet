@@ -10,7 +10,7 @@ ItemDelegate {
     width: ListView.view.width
     height: delegateLayout.height
     highlighted: ListView.isCurrentItem
-    font.pixelSize: constants.fontSizeMedium // set default font size for child controls
+    font.pixelSize: constants.fontSizeMedium 
 
     property int indent: 0
 
@@ -45,13 +45,13 @@ ItemDelegate {
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
                 }
-                // Label {
-                //     Layout.preferredWidth: implicitWidth
-                //     visible: model.short_id
-                //     font.family: FixedFont
-                //     font.pixelSize: constants.fontSizeSmall
-                //     text: '[' + model.short_id + ']'
-                // }
+                
+                
+                
+                
+                
+                
+                
                 Item {
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop

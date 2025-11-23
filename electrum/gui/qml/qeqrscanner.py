@@ -58,13 +58,13 @@ class QEQRScanner(QObject):
 
     def on_qr_activity_result(self, requestCode, resultCode, intent):
         try:
-            if resultCode == -1:  # RESULT_OK:
+            if resultCode == -1:              
                 if (contents := intent.getStringExtra(jString("text"))) is not None:
                     self.foundText.emit(contents)
                 if (contents := intent.getByteArrayExtra(jString("binary"))) is not None:
                     self._binary_content = QEBytes(bytes(contents.tolist()))
                     self.foundBinary.emit(self._binary_content)
-        except Exception as e:  # exc would otherwise get lost
+        except Exception as e:                                
             send_exception_to_crash_reporter(e)
         finally:
             self.finished.emit()

@@ -17,7 +17,7 @@ except Exception:
 
 config = SimpleConfig()
 
-# start network
+               
 loop, stopping_fut, loop_thread = create_and_start_event_loop()
 network = Network(config)
 network.start()
@@ -30,10 +30,10 @@ class Notifier(SynchronizerBase):
         self.watch_queue = asyncio.Queue()
 
     async def main(self):
-        # resend existing subscriptions if we were restarted
+                                                            
         for addr in self.watched_addresses:
             await self._add_address(addr)
-        # main loop
+                   
         while True:
             addr = await self.watch_queue.get()
             self.watched_addresses.add(addr)

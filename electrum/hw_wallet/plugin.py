@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 from abc import abstractmethod, ABC
 from typing import TYPE_CHECKING, Sequence, Optional, Type, Iterable, Any
 
@@ -47,7 +47,7 @@ class HW_PluginBase(BasePlugin, ABC):
     libraries_available: bool
     SUPPORTED_XTYPES = ()
 
-    # define supported library versions:  minimum_library <= x < maximum_library
+                                                                                
     minimum_library = (0,)
     maximum_library = (float('inf'),)
 
@@ -66,13 +66,13 @@ class HW_PluginBase(BasePlugin, ABC):
         return self.parent.device_manager
 
     def create_device_from_hid_enumeration(self, d: dict, *, product_key) -> Optional['Device']:
-        # note: id_ needs to be unique between simultaneously connected devices,
-        #       and ideally unchanged while a device is connected.
-        # Older versions of hid don't provide interface_number
+                                                                                
+                                                                  
+                                                              
         interface_number = d.get('interface_number', -1)
         usage_page = d['usage_page']
-        # id_=str(d['path']) in itself might be sufficient, but this had to be touched
-        # a number of times already, so let's just go for the overkill approach:
+                                                                                      
+                                                                                
         id_ = f"{d['path']},{d['serial_number']},{interface_number},{usage_page}"
         device = Device(path=d['path'],
                         interface_number=interface_number,
@@ -101,7 +101,7 @@ class HW_PluginBase(BasePlugin, ABC):
         return client
 
     def show_address(self, wallet: 'Abstract_Wallet', address, keystore: 'Hardware_KeyStore' = None):
-        pass  # implemented in child classes
+        pass                                
 
     def show_address_helper(self, wallet, address, keystore=None):
         if keystore is None:
@@ -131,9 +131,9 @@ class HW_PluginBase(BasePlugin, ABC):
             return ".".join(str(i) for i in t)
 
         try:
-            # this might raise ImportError or LibraryFoundButUnusable
+                                                                     
             library_version = self.get_library_version()
-            # if no exception so far, we might still raise LibraryFoundButUnusable
+                                                                                  
             if (library_version == 'unknown'
                     or versiontuple(library_version) < self.minimum_library
                     or versiontuple(library_version) >= self.maximum_library):
@@ -174,7 +174,7 @@ class HW_PluginBase(BasePlugin, ABC):
         raise NotImplementedError()
 
     def create_handler(self, window) -> 'HardwareHandlerBase':
-        # note: in Qt GUI, 'window' is either an ElectrumWindow or an QENewWalletWizard
+                                                                                       
         raise NotImplementedError()
 
     def can_recognize_device(self, device: Device) -> bool:
@@ -199,7 +199,7 @@ class HW_PluginBase(BasePlugin, ABC):
 
 
 class HardwareClientBase(ABC):
-    handler = None  # type: Optional['HardwareHandlerBase']
+    handler = None                                         
 
     def __init__(self, *, plugin: 'HW_PluginBase'):
         assert_runs_in_hwd_thread()
@@ -216,7 +216,7 @@ class HardwareClientBase(ABC):
     def close(self):
         pass
 
-    def timeout(self, cutoff) -> None:  # noqa: B027
+    def timeout(self, cutoff) -> None:              
         pass
 
     @abstractmethod
@@ -231,8 +231,8 @@ class HardwareClientBase(ABC):
         and they are also used as a fallback to distinguish devices programmatically.
         So ideally, different devices would have different labels.
         """
-        # When returning a constant here (i.e. not implementing the method in the way
-        # it is supposed to work), make sure the return value is in electrum.plugin.PLACEHOLDER_HW_CLIENT_LABELS
+                                                                                     
+                                                                                                                
         return " "
 
     def get_soft_device_id(self) -> Optional[str]:
@@ -255,15 +255,15 @@ class HardwareClientBase(ABC):
 
     @runs_in_hwd_thread
     def request_root_fingerprint_from_device(self) -> str:
-        # digitalbitbox (at least) does not reveal xpubs corresponding to unhardened paths
-        # so ask for a direct child, and read out fingerprint from that:
+                                                                                          
+                                                                        
         child_of_root_xpub = self.get_xpub("m/0'", xtype='standard')
         root_fingerprint = BIP32Node.from_xkey(child_of_root_xpub).fingerprint.hex().lower()
         return root_fingerprint
 
     @runs_in_hwd_thread
     def get_password_for_storage_encryption(self) -> str:
-        # note: using a different password based on hw device type is highly undesirable! see #5993
+                                                                                                   
         derivation = get_derivation_used_for_hw_device_encryption()
         xpub = self.get_xpub(derivation, "standard")
         password = Xpub.get_pubkey_from_xpub(xpub, ()).hex()
@@ -375,8 +375,8 @@ def validate_op_return_output(output: TxOutput, *, max_size: int = None) -> None
 
 
 def only_hook_if_libraries_available(func):
-    # note: this decorator must wrap @hook, not the other way around,
-    # as 'hook' uses the name of the function it wraps
+                                                                     
+                                                      
     def wrapper(self: 'HW_PluginBase', *args, **kwargs):
         if not self.libraries_available: return None
         return func(self, *args, **kwargs)

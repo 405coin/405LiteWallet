@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class QEConfig(AuthMixin, QObject):
-    instance = None  # type: Optional[QEConfig]
+    instance = None                            
     _logger = get_logger(__name__)
 
     def __init__(self, config: 'SimpleConfig', parent=None):
@@ -62,7 +62,7 @@ class QEConfig(AuthMixin, QObject):
     languagesChanged = pyqtSignal()
     @pyqtProperty('QVariantList', notify=languagesChanged)
     def languagesAvailable(self):
-        # sort on translated languages, then re-add Default on top
+                                                                  
         langs = copy.deepcopy(languages)
         default = langs.pop('')
         langs_sorted = sorted(list(map(lambda x: {'value': x[0], 'text': x[1]}, langs.items())), key=lambda x: x['text'])
@@ -352,18 +352,18 @@ class QEConfig(AuthMixin, QObject):
             msats = amount.msatsInt
         else:
             return '---'
-        precision = 3  # config.amt_precision_post_satoshi is not exposed in preferences
+        precision = 3                                                                   
         if with_unit:
             return self.config.format_amount_and_units(msats/1000, precision=precision)
         else:
             return self.config.format_amount(msats/1000, precision=precision)
 
-    # TODO delegate all this to config.py/util.py
+                                                 
     def decimal_point(self):
         return self.config.BTC_AMOUNTS_DECIMAL_POINT
 
     def max_precision(self):
-        return self.decimal_point() + 0  # self.extra_precision
+        return self.decimal_point() + 0                        
 
     @pyqtSlot(str, result=QEAmount)
     def unitsToSats(self, unitAmount):
@@ -373,16 +373,16 @@ class QEConfig(AuthMixin, QObject):
         except Exception:
             return self._amount
 
-        # scale it to max allowed precision, make it an int
+                                                           
         max_prec_amount = int(pow(10, self.max_precision()) * x)
-        # if the max precision is simply what unit conversion allows, just return
+                                                                                 
         if self.max_precision() == self.decimal_point():
             self._amount = QEAmount(amount_sat=max_prec_amount)
             return self._amount
         self._logger.debug('fallthrough')
-        # otherwise, scale it back to the expected unit
-        #amount = Decimal(max_prec_amount) / Decimal(pow(10, self.max_precision()-self.decimal_point()))
-        #return int(amount) #Decimal(amount) if not self.is_int else int(amount)
+                                                       
+                                                                                                        
+                                                                                
         return self._amount
 
     @pyqtSlot('quint64', result=float)

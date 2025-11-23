@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# This was forked from https://github.com/rustyrussell/lightning-payencode/tree/acc16ec13a3fa1dc16c07af6ec67c261bd8aff23
+                                                                                                                        
 
 import io
 import re
@@ -28,14 +28,14 @@ class LnDecodeException(LnInvoiceException): pass
 class LnEncodeException(LnInvoiceException): pass
 
 
-# BOLT #11:
-#
-# A writer MUST encode `amount` as a positive decimal integer with no
-# leading zeroes, SHOULD use the shortest representation possible.
+           
+ 
+                                                                     
+                                                                  
 def shorten_amount(amount):
     """ Given an amount in bitcoin, shorten it
     """
-    # Convert to pico initially
+                               
     amount = int(amount * 10**12)
     units = ['p', 'n', 'u', 'm']
     for unit in units:
@@ -50,13 +50,13 @@ def shorten_amount(amount):
 def unshorten_amount(amount) -> Decimal:
     """ Given a shortened amount, convert it into a decimal
     """
-    # BOLT #11:
-    # The following `multiplier` letters are defined:
-    #
-    #* `m` (milli): multiply by 0.001
-    #* `u` (micro): multiply by 0.000001
-    #* `n` (nano): multiply by 0.000000001
-    #* `p` (pico): multiply by 0.000000000001
+               
+                                                     
+     
+                                     
+                                        
+                                          
+                                             
     units = {
         'p': 10**12,
         'n': 10**9,
@@ -64,9 +64,9 @@ def unshorten_amount(amount) -> Decimal:
         'm': 10**3,
     }
     unit = str(amount)[-1]
-    # BOLT #11:
-    # A reader SHOULD fail if `amount` contains a non-digit, or is followed by
-    # anything except a `multiplier` in the table above.
+               
+                                                                              
+                                                        
     if not re.fullmatch("\\d+[pnum]?", str(amount)):
         raise LnDecodeException("Invalid amount '{}'".format(amount))
 
@@ -152,7 +152,7 @@ def pull_tagged(data5: bytearray) -> Tuple[str, Sequence[int]]:
         raise ValueError(
             "Truncated {} field: expected {} values".format(CHARSET[data5[0]], length))
     ret = (CHARSET[data5[0]], data5[3:3+length])
-    del data5[:3 + length]    # much faster than: data5=data5[offset:]
+    del data5[:3 + length]                                            
     return ret
 
 
@@ -164,12 +164,12 @@ def lnencode(addr: 'LnAddr', privkey) -> str:
 
     hrp = 'ln' + amount
 
-    # Start with the timestamp
+                              
     data5 = int_to_data5(addr.date, bit_len=35)
 
     tags_set = set()
 
-    # Payment hash
+                  
     assert addr.paymenthash is not None
     data5 += tagged8('p', addr.paymenthash)
     tags_set.add('p')
@@ -180,9 +180,9 @@ def lnencode(addr: 'LnAddr', privkey) -> str:
 
     for k, v in addr.tags:
 
-        # BOLT #11:
-        #
-        # A writer MUST NOT include more than one `d`, `h`, `n` or `x` fields,
+                   
+         
+                                                                              
         if k in ('d', 'h', 'n', 'x', 'p', 's', '9'):
             if k in tags_set:
                 raise LnEncodeException("Duplicate '{}' tag".format(k))
@@ -209,7 +209,7 @@ def lnencode(addr: 'LnAddr', privkey) -> str:
             if v is not None:
                 data5 += encode_fallback_addr(v, addr.net)
         elif k == 'd':
-            # truncate to max length: 1024*5 bits = 639 bytes
+                                                             
             data5 += tagged8('d', v.encode()[0:639])
         elif k == 'x':
             expirybits = int_to_data5(v)
@@ -227,21 +227,21 @@ def lnencode(addr: 'LnAddr', privkey) -> str:
             feature_bits = int_to_data5(v)
             data5 += tagged5('9', feature_bits)
         else:
-            # FIXME: Support unknown tags?
+                                          
             raise LnEncodeException("Unknown tag {}".format(k))
 
         tags_set.add(k)
 
-    # BOLT #11:
-    #
-    # A writer MUST include either a `d` or `h` field, and MUST NOT include
-    # both.
+               
+     
+                                                                           
+           
     if 'd' in tags_set and 'h' in tags_set:
         raise ValueError("Cannot include both 'd' and 'h'")
     if 'd' not in tags_set and 'h' not in tags_set:
         raise ValueError("Must include either 'd' or 'h'")
 
-    # We actually sign the hrp, then data (padded to 8 bits with zeroes).
+                                                                         
     msg = hrp.encode("ascii") + bytes(convertbits(data5, 5, 8))
     msg32 = sha256(msg).digest()
     privkey = ecc.ECPrivkey(privkey)
@@ -264,8 +264,8 @@ class LnAddr(object):
         self.payment_secret = payment_secret
         self.signature = None
         self.pubkey = None
-        self.net = constants.net if net is None else net  # type: Type[AbstractNet]
-        self._amount = amount  # type: Optional[Decimal]  # in bitcoins
+        self.net = constants.net if net is None else net                           
+        self._amount = amount                                          
 
     @property
     def amount(self) -> Optional[Decimal]:
@@ -282,23 +282,23 @@ class LnAddr(object):
         if value.is_nan() or not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_BTC):
             raise LnInvoiceException(f"amount is out-of-bounds: {value!r} BTC")
         if value * 10**12 % 10:
-            # max resolution is millisatoshi
+                                            
             raise LnInvoiceException(f"Cannot encode {value!r}: too many decimal places")
         self._amount = value
 
     def get_amount_sat(self) -> Optional[Decimal]:
-        # note that this has msat resolution potentially
+                                                        
         if self.amount is None:
             return None
         return self.amount * COIN
 
     def get_routing_info(self, tag):
-        # note: tag will be 't' for trampoline
+                                              
         r_tags = list(filter(lambda x: x[0] == tag, self.tags))
-        # strip the tag type, it's implicitly 'r' now
+                                                     
         r_tags = list(map(lambda x: x[1], r_tags))
-        # if there are multiple hints, we will use the first one that works,
-        # from a random permutation
+                                                                            
+                                   
         random.shuffle(r_tags)
         return r_tags
 
@@ -355,8 +355,8 @@ class LnAddr(object):
 
     def is_expired(self) -> bool:
         now = time.time()
-        # BOLT-11 does not specify what expiration of '0' means.
-        # we treat it as 0 seconds here (instead of never)
+                                                                
+                                                          
         return now > self.get_expiry() + self.date
 
     def to_debug_json(self) -> Dict[str, Any]:
@@ -374,7 +374,7 @@ class LnAddr(object):
             'unknown_tags': self.unknown_tags,
         }
         if ln_routing_info := self.get_routing_info('r'):
-            # show the last hop of routing hints. (our invoices only have one hop)
+                                                                                  
             d['r_tags'] = [str((a.hex(),b.hex(),c,d,e)) for a,b,c,d,e in ln_routing_info[-1]]
         return d
 
@@ -394,38 +394,38 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
         net = constants.net
     decoded_bech32 = bech32_decode(invoice, ignore_long_length=True)
     hrp = decoded_bech32.hrp
-    data5 = decoded_bech32.data  # "5" as in list of 5-bit integers
+    data5 = decoded_bech32.data                                    
     if decoded_bech32.encoding is None:
         raise LnDecodeException("Bad bech32 checksum")
     if decoded_bech32.encoding != segwit_addr.Encoding.BECH32:
         raise LnDecodeException("Bad bech32 encoding: must be using vanilla BECH32")
 
-    # BOLT #11:
-    #
-    # A reader MUST fail if it does not understand the `prefix`.
+               
+     
+                                                                
     if not hrp.startswith('ln'):
         raise LnDecodeException("Does not start with ln")
 
     if not hrp[2:].startswith(net.BOLT11_HRP):
         raise LnDecodeException(f"Wrong Lightning invoice HRP {hrp[2:]}, should be {net.BOLT11_HRP}")
 
-    # Final signature 65 bytes, split it off.
+                                             
     if len(data5) < 65*8//5:
         raise LnDecodeException("Too short to contain signature")
     sigdecoded = bytes(convertbits(data5[-65*8//5:], 5, 8, False))
     data5 = data5[:-65*8//5]
-    data5_remaining = bytearray(data5)  # note: bytearray is faster than list of ints
+    data5_remaining = bytearray(data5)                                               
 
     addr = LnAddr()
     addr.pubkey = None
     addr.net = net
 
     amountstr = hrp[2+len(net.BOLT11_HRP):]
-    # BOLT #11:
-    #
-    # A reader SHOULD indicate if amount is unspecified, otherwise it MUST
-    # multiply `amount` by the `multiplier` value (if any) to derive the
-    # amount required for payment.
+               
+     
+                                                                          
+                                                                        
+                                  
     if amountstr != '':
         addr.amount = unshorten_amount(amountstr)
 
@@ -433,26 +433,26 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
     data5_remaining = data5_remaining[7:]
 
     while data5_remaining:
-        tag, tagdata = pull_tagged(data5_remaining)  # mutates arg
+        tag, tagdata = pull_tagged(data5_remaining)               
 
-        # BOLT #11:
-        #
-        # A reader MUST skip over unknown fields, an `f` field with unknown
-        # `version`, or a `p`, `h`, or `n` field which does not have
-        # `data_length` 52, 52, or 53 respectively.
+                   
+         
+                                                                           
+                                                                    
+                                                   
         data_length = len(tagdata)
 
         if tag == 'r':
-            # BOLT #11:
-            #
-            # * `r` (3): `data_length` variable.  One or more entries
-            # containing extra routing information for a private route;
-            # there may be more than one `r` field, too.
-            #    * `pubkey` (264 bits)
-            #    * `short_channel_id` (64 bits)
-            #    * `feebase` (32 bits, big-endian)
-            #    * `feerate` (32 bits, big-endian)
-            #    * `cltv_expiry_delta` (16 bits, big-endian)
+                       
+             
+                                                                     
+                                                                       
+                                                        
+                                      
+                                               
+                                                  
+                                                  
+                                                            
             tagdata = convertbits(tagdata, 5, 8, False)
             if not tagdata:
                 continue
@@ -465,7 +465,7 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
                     feerate = s.read(4)
                     cltv = s.read(2)
                     if len(cltv) != 2:
-                        break  # EOF
+                        break       
                     feebase = int.from_bytes(feebase, byteorder="big")
                     feerate = int.from_bytes(feerate, byteorder="big")
                     cltv = int.from_bytes(cltv, byteorder="big")
@@ -482,7 +482,7 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
                 feebase = s.read(4)
                 feerate = s.read(4)
                 cltv = s.read(2)
-                if len(cltv) == 2:  # no EOF
+                if len(cltv) == 2:          
                     feebase = int.from_bytes(feebase, byteorder="big")
                     feerate = int.from_bytes(feerate, byteorder="big")
                     cltv = int.from_bytes(cltv, byteorder="big")
@@ -493,7 +493,7 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
             if fallback:
                 addr.tags.append(('f', fallback))
             else:
-                # Incorrect version.
+                                    
                 addr.unknown_tags.append((tag, tagdata))
                 continue
 
@@ -534,11 +534,11 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
         elif tag == '9':
             features = int_from_data5(tagdata)
             addr.tags.append(('9', features))
-            # note: The features are not validated here in the parser,
-            #       instead, validation is done just before we try paying the invoice (in lnworker._check_bolt11_invoice).
-            #       Context: invoice parsing happens when opening a wallet. If there was a backwards-incompatible
-            #       change to a feature, and we raised, some existing wallets could not be opened. Such a change
-            #       can happen to features not-yet-merged-to-BOLTs (e.g. trampoline feature bit was moved and reused).
+                                                                      
+                                                                                                                          
+                                                                                                                 
+                                                                                                                
+                                                                                                                      
         else:
             addr.unknown_tags.append((tag, tagdata))
 
@@ -551,17 +551,17 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
               .format(hexlify(hrp.encode("ascii") + data8)))
         print('SHA256 of above: {}'.format(sha256(hrp.encode("ascii") + data8).hexdigest()))
 
-    # BOLT #11:
-    #
-    # A reader MUST check that the `signature` is valid (see the `n` tagged
-    # field specified below).
+               
+     
+                                                                           
+                             
     addr.signature = sigdecoded[:65]
     hrp_hash = sha256(hrp.encode("ascii") + bytes(convertbits(data5, 5, 8, True))).digest()
-    if addr.pubkey:  # Specified by `n`
-        # BOLT #11:
-        #
-        # A reader MUST use the `n` field to validate the signature instead of
-        # performing signature recovery if a valid `n` field is provided.
+    if addr.pubkey:                    
+                   
+         
+                                                                              
+                                                                         
         if not ecc.ECPubkey(addr.pubkey).ecdsa_verify(sigdecoded[:64], hrp_hash):
             raise LnDecodeException("bad signature")
         pubkey_copy = addr.pubkey
@@ -570,7 +570,7 @@ def lndecode(invoice: str, *, verbose=False, net=None) -> LnAddr:
             serialize = lambda: pubkey_copy
 
         addr.pubkey = WrappedBytesKey
-    else: # Recover pubkey from signature.
+    else:                                 
         addr.pubkey = SerializableKey(ecc.ECPubkey.from_ecdsa_sig64(sigdecoded[:64], sigdecoded[64], hrp_hash))
 
     return addr

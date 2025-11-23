@@ -11,7 +11,7 @@ from electrum.keystore import Hardware_KeyStore
 from electrum.logging import get_logger
 
 from electrum.hw_wallet import HW_PluginBase
-from electrum.hw_wallet.plugin import is_any_tx_output_on_change_branch, \
+from electrum.hw_wallet.plugin import is_any_tx_output_on_change_branch,\
     trezor_validate_op_return_output_and_get_data, LibraryFoundButUnusable, OutdatedHwFirmwareException
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ try:
 
     from trezorlib.client import PASSPHRASE_ON_DEVICE
     import trezorlib.log
-    #trezorlib.log.enable_debug_output()
+                                        
 
     TREZORLIB = True
 except Exception as e:
@@ -62,7 +62,7 @@ except Exception as e:
     PASSPHRASE_ON_DEVICE = object()
 
 
-# Trezor initialization methods
+                               
 TIM_NEW, TIM_RECOVER = range(2)
 
 TREZOR_PRODUCT_KEY = 'Trezor'
@@ -87,7 +87,7 @@ class TrezorKeyStore(Hardware_KeyStore):
     def sign_transaction(self, tx, password):
         if tx.is_complete():
             return
-        # previous transactions used as inputs
+                                              
         prev_tx = {}
         for txin in tx.inputs():
             tx_hash = txin.prevout.txid.hex()
@@ -107,7 +107,7 @@ class TrezorKeyStore(Hardware_KeyStore):
         for txin in tx.inputs():
             if txin.is_coinbase_input():
                 continue
-            # note: we add proofs even for txin.is_complete() inputs.
+                                                                     
             if not txin.is_mine:
                 continue
             assert txin.scriptpubkey
@@ -115,7 +115,7 @@ class TrezorKeyStore(Hardware_KeyStore):
             assert desc
             trezor_multisig = None
             if multi := desc.get_simple_multisig():
-                # trezor_multisig = self._make_multisig(multi)
+                                                              
                 raise Exception("multisig not supported for slip-19 ownership proof")
             trezor_script_type = self.plugin.get_trezor_input_script_type(desc.to_legacy_electrum_script_type())
             my_pubkey, full_path = self.find_my_pubkey_in_txinout(txin)
@@ -143,11 +143,11 @@ class TrezorInitSettings(NamedTuple):
 
 
 class TrezorPlugin(HW_PluginBase):
-    # Derived classes provide:
-    #
-    #  class-static variables: client_class, firmware_URL, handler_class,
-    #     libraries_available, libraries_URL, minimum_firmware,
-    #     wallet_class, types
+                              
+     
+                                                                         
+                                                               
+                             
 
     firmware_URL = 'https://wallet.trezor.io'
     libraries_URL = 'https://pypi.org/project/trezor/'
@@ -182,14 +182,14 @@ class TrezorPlugin(HW_PluginBase):
 
     @runs_in_hwd_thread
     def is_bridge_available(self) -> bool:
-        # Testing whether the Bridge is available can take several seconds
-        # (when it is not), as it is slow to timeout, hence we cache it.
+                                                                          
+                                                                        
         if self._is_bridge_available is None:
             try:
                 call_bridge("enumerate")
             except Exception:
                 self._is_bridge_available = False
-                # never again try with Bridge due to slow timeout
+                                                                 
                 BridgeTransport.ENABLED = False
             else:
                 self._is_bridge_available = True
@@ -197,15 +197,15 @@ class TrezorPlugin(HW_PluginBase):
 
     @runs_in_hwd_thread
     def enumerate(self):
-        # Set lower timeout for UDP enumeration (used for emulator).
-        # The default of 10 sec is very long, and I often hit it for some reason on Windows (no emu running),
-        # blocking the whole enumeration.
+                                                                    
+                                                                                                             
+                                         
         from trezorlib.transport.udp import UdpTransport
         trezorlib.transport.udp.SOCKET_TIMEOUT = 1
-        # If there is a bridge, prefer that.
-        # On Windows, the bridge runs as Admin (and Electrum usually does not),
-        # so the bridge has better chances of finding devices. see #5420
-        # This also avoids duplicate entries.
+                                            
+                                                                               
+                                                                        
+                                             
         if self.is_bridge_available():
             devices = BridgeTransport.enumerate()
         else:
@@ -232,7 +232,7 @@ class TrezorPlugin(HW_PluginBase):
             return
 
         self.logger.info(f"connected to device at {device.path}")
-        # note that this call can still raise!
+                                              
         return TrezorClientBase(transport, handler, self)
 
     @runs_in_hwd_thread
@@ -241,7 +241,7 @@ class TrezorPlugin(HW_PluginBase):
         client = super().get_client(keystore, force_pair,
                                     devices=devices,
                                     allow_user_interaction=allow_user_interaction)
-        # returns the client for a given keystore. can use xpub
+                                                               
         if client:
             client.used()
         return client
@@ -361,7 +361,7 @@ class TrezorPlugin(HW_PluginBase):
         address_path = "%s/%d/%d"%(derivation, *deriv_suffix)
         script_type = self.get_trezor_input_script_type(wallet.txin_type)
 
-        # prepare multisig, if available:
+                                         
         desc = wallet.get_script_descriptor_for_address(address)
         if multi := desc.get_simple_multisig():
             multisig = self._make_multisig(multi)
@@ -377,7 +377,7 @@ class TrezorPlugin(HW_PluginBase):
             if txin.is_coinbase_input():
                 txinputtype = TxInputType(
                     prev_hash=b"\x00"*32,
-                    prev_index=0xffffffff,  # signed int -1
+                    prev_index=0xffffffff,                 
                 )
             else:
                 txinputtype = TxInputType(
@@ -388,15 +388,15 @@ class TrezorPlugin(HW_PluginBase):
                     assert isinstance(tx, PartialTransaction)
                     assert isinstance(txin, PartialTxInput)
                     assert keystore
-                    if txin.is_complete() or not txin.is_mine:  # we don't sign
+                    if txin.is_complete() or not txin.is_mine:                 
                         txinputtype.script_type = InputScriptType.EXTERNAL
                         assert txin.scriptpubkey
                         txinputtype.script_pubkey = txin.scriptpubkey
-                        # note: we add the ownership proof, if present, regardless of txin.is_complete().
-                        #       The "Trezor One" model always requires it for external inputs. (see #8910)
+                                                                                                         
+                                                                                                          
                         if not txin.is_mine and txin.slip_19_ownership_proof:
                             txinputtype.ownership_proof = txin.slip_19_ownership_proof
-                    else:  # we sign
+                    else:           
                         desc = txin.script_descriptor
                         assert desc
                         if multi := desc.get_simple_multisig():
@@ -405,8 +405,8 @@ class TrezorPlugin(HW_PluginBase):
                         my_pubkey, full_path = keystore.find_my_pubkey_in_txinout(txin)
                         if full_path:
                             txinputtype.address_n = full_path
-                    # Add witness if any. This is useful when signing a tx (for_sig=True)
-                    # that has some already pre-signed external inputs.
+                                                                                         
+                                                                       
                     txinputtype.witness = txin.witness
 
             txinputtype.amount = txin.value_sats()
@@ -476,10 +476,10 @@ class TrezorPlugin(HW_PluginBase):
                     use_create_by_derivation = True
                 else:
                     if not has_change:
-                        # prioritise hiding outputs on the 'change' branch from user
-                        # because no more than one change address allowed
-                        # note: ^ restriction can be removed once we require fw 1.6.1
-                        # that has https://github.com/trezor/trezor-mcu/pull/306
+                                                                                    
+                                                                         
+                                                                                     
+                                                                                
                         if txout.is_change == any_output_on_change_branch:
                             use_create_by_derivation = True
                             has_change = True
@@ -495,7 +495,7 @@ class TrezorPlugin(HW_PluginBase):
     def electrum_tx_to_txtype(self, tx: Optional[Transaction]):
         t = TransactionType()
         if tx is None:
-            # probably for segwit input and we don't need this prev txn
+                                                                       
             return t
         tx.deserialize()
         t.version = tx.version
@@ -508,12 +508,12 @@ class TrezorPlugin(HW_PluginBase):
         return t
 
     def wizard_entry_for_device(self, device_info: 'DeviceInfo', *, new_wallet=True) -> str:
-        if new_wallet:  # new wallet
+        if new_wallet:              
             return 'trezor_not_initialized' if not device_info.initialized else 'trezor_start'
-        else:  # unlock existing wallet
+        else:                          
             return 'trezor_unlock'
 
-    # insert trezor pages in new wallet wizard
+                                              
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         views = {
             'trezor_start': {

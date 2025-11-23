@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-#
-# Connect to lots of servers and broadcast a given tx to each.
+ 
+                                                              
 
 import sys
 import asyncio

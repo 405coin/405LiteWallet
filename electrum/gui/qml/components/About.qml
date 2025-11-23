@@ -22,7 +22,7 @@ Pane {
                 Layout.columnSpan: 2
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: parent.width
-                Layout.preferredHeight: parent.width * 3/4 // reduce height, empty space in png
+                Layout.preferredHeight: parent.width * 3/4 
 
                 Image {
                     id: electrum_logo

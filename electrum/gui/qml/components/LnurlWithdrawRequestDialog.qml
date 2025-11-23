@@ -37,12 +37,12 @@ ElDialog {
     }
 
     Connections {
-        // assign walletCanReceive directly to prevent a binding loop
+        
         target: wallet
         function onLightningCanReceiveChanged() {
             if (!requestDetails.busy) {
-                // don't assign while busy to prevent the view from changing while receiving
-                // the incoming payment
+                
+                
                 dialog.walletCanReceive = wallet.lightningCanReceive.satsInt
             }
         }
@@ -133,7 +133,7 @@ ElDialog {
                     Layout.preferredWidth: rootLayout.width / 3
                     text: Config.formatSatsForEditing(dialog.effectiveMaxWithdrawable)
                     enabled: !dialog.insufficientLiquidity && (dialog.providerMinWithdrawable != dialog.providerMaxWithdrawable)
-                    color: Material.foreground // override gray-out on disabled
+                    color: Material.foreground 
                     fiatfield: amountFiat
                 }
                 Label {

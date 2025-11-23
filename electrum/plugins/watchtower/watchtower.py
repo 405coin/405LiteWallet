@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - Lightweight Bitcoin Client
-# Copyright (C) 2023 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 
 import asyncio
@@ -70,9 +70,9 @@ class WatchTower(Logger, EventListener):
         wallet_db = WalletDB('', storage=None, upgrade=True)
         self.adb = AddressSynchronizer(wallet_db, self.config, name=self.diagnostic_name())
         self.adb.start_network(network)
-        self.callbacks = {}  # address -> lambda function
+        self.callbacks = {}                              
         self.register_callbacks()
-        # status gets populated when we run
+                                           
         self.channel_status = {}
         self.network = network
         self.sweepstore = SweepStore(os.path.join(self.config.path, "watchtower_db"), network)
@@ -90,7 +90,7 @@ class WatchTower(Logger, EventListener):
 
     @event_listener
     async def on_event_wallet_updated(self, wallet):
-        # called if we add local tx
+                                   
         if wallet.adb != self.adb:
             return
         await self.trigger_callbacks()
@@ -128,16 +128,16 @@ class WatchTower(Logger, EventListener):
 
     @log_exceptions
     async def start_watching(self):
-        # I need to watch the addresses from sweepstore
+                                                       
         lst = await self.sweepstore.list_channels()
         for outpoint, address in random_shuffled_copy(lst):
             self.add_channel(outpoint, address)
 
     async def check_onchain_situation(self, address, funding_outpoint):
-        # early return if address has not been added yet
+                                                        
         if not self.adb.is_mine(address):
             return
-        # inspect_tx_candidate might have added new addresses, in which case we return early
+                                                                                            
         closing_txid = self.adb.get_spender(funding_outpoint)
         if closing_txid:
             closing_tx = self.adb.get_transaction(closing_txid)
@@ -173,23 +173,23 @@ class WatchTower(Logger, EventListener):
             return result
         spender_tx = self.adb.get_transaction(spender_txid)
         if n == 1:
-            # if tx input is not a first-stage HTLC, we can stop recursion
-            # FIXME: this is not true for anchor channels
+                                                                          
+                                                         
             if len(spender_tx.inputs()) != 1:
                 return result
             o = spender_tx.inputs()[0]
             witness = o.witness_elements()
             if not witness:
-                # This can happen if spender_tx is a local unsigned tx in the wallet history, e.g.:
-                # channel is coop-closed, outpoint is for our coop-close output, and spender_tx is an
-                # arbitrary wallet-spend.
+                                                                                                   
+                                                                                                     
+                                         
                 return result
             redeem_script = witness[-1]
             if match_script_against_template(redeem_script, WITNESS_TEMPLATE_OFFERED_HTLC):
-                #self.logger.info(f"input script matches offered htlc {redeem_script.hex()}")
+                                                                                             
                 pass
             elif match_script_against_template(redeem_script, WITNESS_TEMPLATE_RECEIVED_HTLC):
-                #self.logger.info(f"input script matches received htlc {redeem_script.hex()}")
+                                                                                              
                 pass
             else:
                 return result

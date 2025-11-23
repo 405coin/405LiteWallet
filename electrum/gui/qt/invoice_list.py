@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import enum
 from typing import Sequence, TYPE_CHECKING
@@ -104,8 +104,8 @@ class InvoiceList(MyTreeView):
         status_item.setIcon(read_QIcon(pr_icons.get(status)))
 
     def update(self):
-        # not calling maybe_defer_update() as it interferes with conditional-visibility
-        self.proxy.setDynamicSortFilter(False)  # temp. disable re-sorting after every change
+
+        self.proxy.setDynamicSortFilter(False)
         self.std_model.clear()
         self.update_headers(self.__class__.headers)
         for idx, item in enumerate(self.wallet.get_unpaid_invoices()):
@@ -131,13 +131,13 @@ class InvoiceList(MyTreeView):
             items[self.Columns.DATE].setIcon(read_QIcon(icon_name))
             items[self.Columns.STATUS].setIcon(read_QIcon(pr_icons.get(status)))
             items[self.Columns.DATE].setData(key, role=ROLE_REQUEST_ID)
-            #items[self.Columns.DATE].setData(item.type, role=ROLE_REQUEST_TYPE)
+
             items[self.Columns.DATE].setData(timestamp, role=ROLE_SORT_ORDER)
             items[self.Columns.AMOUNT].setData(amount_str_nots.strip(), role=self.ROLE_CLIPBOARD_DATA)
             self.std_model.insertRow(idx, items)
         self.filter()
         self.proxy.setDynamicSortFilter(True)
-        # sort requests by date
+
         self.sortByColumn(self.Columns.DATE, Qt.SortOrder.DescendingOrder)
         self.hide_if_empty()
 

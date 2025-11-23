@@ -25,7 +25,7 @@ class QEServerConnectWizard(ServerConnectWizard, QEAbstractWizard):
         self.window_title = _('Network and server configuration')
         self.finish_label = _('Next')
 
-        # attach gui classes
+
         self.navmap_merge({
             'welcome': {'gui': WCWelcome},
             'proxy_config': {'gui': WCProxyConfig},
@@ -36,7 +36,7 @@ class QEServerConnectWizard(ServerConnectWizard, QEAbstractWizard):
 class WCWelcome(WizardComponent):
     def __init__(self, parent, wizard):
         WizardComponent.__init__(self, parent, wizard, title='Network Configuration')
-        self.wizard_title = _('Electrum Bitcoin Wallet')
+        self.wizard_title = _('405LiteWallet Bitcoin Wallet')
 
         self.first_help_label = QLabel()
         self.first_help_label.setText(_("Optional settings to customize your network connection") + ":")
@@ -45,7 +45,7 @@ class WCWelcome(WizardComponent):
         self.config_proxy_w = QCheckBox(_('Use Proxy'))
         self.config_proxy_w.setChecked(False)
         self.config_proxy_w.stateChanged.connect(self.on_updated)
-        self.config_server_w = QCheckBox(_('Select Electrum Server'))
+        self.config_server_w = QCheckBox(_('Select 405LiteWallet Server'))
         self.config_server_w.setChecked(False)
         self.config_server_w.stateChanged.connect(self.on_updated)
         options_w = QWidget()

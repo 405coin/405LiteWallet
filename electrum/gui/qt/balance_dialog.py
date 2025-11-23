@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2013 ecdsa@github
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import TYPE_CHECKING
 
@@ -39,9 +39,9 @@ if TYPE_CHECKING:
     from electrum.wallet import Abstract_Wallet
 
 
-# Todo:
-#  show lightning funds that are not usable
-#  pie chart mouse interactive, to prepare a swap
+
+
+
 
 COLOR_CONFIRMED = Qt.GlobalColor.green
 COLOR_UNCONFIRMED = Qt.GlobalColor.red
@@ -89,7 +89,7 @@ class PieChartWidget(QWidget, PieChartObject):
         self.setMaximumWidth(self.size)
         self.setMinimumHeight(self.size)
         self.setMaximumHeight(self.size)
-        self._list = l # list[ (name, color, amount)]
+        self._list = l
         self.update()
 
     def update_list(self, l):
@@ -115,7 +115,7 @@ class BalanceToolButton(QToolButton, PieChartObject):
         self.update()
 
     def setText(self, text):
-        # this is a hack
+
         QToolButton.setText(self, '       ' + text)
 
     def paintEvent(self, event):
@@ -225,9 +225,9 @@ class BalanceDialog(WindowModalDialog):
 
         vbox.addWidget(piechart)
         grid = QGridLayout()
-        #grid.addWidget(QLabel(_("Onchain") + ':'), 0, 1)
-        #grid.addWidget(QLabel(onchain_str), 0, 2, alignment=Qt.AlignmentFlag.AlignRight)
-        #grid.addWidget(QLabel(onchain_fiat_str), 0, 3, alignment=Qt.AlignmentFlag.AlignRight)
+
+
+
 
         if frozen:
             grid.addWidget(LegendWidget(COLOR_FROZEN), 0, 0)

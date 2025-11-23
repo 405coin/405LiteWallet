@@ -21,14 +21,14 @@ class TestLightning(unittest.TestCase):
     def setUp(self):
         test_name = self.id().split('.')[-1]
         sys.stdout.write("***** %s ******\n" % test_name)
-        # initialize and get funds
+                                  
         for agent, config_options in self.agents.items():
             self.run_shell(['init', agent])
             for k, v in config_options.items():
                 self.run_shell(['setconfig', agent, k, v])
-        # mine a block so that funds are confirmed
+                                                  
         self.run_shell(['new_block'])
-        # start daemons
+                       
         for agent in self.agents:
             self.run_shell(['start', agent])
 

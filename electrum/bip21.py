@@ -8,7 +8,7 @@ from .util import format_satoshis_plain
 from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
 from .lnaddr import lndecode, LnDecodeException
 
-# note: when checking against these, use .lower() to support case-insensitivity
+                                                                               
 BITCOIN_BIP21_URI_SCHEME = 'bitcoin'
 LIGHTNING_URI_SCHEME = 'lightning'
 
@@ -33,7 +33,7 @@ def parse_bip21_URI(uri: str) -> dict:
         raise InvalidBitcoinURI("Not a bitcoin URI")
     address = u.path
 
-    # python for android fails to parse query
+                                             
     if address.find('?') > 0:
         address, query = u.path.split('?')
         pq = urllib.parse.parse_qs(query)
@@ -44,7 +44,7 @@ def parse_bip21_URI(uri: str) -> dict:
         if len(v) != 1:
             raise InvalidBitcoinURI(f'Duplicate Key: {repr(k)}')
         if k.startswith('req-'):
-            # we have no support for any req-* query parameters
+                                                               
             raise InvalidBitcoinURI(f'Unsupported Key: {repr(k)}')
 
     out = {k: v[0] for k, v in pq.items()}
@@ -91,7 +91,7 @@ def parse_bip21_URI(uri: str) -> dict:
             raise InvalidBitcoinURI(f"Failed to decode 'lightning' field: {e!r}") from e
         amount_sat = out.get('amount')
         if amount_sat:
-            # allow small leeway due to msat precision
+                                                      
             if lnaddr.get_amount_sat() is None or abs(amount_sat - int(lnaddr.get_amount_sat())) > 1:
                 raise InvalidBitcoinURI("Inconsistent lightning field in bip21: amount")
         address = out.get('address')

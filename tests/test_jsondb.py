@@ -29,7 +29,7 @@ class TestJsonpatch(ElectrumTestCase):
             try:
                 yield ctx
             except Exception as e:
-                # save original traceback now, as assertRaises will destroy most of it imminently:
+                                                                                                  
                 ctx._customctx_original_tb = "".join(traceback.format_exception(e))
                 raise
 
@@ -45,9 +45,9 @@ class TestJsonpatch(ElectrumTestCase):
             self.assertNotIn("dictlevel", str(ctx.exception))
             self.assertNotIn("dictlevel", repr(ctx.exception))
             self.assertNotIn("dictlevel", ctx._customctx_original_tb)
-            self.assertIn("redacted", str(ctx.exception))  # injected by our monkeypatching
-            self.assertIn("redacted", repr(ctx.exception))  # injected by our monkeypatching
-        # op "replace"
+            self.assertIn("redacted", str(ctx.exception))                                  
+            self.assertIn("redacted", repr(ctx.exception))                                  
+                      
         with self.subTest(msg="replace_dict_inner_key_missing"):
             patches = [{"op": "replace", "path": "/dictlevelA1/dictlevelX2", "value": "nakamoto_secret"}]
             jpatch = jsonpatch.JsonPatch(patches)
@@ -60,7 +60,7 @@ class TestJsonpatch(ElectrumTestCase):
             with self._customAssertRaises(JsonPointerException) as ctx:
                 data2 = jpatch.apply(data1)
             fail_if_leaking_secret(ctx)
-        # op "remove"
+                     
         with self.subTest(msg="remove_dict_inner_key_missing"):
             patches = [{"op": "remove", "path": "/dictlevelA1/dictlevelX2"}]
             jpatch = jsonpatch.JsonPatch(patches)
@@ -73,7 +73,7 @@ class TestJsonpatch(ElectrumTestCase):
             with self._customAssertRaises(JsonPointerException) as ctx:
                 data2 = jpatch.apply(data1)
             fail_if_leaking_secret(ctx)
-        # op "add"
+                  
         with self.subTest(msg="add_dict_inner_key_missing"):
             patches = [{"op": "add", "path": "/dictlevelA1/dictlevelX2/dictlevelX3/dictlevelX4", "value": "nakamoto_secret"}]
             jpatch = jsonpatch.JsonPatch(patches)
@@ -92,15 +92,15 @@ class TestJsonDB(ElectrumTestCase):
 
     async def test_jsonpatch_replace_after_remove(self):
         data = { 'a':{} }
-        # op "add"
+                  
         patches = [{"op": "add", "path": "/a/b", "value": "42"}]
         jpatch = jsonpatch.JsonPatch(patches)
         data = jpatch.apply(data)
-        # remove
+                
         patches = [{"op": "remove", "path": "/a/b"}]
         jpatch = jsonpatch.JsonPatch(patches)
         data = jpatch.apply(data)
-        # replace
+                 
         patches = [{"op": "replace", "path": "/a/b", "value": "43"}]
         jpatch = jsonpatch.JsonPatch(patches)
         with self.assertRaises(JsonPatchException):
@@ -110,10 +110,10 @@ class TestJsonDB(ElectrumTestCase):
         data = { 'a': {'b': {'c': 0}}}
         db = JsonDB(repr(data))
         a = db.get_dict('a')
-        # remove
+                
         b = a.pop('b')
         self.assertEqual(len(db.pending_changes), 1)
-        # replace item. this must not been written to db
+                                                        
         b['c'] = 42
         self.assertEqual(len(db.pending_changes), 1)
         patches = json.loads('[' + ','.join(db.pending_changes) + ']')
@@ -123,11 +123,11 @@ class TestJsonDB(ElectrumTestCase):
     async def test_jsondb_replace_after_remove_nested(self):
         data = { 'a': {'b':{'c':0}}}
         db = JsonDB(repr(data))
-        # remove
+                
         a = db.data.pop('a')
         self.assertEqual(len(db.pending_changes), 1)
         b = a['b']
-        # replace item. this must not be written to db
+                                                      
         b['c'] = 42
         self.assertEqual(len(db.pending_changes), 1)
         patches = json.loads('[' + ','.join(db.pending_changes) + ']')

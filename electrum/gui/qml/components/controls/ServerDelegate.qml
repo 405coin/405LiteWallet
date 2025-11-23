@@ -21,7 +21,7 @@ ItemDelegate {
 
         columns: 3
 
-        // topmargin
+        
         Rectangle {
             Layout.columnSpan: 3
             Layout.preferredHeight: constants.paddingSmall
@@ -53,7 +53,7 @@ ItemDelegate {
             text: model.address
         }
 
-        // bottommargin
+        
         Rectangle {
             Layout.columnSpan: 3
             Layout.preferredHeight: constants.paddingSmall

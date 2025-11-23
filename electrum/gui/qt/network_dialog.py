@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2012 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from enum import IntEnum
 
@@ -75,7 +75,7 @@ class NetworkDialog(QDialog, QtEventListener):
 
 
 class NodesListWidget(QTreeWidget):
-    """List of connected servers."""
+
 
     SERVER_ADDR_ROLE = Qt.ItemDataRole.UserRole + 100
     CHAIN_ID_ROLE = Qt.ItemDataRole.UserRole + 101
@@ -105,7 +105,7 @@ class NodesListWidget(QTreeWidget):
         item_type = item.data(0, self.ITEMTYPE_ROLE)
         menu = QMenu()
         if item_type in [self.ItemType.CONNECTED_SERVER, self.ItemType.DISCONNECTED_SERVER]:
-            server = item.data(0, self.SERVER_ADDR_ROLE)  # type: ServerAddr
+            server = item.data(0, self.SERVER_ADDR_ROLE)
             if item_type == self.ItemType.CONNECTED_SERVER:
                 def do_follow_server():
                     self.followServer.emit(server)
@@ -141,7 +141,7 @@ class NodesListWidget(QTreeWidget):
             QTreeWidget.keyPressEvent(self, event)
 
     def on_activated(self, item, column):
-        # on 'enter' we show the menu
+
         pt = self.visualItemRect(item).bottomLeft()
         pt.setX(50)
         self.customContextMenuRequested.emit(pt)
@@ -153,7 +153,7 @@ class NodesListWidget(QTreeWidget):
 
         use_tor = bool(network.is_proxy_tor)
 
-        # connected servers
+
         connected_servers_item = QTreeWidgetItem([_("Connected nodes"), ''])
         connected_servers_item.setData(0, self.ITEMTYPE_ROLE, self.ItemType.TOPLEVEL)
         chains = network.get_blockchains()
@@ -182,7 +182,7 @@ class NodesListWidget(QTreeWidget):
             if n_chains > 1:
                 connected_servers_item.addChild(x)
 
-        # disconnected servers
+
         disconnected_servers_item = QTreeWidgetItem([_("Other known servers"), ""])
         disconnected_servers_item.setData(0, self.ITEMTYPE_ROLE, self.ItemType.TOPLEVEL)
         connected_hosts = set([iface.host for ifaces in chains.values() for iface in ifaces])
@@ -212,7 +212,7 @@ class NodesListWidget(QTreeWidget):
             connected_servers_item.child(i).setExpanded(True)
         disconnected_servers_item.setExpanded(True)
 
-        # headers
+
         h = self.header()
         h.setStretchLastSection(False)
         h.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
@@ -236,7 +236,7 @@ class ProxyWidget(QWidget):
 
         fixed_width_port = 6 * char_width_in_lineedit()
 
-        # proxy setting.
+
         self.proxy_cb = QCheckBox(_('Use proxy'))
         self.proxy_mode = QComboBox()
         for k, v in self.PROXY_MODES.items():
@@ -258,7 +258,7 @@ class ProxyWidget(QWidget):
 
         grid.addWidget(self.proxy_cb, 0, 0, 1, 4)
         proxy_helpbutton = HelpButton(
-            _('Proxy settings apply to all connections: with Electrum servers, but also with third-party services.'))
+            _('Proxy settings apply to all connections: with 405LiteWallet servers, but also with third-party services.'))
         grid.addWidget(proxy_helpbutton, 0, 4, alignment=Qt.AlignmentFlag.AlignRight)
         grid.addWidget(self.proxy_mode, 1, 0, 1, 1)
         grid.addWidget(self.proxy_host, 1, 1, 1, 3)
@@ -282,7 +282,7 @@ class ProxyWidget(QWidget):
         self.update_from_config()
         self.update()
 
-        # connect signal handlers after init from config
+
         self.proxy_cb.stateChanged.connect(self.on_proxy_enable_toggle)
         self.proxy_mode.currentIndexChanged.connect(self.on_proxy_settings_changed)
         self.proxy_host.editingFinished.connect(self.on_proxy_settings_changed)
@@ -329,9 +329,9 @@ class ProxyWidget(QWidget):
                 w.setEnabled(False)
 
     def on_proxy_enable_toggle(self):
-        # probe if enabled and no pre-existing settings
-        # if self.proxy_cb.isChecked() and (not self.proxy_host.text() or not self.proxy_port.text()):
-        #     self.detect_tor()
+
+
+
         self.update()
 
     def on_proxy_settings_changed(self):
@@ -350,7 +350,7 @@ class ProxyWidget(QWidget):
     def detect_tor(self):
         self.detect_button.setEnabled(False)
         self.spinner.setVisible(True)
-        ProxySettings.probe_tor(self.torProbeFinished.emit)  # via signal
+        ProxySettings.probe_tor(self.torProbeFinished.emit)
 
     @pyqtSlot(str, int)
     def on_tor_probe_finished(self, host: str, port: int):
@@ -436,7 +436,7 @@ class ServerWidget(QWidget, QtEventListener):
         def do_set_server(server):
             self.server_e.setText(server)
             if self.is_auto_connect():
-                # switch to manual mode as the user manually selected a server
+
                 self.set_connect_mode(ConnectMode.MANUAL, block_signals=True)
             self.on_server_settings_changed()
         self.nodes_list_widget.setServer.connect(do_set_server)
@@ -448,18 +448,18 @@ class ServerWidget(QWidget, QtEventListener):
         self.destroyed.connect(lambda: self.unregister_callbacks())
 
     def showEvent(self, event):
-        # gets called every time the ServerWidget is shown, when opening it and when
-        # switching between the tabs.
+
+
         super().showEvent(event)
         _logger.debug(f"showing ServerWidget")
-        # If the user entered garbage the previous time the ServerWidget was open this will restore
-        # it back to the current config
+
+
         self.update_from_config()
         self.update()
 
     @qt_event_listener
     def on_event_network_updated(self):
-        self.nodes_list_widget.update()  # NOTE: move event handling to widget itself?
+        self.nodes_list_widget.update()
         self.update()
 
     def is_auto_connect(self):
@@ -469,7 +469,7 @@ class ServerWidget(QWidget, QtEventListener):
         return self.connect_combo.currentIndex() == ConnectMode.ONESERVER
 
     def set_connect_mode(self, connect_mode: ConnectMode, *, block_signals = False):
-        # if block_signals = True the on_server_settings_changed won't get called when changing the index
+
         assert isinstance(connect_mode, ConnectMode), connect_mode
         self.connect_combo.blockSignals(block_signals)
         self.connect_combo.setCurrentIndex(connect_mode)
@@ -482,7 +482,7 @@ class ServerWidget(QWidget, QtEventListener):
 
         current_net_params = self.network.get_parameters()
         new_server = ServerAddr.from_str_with_inference(self.server_e.text().strip())
-        new_server = new_server or current_net_params.server  # keep existing server while input is invalid
+        new_server = new_server or current_net_params.server
 
         settings_changed = False
         if new_server != current_net_params.server:
@@ -518,9 +518,9 @@ class ServerWidget(QWidget, QtEventListener):
             item.setVisible(self.network._was_started)
         msg = _('Fork detection disabled') if self.is_one_server() else ''
         if self.network._was_started:
-            # Network was started, so we don't run in initial setup wizard.
-            # behavior in this case is to apply changes immediately.
-            # Also, we show block height and potential chain tips
+
+
+
             height_str = _('{} blocks').format(self.network.get_local_height())
             self.height_label.setText(height_str)
             self.status_label.setText(self.network.get_status())
@@ -551,7 +551,7 @@ class ServerWidget(QWidget, QtEventListener):
 
     def follow_branch(self, chain_id):
         self.network.run_from_another_thread(self.network.follow_chain_given_id(chain_id))
-        # follow_chain_given_id connects to random interface, so set connect_mode back to AUTOCONNECT
+
         self.set_connect_mode(ConnectMode.AUTOCONNECT, block_signals=True)
         self.update()
 
@@ -564,7 +564,7 @@ class ServerWidget(QWidget, QtEventListener):
 
         self.server_e.setText(str(server))
         if self.is_auto_connect():
-            # the user manually selected a server, so the ConnectMode gets set to MANUAL
+
             self.set_connect_mode(ConnectMode.MANUAL, block_signals=True)
 
         self.set_server(

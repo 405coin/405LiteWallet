@@ -1,34 +1,34 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
-# Check DNSSEC trust chain.
-# Todo: verify expiration dates
-#
-# Based on
-#  http://backreference.org/2010/11/17/dnssec-verification-with-dig/
-#  https://github.com/rthalley/dnspython/blob/master/tests/test_dnssec.py
+                           
+                               
+ 
+          
+                                                                    
+                                                                         
 
 
 import dns
@@ -59,11 +59,11 @@ from typing import Tuple
 _logger = get_logger(__name__)
 
 
-# hard-coded trust anchors (root KSKs)
+                                      
 trust_anchors = [
-    # KSK-2017:
+               
     dns.rrset.from_text('.', 1    , 'IN', 'DNSKEY', '257 3 8 AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3+/4RgWOq7HrxRixHlFlExOLAJr5emLvN7SWXgnLh4+B5xQlNVz8Og8kvArMtNROxVQuCaSnIDdD5LKyWbRd2n9WGe2R8PzgCmr3EgVLrjyBxWezF0jLHwVN8efS3rCj/EWgvIWgb9tarpVUDK/b58Da+sqqls3eNbuv7pr+eoZG+SrDK6nWeL3c6H5Apxz7LjVc1uTIdsIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws9555KrUB5qihylGa8subX2Nn6UwNR1AkUTV74bU='),
-    # KSK-2010:
+               
     dns.rrset.from_text('.', 15202, 'IN', 'DNSKEY', '257 3 8 AwEAAagAIKlVZrpC6Ia7gEzahOR+9W29euxhJhVVLOyQbSEW0O8gcCjF FVQUTf6v58fLjwBd0YI0EzrAcQqBGCzh/RStIoO8g0NfnfL2MTJRkxoX bfDaUeVPQuYEhg37NZWAJQ9VnMVDxP/VHL496M/QZxkjf5/Efucp2gaD X6RS6CXpoY68LsvPVjR0ZSwzz1apAzvN9dlzEheX7ICJBBtuA6G3LQpz W5hOA2hzCTMjJPJ8LbqF6dsV6DoBQzgul0sGIcGOYl7OyQdXfZ57relS Qageu+ipAdTTJ25AsRTAoub8ONGcLmqrAmRLKBP1dfwhYB4N7knNnulq QxA+Uk1ihz0='),
 ]
 
@@ -88,25 +88,25 @@ async def _check_query(ns, sub, _type, keys) -> dns.rrset.RRset:
 
 
 async def _get_and_validate(ns, url, _type) -> dns.rrset.RRset:
-    # get trusted root key
+                          
     root_rrset = None
     for dnskey_rr in trust_anchors:
         try:
-            # Check if there is a valid signature for the root dnskey
+                                                                     
             root_rrset = await _check_query(ns, '', dns.rdatatype.DNSKEY, {dns.name.root: dnskey_rr})
             break
         except dns.dnssec.ValidationFailure:
-            # It's OK as long as one key validates
+                                                  
             continue
     if not root_rrset:
         raise dns.dnssec.ValidationFailure('None of the trust anchors found in DNS')
     keys = {dns.name.root: root_rrset}
-    # top-down verification
+                           
     parts = url.split('.')
     for i in range(len(parts), 0, -1):
         sub = '.'.join(parts[i-1:])
         name = dns.name.from_text(sub)
-        # If server is authoritative, don't fetch DNSKEY
+                                                        
         query = dns.message.make_query(sub, dns.rdatatype.NS)
         response = await dns.asyncquery.udp(query, ns, 3)
         assert response.rcode() == dns.rcode.NOERROR, "query error"
@@ -114,11 +114,11 @@ async def _get_and_validate(ns, url, _type) -> dns.rrset.RRset:
         rr = rrset[0]
         if rr.rdtype == dns.rdatatype.SOA:
             continue
-        # get DNSKEY (self-signed)
+                                  
         rrset = await _check_query(ns, sub, dns.rdatatype.DNSKEY, None)
-        # get DS (signed by parent)
+                                   
         ds_rrset = await _check_query(ns, sub, dns.rdatatype.DS, keys)
-        # verify that a signed DS validates DNSKEY
+                                                  
         for ds in ds_rrset:
             for dnskey in rrset:
                 htype = 'SHA256' if ds.digest_type == 2 else 'SHA1'
@@ -130,16 +130,16 @@ async def _get_and_validate(ns, url, _type) -> dns.rrset.RRset:
             break
         else:
             raise Exception("DS does not match DNSKEY")
-        # set key for next iteration
+                                    
         keys = {name: rrset}
-    # get TXT record (signed by zone)
+                                     
     rrset = await _check_query(ns, url, _type, keys)
     return rrset
 
 
 async def query(url, rtype) -> Tuple[dns.rrset.RRset, bool]:
-    # FIXME this method is not using the network proxy. (although the proxy might not support UDP?)
-    # 8.8.8.8 is Google's public DNS server
+                                                                                                   
+                                           
     nameservers = ['8.8.8.8']
     ns = nameservers[0]
     try:

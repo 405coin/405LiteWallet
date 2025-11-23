@@ -62,7 +62,7 @@ class QENewWalletWizard(NewWalletWizard, QEAbstractWizard):
         self._path = None
         self._password = None
 
-        # attach view names and accept handlers
+                                               
         self.navmap_merge({
             'wallet_name': {'gui': 'WCWalletName'},
             'wallet_type': {'gui': 'WCWalletType'},
@@ -134,14 +134,14 @@ class QENewWalletWizard(NewWalletWizard, QEAbstractWizard):
         if self._qedaemon.availableWallets.wallet_name_exists(wallet_name):
             return False
         wallet_path = self._wallet_path_from_wallet_name(wallet_name)
-        # note: we should probably restrict wallet names to be alphanumeric (plus underscore, etc)...
-        # try to prevent sketchy path traversals:
+                                                                                                     
+                                                 
         for forbidden_char in ("/", "\\", ):
             if forbidden_char in wallet_name:
                 return False
         if os.path.basename(wallet_name) != wallet_name:
             return False
-        # validate that the path looks sane to the filesystem:
+                                                              
         try:
             temp_storage = WalletStorage(wallet_path)
         except (StorageReadWriteError, WalletFileException) as e:
@@ -167,7 +167,7 @@ class QENewWalletWizard(NewWalletWizard, QEAbstractWizard):
         try:
             self.create_storage(path, data)
 
-            # minimally populate self after create
+                                                  
             self._password = data['password']
             self.path = path
 
@@ -182,7 +182,7 @@ class QEServerConnectWizard(ServerConnectWizard, QEAbstractWizard):
         ServerConnectWizard.__init__(self, daemon.daemon)
         QEAbstractWizard.__init__(self, parent)
 
-        # attach view names
+                           
         self.navmap_merge({
             'welcome': {'gui': 'WCWelcome'},
             'proxy_config': {'gui': 'WCProxyConfig'},
@@ -195,7 +195,7 @@ class QETermsOfUseWizard(TermsOfUseWizard, QEAbstractWizard):
         TermsOfUseWizard.__init__(self, daemon.daemon.config)
         QEAbstractWizard.__init__(self, parent)
 
-        # attach gui classes
+                            
         self.navmap_merge({
             'terms_of_use': {'gui': 'WCTermsOfUseRequest'},
         })

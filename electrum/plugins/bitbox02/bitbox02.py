@@ -1,6 +1,6 @@
-#
-# BitBox02 Electrum plugin code.
-#
+ 
+                                
+ 
 
 import hid
 from typing import TYPE_CHECKING, Dict, Tuple, Optional, List, Any, Callable
@@ -46,10 +46,10 @@ class BitBox02NotInitialized(UserFacingException):
 
 
 class BitBox02Client(HardwareClientBase):
-    # handler is a BitBox02_Handler, importing it would lead to a circular dependency
+                                                                                     
     def __init__(self, handler: HardwareHandlerBase, device: Device, config: SimpleConfig, *, plugin: HW_PluginBase):
         HardwareClientBase.__init__(self, plugin=plugin)
-        self.bitbox02_device = None  # type: Optional[bitbox02.BitBox02]
+        self.bitbox02_device = None                                     
         self.handler = handler
         self.device_descriptor = device
         self.config = config
@@ -93,8 +93,8 @@ class BitBox02Client(HardwareClientBase):
     @runs_in_hwd_thread
     def get_soft_device_id(self) -> Optional[str]:
         if self.handler is None:
-            # Can't do the pairing without the handler. This happens at wallet creation time, when
-            # listing the devices.
+                                                                                                  
+                                  
             return None
         if self.bitbox02_device is None:
             self.pairing_dialog()
@@ -108,7 +108,7 @@ class BitBox02Client(HardwareClientBase):
             try:
                 res = device_response()
             except Exception:
-                # Close the hid device on exception
+                                                   
                 hid_device.close()
                 raise
             finally:
@@ -252,7 +252,7 @@ class BitBox02Client(HardwareClientBase):
                 out_type = bitbox02.btc.BTCPubRequest.CAPITAL_ZPUB
             else:
                 out_type = bitbox02.btc.BTCPubRequest.CAPITAL_VPUB
-        # The other legacy types are not supported
+                                                  
         else:
             raise Exception("invalid xtype:{}".format(xtype))
 
@@ -262,13 +262,13 @@ class BitBox02Client(HardwareClientBase):
     @runs_in_hwd_thread
     def label(self) -> str:
         if self.handler is None:
-            # Can't do the pairing without the handler. This happens at wallet creation time, when
-            # listing the devices.
+                                                                                                  
+                                  
             return super().label()
         if self.bitbox02_device is None:
             self.pairing_dialog()
-        # We add the fingerprint to the label, as if there are two devices with the same label, the
-        # device manager can mistake one for another and fail.
+                                                                                                   
+                                                              
         return "%s (%s)" % (
             self.bitbox02_device.device_info()["name"],
             self.bitbox02_device.root_fingerprint().hex(),
@@ -401,7 +401,7 @@ class BitBox02Client(HardwareClientBase):
         coin = self._get_coin()
         tx_script_type = None
 
-        # Build BTCInputType list
+                                 
         inputs = []
         for txin in tx.inputs():
             my_pubkey, full_path = keystore.find_my_pubkey_in_txinout(txin)
@@ -476,11 +476,11 @@ class BitBox02Client(HardwareClientBase):
                 _('Invalid input script type: {} is not supported by the BitBox02').format(tx_script_type)
             )
 
-        # Build BTCOutputType list
+                                  
         outputs = []
         for txout in tx.outputs():
             assert txout.address
-            # check for change
+                              
             if txout.is_change:
                 my_pubkey, change_pubkey_path = keystore.find_my_pubkey_in_txinout(txout)
                 outputs.append(
@@ -517,7 +517,7 @@ class BitBox02Client(HardwareClientBase):
         keypath_account = full_path[:-2]
 
         format_unit = bitbox02.btc.BTCSignInitRequest.FormatUnit.DEFAULT
-        # Base unit is configured to be "sat":
+                                              
         if self.config.get_decimal_point() == 0:
             format_unit = bitbox02.btc.BTCSignInitRequest.FormatUnit.SAT
 
@@ -534,9 +534,9 @@ class BitBox02Client(HardwareClientBase):
             format_unit=format_unit,
         )
 
-        # Fill signatures
+                         
         if len(sigs) != len(tx.inputs()):
-            raise Exception("Incorrect number of inputs signed.")  # Should never occur
+            raise Exception("Incorrect number of inputs signed.")                      
         sighash = Sighash.to_sigbytes(Sighash.ALL)
         signatures = [ecc.ecdsa_der_sig_from_ecdsa_sig64(x[1]) + sighash for x in sigs]
         tx.update_signatures(signatures)
@@ -695,20 +695,20 @@ class BitBox02Plugin(HW_PluginBase):
 
     def create_device_from_hid_enumeration(self, d: dict, *, product_key) -> 'Device':
         device = super().create_device_from_hid_enumeration(d, product_key=product_key)
-        # The BitBox02's product_id is not unique per device, thus use the path instead to
-        # distinguish devices.
+                                                                                          
+                              
         id_ = str(d['path'])
         return device._replace(id_=id_)
 
     def wizard_entry_for_device(self, device_info: 'DeviceInfo', *, new_wallet=True) -> str:
-        # Note: device_info.initialized for this hardware doesn't imply a seed is present,
-        # only that it has firmware installed
+                                                                                          
+                                             
         if new_wallet:
             return 'bitbox02_start' if device_info.initialized else 'bitbox02_not_initialized'
         else:
             return 'bitbox02_unlock'
 
-    # insert bitbox02 pages in new wallet wizard
+                                                
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         views = {
             'bitbox02_start': {

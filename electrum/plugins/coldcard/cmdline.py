@@ -46,4 +46,4 @@ class Plugin(ColdcardPlugin):
     def create_handler(self, window):
         return self.handler
 
-# EOF
+     

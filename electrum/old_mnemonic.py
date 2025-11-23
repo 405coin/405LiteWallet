@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2011 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                      
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 from typing import Sequence, Union
 
@@ -29,7 +29,7 @@ from .mnemonic import Wordlist
 from .util import is_hex_str
 
 
-# list of words from http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Contemporary_poetry
+                                                                                                 
 
 _words = (
 "like",
@@ -1666,12 +1666,12 @@ n = len(wordlist)
 assert n == 1626
 
 
-# Note about US patent no 5892470: Here each word does not represent a given digit.
-# Instead, the digit represented by a word is variable, it depends on the previous word.
+                                                                                   
+                                                                                        
 
 def mn_encode(message: str) -> Sequence[str]:
-    # note: to generate an 'old'-type mnemonic for testing:
-    #       " ".join(electrum.old_mnemonic.mn_encode(secrets.token_hex(16)))
+                                                           
+                                                                            
     assert is_hex_str(message), f"expected hex, got {type(message)}"
     assert len(message) % 8 == 0
     out = []

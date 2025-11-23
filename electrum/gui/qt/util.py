@@ -63,7 +63,7 @@ pr_icons = {
 }
 
 
-# filter tx files in QFileDialog:
+
 TRANSACTION_FILE_EXTENSION_FILTER_ANY = "Transaction (*.txn *.psbt);;All files (*)"
 TRANSACTION_FILE_EXTENSION_FILTER_ONLY_PARTIAL_TX = "Partial Transaction (*.psbt)"
 TRANSACTION_FILE_EXTENSION_FILTER_ONLY_COMPLETE_TX = "Complete Transaction (*.txn)"
@@ -106,7 +106,7 @@ class ThreadedButton(QPushButton):
 
 
 class WWLabel(QLabel):
-    """Word-wrapping label"""
+
     def __init__(self, text="", parent=None):
         QLabel.__init__(self, text, parent)
         self.setWordWrap(True)
@@ -114,7 +114,7 @@ class WWLabel(QLabel):
 
 
 class RichLabel(WWLabel):
-    """Word-wrapping label with link activation"""
+
     def __init__(self, text='', parent=None):
         WWLabel.__init__(self, text, parent)
         self.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
@@ -262,9 +262,9 @@ class MessageBoxMixin(object):
         if test_func is None:
             test_func = lambda x: True
         for n, child in enumerate(window.children()):
-            # Test for visibility as old closed dialogs may not be GC-ed.
-            # Only accept children that confirm to test_func.
-            if isinstance(child, classes) and child.isVisible() \
+
+
+            if isinstance(child, classes) and child.isVisible()\
                     and test_func(child):
                 return self.top_level_window_recurse(child, test_func=test_func)
         return window
@@ -324,14 +324,12 @@ class MessageBoxMixin(object):
         title: Optional[str] = None,
         default_key: Optional[Any] = None,
     ) -> Optional[Any]:
-        """Returns ChoiceItem.key (for selected item), or None if the user cancels the dialog.
 
-        Needed by QtHandler for hardware wallets.
-        """
         if title is None:
             title = _('Question')
         dialog = WindowModalDialog(self.top_level_window(), title=title)
         dialog.setMinimumWidth(400)
+        apply_dashboard_dialog_style(dialog, "DashboardChoiceDialog")
         choice_widget = ChoiceWidget(message=msg, choices=choices, default_key=default_key)
         vbox = QVBoxLayout(dialog)
         vbox.addWidget(choice_widget)
@@ -382,10 +380,10 @@ def custom_message_box(
     d.setDefaultButton(defaultButton)
     if rich_text:
         d.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse | Qt.TextInteractionFlag.LinksAccessibleByMouse)
-        # set AutoText instead of RichText
-        # AutoText lets Qt figure out whether to render as rich text.
-        # e.g. if text is actually plain text and uses "\n" newlines;
-        #      and we set RichText here, newlines would be swallowed
+
+
+
+
         d.setTextFormat(Qt.TextFormat.AutoText)
     else:
         d.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
@@ -400,8 +398,7 @@ def custom_message_box(
 
 
 class WindowModalDialog(QDialog, MessageBoxMixin):
-    '''Handy wrapper; window modal dialogs are better for our multi-window
-    daemon model as other wallet windows can still be accessed.'''
+
     def __init__(self, parent, title=None):
         QDialog.__init__(self, parent)
         self.setWindowModality(Qt.WindowModality.WindowModal)
@@ -410,8 +407,7 @@ class WindowModalDialog(QDialog, MessageBoxMixin):
 
 
 class WaitingDialog(WindowModalDialog):
-    '''Shows a please wait dialog whilst running a task.  It is not
-    necessary to maintain a reference to this dialog.'''
+
     def __init__(self, parent: QWidget, message: str, task, on_success=None, on_error=None, on_cancel=None):
         assert parent
         if isinstance(parent, MessageBoxMixin):
@@ -427,7 +423,7 @@ class WaitingDialog(WindowModalDialog):
         self.accepted.connect(self.on_accepted)
         self.show()
         self.thread = TaskThread(self)
-        self.thread.finished.connect(self.deleteLater)  # see #3956
+        self.thread.finished.connect(self.deleteLater)
         self.thread.add(task, on_success, self.accept, on_error)
 
     def wait(self):
@@ -513,11 +509,7 @@ def text_dialog(
 
 
 class ChoiceWidget(QWidget):
-    """Renders a list of ChoiceItems as a radiobuttons group.
-    Callers can pre-select an item by key, through the 'default_key' parameter.
-    The selected item is made available by index (selected_index),
-    by key (selected_key) and by Choice (selected_item).
-    """
+
 
     itemSelected = pyqtSignal([int], arguments=['index'])
 
@@ -535,10 +527,10 @@ class ChoiceWidget(QWidget):
         if choices is None:
             choices = []
 
-        self.selected_index = -1   # type: int
-        self.selected_item = None  # type: Optional[ChoiceItem]
-        self.selected_key = None   # type: Optional[Any]
-        self.choices = choices     # type: Sequence[ChoiceItem]
+        self.selected_index = -1
+        self.selected_item = None
+        self.selected_key = None
+        self.choices = choices
 
         if message and len(message) > 50:
             vbox.addWidget(WWLabel(message))
@@ -576,8 +568,7 @@ class ChoiceWidget(QWidget):
 
 
 class ResizableStackedWidget(QWidget):
-    """Simple alternative to QStackedWidget, as QStackedWidget always resizes to the largest
-       widget in the stack, leaving ugly scrollbars where they're not needed."""
+
     def __init__(self, parent):
         super().__init__(parent)
         self.setLayout(QVBoxLayout())
@@ -592,7 +583,7 @@ class ResizableStackedWidget(QWidget):
     def addWidget(self, widget: QWidget) -> int:
         self.widgets.append(widget)
         self.layout().addWidget(widget)
-        if len(self.widgets) == 1:  # first widget?
+        if len(self.widgets) == 1:
             self.current_index = 0
         self.showCurrentWidget()
         return len(self.widgets) - 1
@@ -632,7 +623,7 @@ class ResizableStackedWidget(QWidget):
 
 
 class VLine(QFrame):
-    """Vertical line separator"""
+
     def __init__(self):
         super(VLine, self).__init__()
         self.setFrameShape(QFrame.Shape.VLine)
@@ -656,8 +647,8 @@ def address_field(addresses, *, btn_text: str = None):
             i = i % len(addresses)
             address_e.setText(addresses[i])
         except ValueError:
-            # the user might have changed address_e to an
-            # address not in the wallet (or to something that isn't an address)
+
+
             if addresses and len(addresses) > 0:
                 address_e.setText(addresses[0])
     button = QPushButton(btn_text)
@@ -847,7 +838,7 @@ class GenericInputHandler:
         fileName = getOpenFileName(
             parent=None,
             title='select file',
-            # trying to open non-text things like pdfs makes electrum freeze
+
             filter="Text files (*.txt *.csv);;All files (*)",
             config=config,
         )
@@ -939,7 +930,7 @@ class OverlayControlMixin(GenericInputHandler):
     def __init__(self, middle: bool = False):
         GenericInputHandler.__init__(self)
         assert isinstance(self, QWidget)
-        assert isinstance(self, OverlayControlMixin)  # only here for type-hints in IDE
+        assert isinstance(self, OverlayControlMixin)
         self.middle = middle
         self.overlay_widget = QWidget(self)
         style_sheet = self.STYLE_SHEET_COMMON
@@ -962,7 +953,7 @@ class OverlayControlMixin(GenericInputHandler):
         y = self.rect().bottom() - overlay_size.height()
         middle = self.middle
         if hasattr(self, 'document'):
-            # Keep the buttons centered if we have less than 2 lines in the editor
+
             line_spacing = QFontMetrics(self.document().defaultFont()).lineSpacing()
             if self.rect().height() < (line_spacing * 2):
                 middle = True
@@ -973,7 +964,7 @@ class OverlayControlMixin(GenericInputHandler):
         self.overlay_widget.move(int(x), int(y))
 
     def addWidget(self, widget: QWidget):
-        # The old code positioned the items the other way around, so we just insert at position 0 instead
+
         self.overlay_layout.insertWidget(0, widget)
 
     def addButton(self, icon: QIcon, on_click, tooltip: str) -> QPushButton:
@@ -989,7 +980,6 @@ class OverlayControlMixin(GenericInputHandler):
         def on_copy():
             app = QApplication.instance()
             app.clipboard().setText(self.text())
-            QToolTip.showText(QCursor.pos(), _("Text copied to clipboard"), self)
         self.addButton(read_QIcon("copy.png"), on_copy, _("Copy to clipboard"))
 
     def addPasteButton(
@@ -1023,7 +1013,7 @@ class OverlayControlMixin(GenericInputHandler):
             ).exec()
 
         self.addButton(get_icon_qrcode(), qr_show, _("Show as QR code"))
-        # side-effect: we export this method:
+
         self.on_qr_show_btn = qr_show
 
     def add_qr_input_from_camera_button(
@@ -1042,7 +1032,7 @@ class OverlayControlMixin(GenericInputHandler):
             setText=setText,
         )
         self.addButton(get_icon_camera(), input_qr_from_camera, _("Read QR code with camera"))
-        # side-effect: we export these methods:
+
         self.on_qr_from_camera_input_btn = input_qr_from_camera
 
     def add_file_input_button(
@@ -1063,7 +1053,7 @@ class OverlayControlMixin(GenericInputHandler):
     def add_menu_button(
             self,
             *,
-            options: Sequence[Tuple[Optional[Union[str, QIcon]], str, Callable[[], None]]],  # list of (icon, text, cb)
+            options: Sequence[Tuple[Optional[Union[str, QIcon]], str, Callable[[], None]]],
             icon: Optional[QIcon] = None,
             tooltip: Optional[str] = None,
     ):
@@ -1090,7 +1080,7 @@ class ButtonsLineEdit(OverlayControlMixin, QLineEdit):
 
 
 class ShowQRLineEdit(ButtonsLineEdit):
-    """ read-only line with qr and copy buttons """
+
     def __init__(self, text: str, config, title=None):
         ButtonsLineEdit.__init__(self, text)
         self.setReadOnly(True)
@@ -1113,8 +1103,8 @@ class PasswordLineEdit(QLineEdit):
         self.setEchoMode(QLineEdit.EchoMode.Password)
 
     def clear(self):
-        # Try to actually overwrite the memory.
-        # This is really just a best-effort thing...
+
+
         self.setText(len(self.text()) * " ")
         super().clear()
 
@@ -1156,6 +1146,131 @@ class ColorScheme:
     @staticmethod
     def update_from_widget(widget, force_dark=False):
         ColorScheme.dark_scheme = bool(force_dark or ColorScheme.has_dark_background(widget))
+
+
+DASHBOARD_DIALOG_STYLE_TEMPLATE = """
+QWidget#{name} {{
+    background-color: #0b1230;
+    color: #f4f6ff;
+    border-radius: 20px;
+}}
+QWidget#{name} QLabel {{
+    color: #f4f6ff;
+}}
+QWidget#{name} QGroupBox,
+QWidget#{name} QFrame#SeedOptionsCard {{
+    background-color: #121a3c;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 12px 16px;
+}}
+QWidget#{name} QLineEdit,
+QWidget#{name} QTextEdit,
+QWidget#{name} QPlainTextEdit {{
+    background-color: #141b3b;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 8px 12px;
+    color: #f4f6ff;
+}}
+QWidget#{name} QComboBox,
+QWidget#{name} QSpinBox,
+QWidget#{name} QDoubleSpinBox {{
+    background-color: #141b3b;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 4px 10px;
+    color: #f4f6ff;
+}}
+QWidget#{name} QTabWidget::pane {{
+    border: none;
+    background-color: transparent;
+}}
+QWidget#{name} QTabBar::tab {{
+    background-color: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 12px;
+    color: #f4f6ff;
+    padding: 8px 16px;
+}}
+QWidget#{name} QTabBar::tab:selected {{
+    background-color: rgba(255,255,255,0.18);
+}}
+QWidget#{name} QPushButton {{
+    background-color: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 12px;
+    color: #f4f6ff;
+    padding: 8px 16px;
+}}
+QWidget#{name} QPushButton:hover {{
+    background-color: rgba(255,255,255,0.18);
+}}
+QWidget#{name} QPushButton:disabled {{
+    color: rgba(244,246,255,0.4);
+    background-color: rgba(255,255,255,0.04);
+}}
+QWidget#{name} QCheckBox,
+QWidget#{name} QRadioButton {{
+    color: #d2d7ff;
+}}
+"""
+
+
+def apply_dashboard_dialog_style(widget: QWidget, object_name: str = "DashboardDialog") -> None:
+
+    widget.setObjectName(object_name)
+    widget.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+    widget.setStyleSheet(DASHBOARD_DIALOG_STYLE_TEMPLATE.format(name=object_name))
+
+
+class DashboardMessageBox(WindowModalDialog):
+    def __init__(self, parent: QWidget, *, title: str, text: str,
+                 buttons: Sequence[Tuple[str, Any, bool]]):
+        super().__init__(parent, title)
+        self.result_value = None
+        apply_dashboard_dialog_style(self, "DashboardMessageBox")
+        layout = QVBoxLayout(self)
+        message = QLabel(text)
+        message.setWordWrap(True)
+        message.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        layout.addWidget(message)
+        btn_row = QHBoxLayout()
+        btn_row.addStretch(1)
+        for label, value, is_default in buttons:
+            btn = QPushButton(label)
+            btn.setDefault(is_default)
+            btn.clicked.connect(lambda _=False, v=value: self._done(v))
+            btn_row.addWidget(btn)
+        layout.addLayout(btn_row)
+
+    def _done(self, value):
+        self.result_value = value
+        self.accept()
+
+
+def dashboard_question(parent: QWidget, title: str, text: str) -> bool:
+    dlg = DashboardMessageBox(
+        parent,
+        title=title or _('Confirm'),
+        text=text,
+        buttons=[
+            (_('Yes'), True, True),
+            (_('No'), False, False),
+        ],
+    )
+    dlg.exec()
+    return bool(dlg.result_value)
+
+
+def dashboard_info(parent: QWidget, title: str, text: str) -> None:
+    dlg = DashboardMessageBox(
+        parent,
+        title=title or _('Information'),
+        text=text,
+        buttons=[(_('OK'), True, True)],
+    )
+    dlg.exec()
 
 
 class AcceptFileDragDrop:
@@ -1215,7 +1330,7 @@ def export_meta_gui(electrum_window: 'ElectrumWindow', title, exporter):
     filename = getSaveFileName(
         parent=electrum_window,
         title=_("Select file to save your {}").format(title),
-        filename='electrum_{}.json'.format(title),
+        filename='405LiteWallet_{}.json'.format(title),
         filter=filter_,
         config=electrum_window.config,
     )
@@ -1231,7 +1346,7 @@ def export_meta_gui(electrum_window: 'ElectrumWindow', title, exporter):
 
 
 def getOpenFileName(*, parent, title, filter="", config: 'SimpleConfig') -> Optional[str]:
-    """Custom wrapper for getOpenFileName that remembers the path selected by the user."""
+
     directory = config.IO_DIRECTORY
     fileName, __ = QFileDialog.getOpenFileName(parent, title, directory, filter)
     if fileName and directory != os.path.dirname(fileName):
@@ -1249,14 +1364,14 @@ def getSaveFileName(
         default_filter: str = None,
         config: 'SimpleConfig',
 ) -> Optional[str]:
-    """Custom wrapper for getSaveFileName that remembers the path selected by the user."""
+
     directory = config.IO_DIRECTORY
     path = os.path.join(directory, filename)
 
     file_dialog = QFileDialog(parent, title, path, filter)
     file_dialog.setAcceptMode(QFileDialog.AcceptMode.AcceptSave)
     if default_extension:
-        # note: on MacOS, the selected filter's first extension seems to have priority over this...
+
         file_dialog.setDefaultSuffix(default_extension)
     if default_filter:
         assert default_filter in filter, f"default_filter={default_filter!r} does not appear in filter={filter!r}"
@@ -1321,12 +1436,12 @@ class IconLabel(QWidget):
 
     def setIcon(self, icon):
         self.icon.setPixmap(icon.pixmap(self.icon_size))
-        self.icon.repaint()  # macOS hack for #6269
+        self.icon.repaint()
 
 
 def char_width_in_lineedit() -> int:
     char_width = QFontMetrics(QLineEdit().font()).averageCharWidth()
-    # 'averageCharWidth' seems to underestimate on Windows, hence 'max()'
+
     return max(9, char_width)
 
 
@@ -1338,9 +1453,9 @@ def font_height(widget: QWidget = None) -> int:
 
 def webopen(url: str):
     if sys.platform == 'linux' and os.environ.get('APPIMAGE'):
-        # When on Linux webbrowser.open can fail in AppImage because it can't find the correct libdbus.
-        # We just fork the process and unset LD_LIBRARY_PATH before opening the URL.
-        # See #5425
+
+
+
         if os.fork() == 0:
             del os.environ['LD_LIBRARY_PATH']
             webbrowser.open(url)
@@ -1434,9 +1549,7 @@ class FixedAspectRatioLayout(QLayout):
 
 
 def QColorLerp(a: QColor, b: QColor, t: float):
-    """
-    Blends two QColors. t=0 returns a. t=1 returns b. t=0.5 returns evenly mixed.
-    """
+
     t = max(min(t, 1.0), 0.0)
     i_t = 1.0 - t
     return QColor(
@@ -1448,9 +1561,7 @@ def QColorLerp(a: QColor, b: QColor, t: float):
 
 
 class ImageGraphicsEffect(QObject):
-    """
-    Applies a QGraphicsEffect to a QImage
-    """
+
 
     def __init__(self, parent: QObject, effect: QGraphicsEffect):
         super().__init__(parent)
@@ -1482,8 +1593,8 @@ class QtEventListener(EventListener):
     def unregister_callbacks(self):
         try:
             self.qt_callback_signal.disconnect()
-        except (RuntimeError, TypeError):  # wrapped Qt object might be deleted
-            # "TypeError: disconnect() failed between 'qt_callback_signal' and all its connections"
+        except (RuntimeError, TypeError):
+
             pass
         EventListener.unregister_callbacks(self)
 
@@ -1492,7 +1603,7 @@ class QtEventListener(EventListener):
         return func(self, *args[1:])
 
 
-# decorator for members of the QtEventListener class
+
 def qt_event_listener(func):
     func = event_listener(func)
 
@@ -1503,16 +1614,12 @@ def qt_event_listener(func):
 
 
 def insert_spaces(text: str, every_chars: int) -> str:
-    '''Insert spaces at every Nth character to allow for WordWrap'''
+
     return ' '.join(text[i:i+every_chars] for i in range(0, len(text), every_chars))
 
 
 def set_windows_os_screenshot_protection_drm_flag(window: QWidget) -> None:
-    """
-    sets the windows WDA_MONITOR flag on the window so windows prevents capturing
-    screenshots and microsoft recall will not be able to record the window
-    https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowdisplayaffinity
-    """
+
     if sys.platform not in ('win32', 'windows'):
         return
     try:

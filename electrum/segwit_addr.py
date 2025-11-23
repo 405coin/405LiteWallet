@@ -1,23 +1,23 @@
 
-# Copyright (c) 2017 Pieter Wuille
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+                                  
+ 
+                                                                              
+                                                                               
+                                                                              
+                                                                           
+                                                                       
+                                                          
+ 
+                                                                            
+                                                     
+ 
+                                                                            
+                                                                          
+                                                                             
+                                                                        
+                                                                               
+                                                                           
+               
 
 """Reference implementation for Bech32/Bech32m and segwit addresses."""
 
@@ -25,7 +25,7 @@ from enum import Enum
 from typing import Tuple, Optional, Sequence, NamedTuple, List, Mapping, Iterable
 
 CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l"
-CHARSET_INVERSE = {c: i for (i, c) in enumerate(CHARSET)}  # type: Mapping[str, int]
+CHARSET_INVERSE = {c: i for (i, c) in enumerate(CHARSET)}                           
 
 BECH32_CONST = 1
 BECH32M_CONST = 0x2bc830a3
@@ -40,7 +40,7 @@ class Encoding(Enum):
 class DecodedBech32(NamedTuple):
     encoding: Optional[Encoding]
     hrp: Optional[str]
-    data: Optional[Sequence[int]]  # 5-bit ints
+    data: Optional[Sequence[int]]              
 
 
 def bech32_polymod(values):
@@ -93,7 +93,7 @@ def bech32_decode(bech: str, *, ignore_long_length=False) -> DecodedBech32:
     pos = bech.rfind('1')
     if pos < 1 or pos + 7 > len(bech) or (not ignore_long_length and len(bech) > 90):
         return DecodedBech32(None, None, None)
-    # check that HRP only consists of sane ASCII chars
+                                                      
     if any(ord(x) < 33 or ord(x) > 126 for x in bech[:pos+1]):
         return DecodedBech32(None, None, None)
     bech = bech_lower

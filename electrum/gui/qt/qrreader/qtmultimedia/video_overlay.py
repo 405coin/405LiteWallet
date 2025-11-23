@@ -1,27 +1,27 @@
-#!/usr/bin/env python3
-#
-# Electron Cash - lightweight Bitcoin client
-# Copyright (C) 2019 Axel Gembe <derago@gmail.com>
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import List
 
@@ -35,9 +35,7 @@ from .validator import QrReaderValidatorResult
 
 
 class QrReaderVideoOverlay(QWidget):
-    """
-    Overlays the QR scanner results over the video
-    """
+
 
     BG_RECT_PADDING = 10
     BG_RECT_CORNER_RADIUS = 10.0
@@ -84,31 +82,31 @@ class QrReaderVideoOverlay(QWidget):
 
         painter = QPainter(self)
 
-        # Keep a backup of the transform and create a new one
+
         transform = painter.worldTransform()
 
-        # Set scaling transform
+
         transform = transform.scale(self.width() / self.resolution.width(),
                                     self.height() / self.resolution.height())
 
-        # Compute the transform to flip the coordinate system on the x axis
+
         transform_flip = QTransform()
         if self.flip_x:
             transform_flip = transform_flip.translate(self.resolution.width(), 0.0)
             transform_flip = transform_flip.scale(-1.0, 1.0)
 
-        # Small helper for tuple to QPoint
+
         def toqp(point):
             return QPoint(point[0], point[1])
 
-        # Starting from here we care about AA
+
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-        # Draw all the QR code results
+
         for res in self.results:
             painter.setWorldTransform(transform_flip * transform, False)
 
-            # Draw lines between all of the QR code points
+
             pen = QPen(self.qr_outline_pen)
             if res in self.validator_results.result_colors:
                 pen.setColor(self.validator_results.result_colors[res])
@@ -125,10 +123,10 @@ class QrReaderVideoOverlay(QWidget):
 
                 painter.drawLine(line_from, line_to)
 
-            # Draw the QR code data
-            # Note that we reset the world transform to only the scaled transform
-            # because otherwise the text could be flipped. We only use transform_flip
-            # to map the center point of the result.
+
+
+
+
             painter.setWorldTransform(transform, False)
             font_metrics = painter.fontMetrics()
             data_metrics = QSize(font_metrics.horizontalAdvance(res.data), font_metrics.capHeight())

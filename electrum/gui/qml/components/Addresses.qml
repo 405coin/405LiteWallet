@@ -60,7 +60,7 @@ Pane {
                             model: ListModel {
                                 id: showCoinsAddressesModel
                                 Component.onCompleted: {
-                                    // we need to fill the model like this, as ListElement can't evaluate script
+                                    
                                     showCoinsAddressesModel.append({'text': qsTr('Addresses'), 'value': 1})
                                     showCoinsAddressesModel.append({'text': qsTr('Coins'), 'value': 2})
                                     showCoinsAddressesModel.append({'text': qsTr('Both'), 'value': 3})
@@ -177,11 +177,11 @@ Pane {
                                                 address: model.address
                                             })
                                             page.addressDetailsChanged.connect(function() {
-                                                // update listmodel when details change
+                                                
                                                 listview.backingModel.updateAddress(model.address)
                                             })
                                             page.addressDeleted.connect(function() {
-                                                // update listmodel when address removed
+                                                
                                                 listview.backingModel.deleteAddress(model.address)
                                             })
                                         } else {
@@ -261,17 +261,17 @@ Pane {
                     selectedGroup.remove(0, selectedGroup.count)
                 }
             }
-            // FlatButton {
-            //     Layout.fillWidth: true
-            //     Layout.preferredWidth: 1
-            //     text: qsTr('Pay from...')
-            //     icon.source: '../../icons/tab_send.png'
-            //     visible: listview.selectMode
-            //     enabled: false // TODO
-            //     onClicked: {
-            //         //
-            //     }
-            // }
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
         }
 
     }

@@ -50,7 +50,7 @@ class NewChannelDialog(WindowModalDialog):
         else:
             self.trampoline_combo = QComboBox()
             self.trampoline_combo.addItems(self.trampoline_names)
-            # index 1 is "Electrum trampoline" on mainnet, this defaults to -1 if 1 is not available
+
             self.trampoline_combo.setCurrentIndex(1)
             self.trampoline_combo.currentIndexChanged.connect(self.maybe_enable_ok_button)
         self.amount_e = BTCAmountEdit(self.window.get_decimal_point)
@@ -119,17 +119,17 @@ class NewChannelDialog(WindowModalDialog):
             )
         else:
             self.remote_nodeid.setText(nodeid)
-        self.remote_nodeid.repaint()  # macOS hack for #6269
+        self.remote_nodeid.repaint()
 
     def on_clear(self):
         self.amount_e.setText('')
         self.amount_e.setFrozen(False)
-        self.amount_e.repaint()  # macOS hack for #6269
+        self.amount_e.repaint()
         if self.network.channel_db:
             self.remote_nodeid.setText('')
-            self.remote_nodeid.repaint()  # macOS hack for #6269
+            self.remote_nodeid.repaint()
         self.max_button.setChecked(False)
-        self.max_button.repaint()  # macOS hack for #6269
+        self.max_button.repaint()
 
     def spend_min(self):
         self.max_button.setChecked(False)
@@ -157,9 +157,9 @@ class NewChannelDialog(WindowModalDialog):
         if not self.exec():
             return
         if self.max_button.isChecked() and self.amount_e.get_amount() < self.config.LIGHTNING_MAX_FUNDING_SAT:
-            # if 'max' enabled and amount is strictly less than max allowed,
-            # that means we have fewer coins than max allowed, and hence we can
-            # spend all coins
+
+
+
             funding_sat = '!'
         else:
             funding_sat = self.amount_e.get_amount()

@@ -8,8 +8,8 @@ class ElectrumTranslator(QTranslator):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        # explicit enumeration of translatable strings from Qt standard library, so these
-        # will be included in the electrum gettext translation template
+                                                                                         
+                                                                       
         self._strings = [_('&Undo'), _('&Redo'), _('Cu&t'), _('&Copy'), _('&Paste'), _('Select All'),
                          _('Copy &Link Location')]
 

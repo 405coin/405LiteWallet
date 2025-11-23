@@ -60,7 +60,7 @@ class ScanQRTextEdit(ButtonsTextEdit, MessageBoxMixin):
             show_error=self.show_error,
             setText=setText,
         )
-        # for send tab, buttons are available in the toolbar
+
         if not is_payto:
             self.add_input_buttons(config, allow_multi, setText)
         run_hook('scan_text_edit', self)

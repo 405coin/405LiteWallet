@@ -1,4 +1,4 @@
-# -*- mode: python -*-
+
 import sys
 import os
 from typing import TYPE_CHECKING
@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 PYPKG="electrum"
-MAIN_SCRIPT="run_electrum"
+MAIN_SCRIPT="run_405litewallet"
 PROJECT_ROOT = "C:/electrum"
 ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum.ico"
 
@@ -19,16 +19,16 @@ if not cmdline_name:
     raise Exception('no name')
 
 
-# see https://github.com/pyinstaller/pyinstaller/issues/2005
+
 hiddenimports = []
-hiddenimports += collect_submodules('pkg_resources')  # workaround for https://github.com/pypa/setuptools/issues/1963
+hiddenimports += collect_submodules('pkg_resources')
 hiddenimports += collect_submodules(f"{PYPKG}.plugins")
 
 
 binaries = []
-# Workaround for "Retro Look":
+
 binaries += [b for b in collect_dynamic_libs('PyQt6') if 'qwindowsvista' in b[0]]
-# add libsecp256k1, libusb, etc:
+
 binaries += [(f"{PROJECT_ROOT}/{PYPKG}/*.dll", '.')]
 
 
@@ -44,15 +44,15 @@ datas = [
     (f"{PROJECT_ROOT}/{PYPKG}/gui/fonts", f"{PYPKG}/gui/fonts"),
 ]
 datas += collect_data_files(f"{PYPKG}.plugins")
-datas += collect_data_files('trezorlib')  # TODO is this needed? and same question for other hww libs
+datas += collect_data_files('trezorlib')
 datas += collect_data_files('safetlib')
 datas += collect_data_files('ckcc')
 datas += collect_data_files('bitbox02')
 
-# some deps rely on importlib metadata
-datas += copy_metadata('slip10')  # from trezor->slip10
 
-# Exclude parts of Qt that we never use. Reduces binary size by tens of MBs. see #4815
+datas += copy_metadata('slip10')
+
+
 excludes = [
     "PyQt6.QtBluetooth",
     "PyQt6.QtDesigner",
@@ -72,10 +72,10 @@ excludes = [
     "PyQt6.QtWebChannel",
     "PyQt6.QtWebSockets",
     "PyQt6.QtXml",
-    # "PyQt6.QtNetwork",  # needed by QtMultimedia. kinda weird but ok.
+
 ]
 
-# We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
+
 a = Analysis([f"{PROJECT_ROOT}/{MAIN_SCRIPT}",
               f"{PROJECT_ROOT}/{PYPKG}/gui/qt/main_window.py",
               f"{PROJECT_ROOT}/{PYPKG}/gui/qt/qrreader/qtmultimedia/camera_dialog.py",
@@ -95,21 +95,21 @@ a = Analysis([f"{PROJECT_ROOT}/{MAIN_SCRIPT}",
              )
 
 
-# http://stackoverflow.com/questions/19055089/pyinstaller-onefile-warning-pyconfig-h-when-importing-scipy-or-scipy-signal
+
 for d in a.datas:
     if 'pyconfig' in d[0]:
         a.datas.remove(d)
         break
 
 
-# hotfix for #3171 (pre-Win10 binaries)
+
 a.binaries = [x for x in a.binaries if not x[1].lower().startswith(r'c:\windows')]
 
 pyz = PYZ(a.pure)
 
 
-#####
-# "standalone" exe with all dependencies packed into it
+
+
 
 exe_standalone = EXE(
     pyz,
@@ -122,7 +122,7 @@ exe_standalone = EXE(
     upx=False,
     icon=ICONS_FILE,
     console=False)
-    # console=True makes an annoying black box pop up, but it does make Electrum output command line commands, with this turned off no output will be given but commands can still be used
+
 
 exe_portable = EXE(
     pyz,
@@ -136,8 +136,8 @@ exe_portable = EXE(
     icon=ICONS_FILE,
     console=False)
 
-#####
-# exe and separate files that NSIS uses to build installer "setup" exe
+
+
 
 exe_inside_setup_noconsole = EXE(
     pyz,

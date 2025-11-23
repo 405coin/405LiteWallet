@@ -41,7 +41,7 @@ class Plugin(JadePlugin, QtPluginBase):
             return
         self._add_menu_action(menu, addr, wallet)
 
-    # insert jade pages in new wallet wizard
+                                            
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {

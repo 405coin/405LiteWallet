@@ -7,7 +7,7 @@ import org.electrum 1.0
 
 import "controls"
 
-// currently not used on android, kept for future use when qt6 camera stops crashing
+
 ElDialog {
     id: dialog
 
@@ -41,9 +41,9 @@ ElDialog {
         }
     }
 
-    // override
+    
     function doClose() {
-        console.log('SendDialog doClose override') // doesn't trigger when going back??
+        console.log('SendDialog doClose override') 
         qrscan.stop()
         Qt.callLater(doReject)
     }

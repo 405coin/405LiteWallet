@@ -1,34 +1,34 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import enum
 from typing import Optional, TYPE_CHECKING
 
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtWidgets import QMenu, QAbstractItemView
-from PyQt6.QtCore import Qt, QItemSelectionModel, QModelIndex
+from PyQt6.QtCore import Qt, QItemSelectionModel, QModelIndex, QEvent
 
 from electrum.i18n import _
 from electrum.util import format_time
@@ -59,16 +59,13 @@ class RequestList(MyTreeView):
 
     headers = {
         Columns.DATE: _('Date'),
-        Columns.DESCRIPTION: _('Description'),
+        Columns.DESCRIPTION: _('Address'),
         Columns.AMOUNT: _('Amount'),
         Columns.STATUS: _('Status'),
         Columns.ADDRESS: _('Address'),
         Columns.LN_RHASH: 'LN RHASH',
     }
-    filter_columns = [
-        Columns.DATE, Columns.DESCRIPTION, Columns.AMOUNT,
-        Columns.ADDRESS, Columns.LN_RHASH,
-    ]
+    filter_columns = [Columns.DATE, Columns.DESCRIPTION]
 
     def __init__(self, receive_tab: 'ReceiveTab'):
         window = receive_tab.window
@@ -86,6 +83,12 @@ class RequestList(MyTreeView):
         self.selectionModel().currentRowChanged.connect(self.item_changed)
         self.selectionModel().selectionChanged.connect(self.selection_changed)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
+        try:
+            self.customContextMenuRequested.disconnect(self.create_menu)
+        except (TypeError, RuntimeError):
+            pass
+        self.viewport().installEventFilter(self)
 
     def set_current_key(self, key):
         for i in range(self.model().rowCount()):
@@ -133,8 +136,8 @@ class RequestList(MyTreeView):
 
     def update(self):
         current_key = self.get_current_key()
-        # not calling maybe_defer_update() as it interferes with conditional-visibility
-        self.proxy.setDynamicSortFilter(False)  # temp. disable re-sorting after every change
+
+        self.proxy.setDynamicSortFilter(False)
         self.std_model.clear()
         self.update_headers(self.__class__.headers)
         self.set_visibility_of_columns()
@@ -150,34 +153,35 @@ class RequestList(MyTreeView):
             amount_str_nots = self.main_window.format_amount(amount, add_thousands_sep=False) if amount else ""
             labels = [""] * len(self.Columns)
             labels[self.Columns.DATE] = date
-            labels[self.Columns.DESCRIPTION] = message
-            labels[self.Columns.AMOUNT] = amount_str
+            labels[self.Columns.DESCRIPTION] = req.get_address() or ''
+            labels[self.Columns.AMOUNT] = ''
             labels[self.Columns.STATUS] = status_str
-            labels[self.Columns.ADDRESS] = req.get_address() or ""
-            labels[self.Columns.LN_RHASH] = req.rhash if req.is_lightning() else ""
+            labels[self.Columns.ADDRESS] = ''
+            labels[self.Columns.LN_RHASH] = ''
             items = [QStandardItem(e) for e in labels]
+            for item in items:
+                item.setData('', Qt.ItemDataRole.ToolTipRole)
             self.set_editability(items)
-            #items[self.Columns.DATE].setData(request_type, ROLE_REQUEST_TYPE)
             items[self.Columns.DATE].setData(key, ROLE_KEY)
             items[self.Columns.DATE].setData(timestamp, ROLE_SORT_ORDER)
-            items[self.Columns.DATE].setIcon(read_QIcon("lightning" if req.is_lightning() else "bitcoin"))
-            items[self.Columns.AMOUNT].setData(amount_str_nots.strip(), self.ROLE_CLIPBOARD_DATA)
-            items[self.Columns.STATUS].setIcon(read_QIcon(pr_icons.get(status)))
+            items[self.Columns.DATE].setIcon(read_QIcon('lightning' if req.is_lightning() else 'bitcoin'))
             self.std_model.insertRow(self.std_model.rowCount(), items)
         self.filter()
         self.proxy.setDynamicSortFilter(True)
-        # sort requests by date
+
         self.sortByColumn(self.Columns.DATE, Qt.SortOrder.DescendingOrder)
         self.hide_if_empty()
         if current_key is not None:
             self.set_current_key(current_key)
 
     def hide_if_empty(self):
-        b = self.std_model.rowCount() > 0
-        self.setVisible(b)
-        self.receive_tab.receive_requests_label.setVisible(b)
-        if not b:
-            # list got hidden, so selected item should also be cleared:
+        has_rows = self.std_model.rowCount() > 0
+        self.setEnabled(has_rows)
+        self.receive_tab.receive_requests_label.setVisible(True)
+        self.setVisible(True)
+        if not has_rows:
+
+            self.selectionModel().clearSelection()
             self.item_changed(None)
 
     def create_menu(self, position):
@@ -200,13 +204,14 @@ class RequestList(MyTreeView):
         menu = QMenu(self)
         copy_menu = self.add_copy_menu(menu, idx)
         if req.get_address():
-            copy_menu.addAction(_("Address"), lambda: self.main_window.do_copy(req.get_address(), title='Bitcoin Address'))
+            copy_menu.addAction(_("Address"), lambda: self.main_window.do_copy(req.get_address(), title=_('405 Address')))
         if URI := self.wallet.get_request_URI(req):
-            copy_menu.addAction(_("Bitcoin URI"), lambda: self.main_window.do_copy(URI, title='Bitcoin URI'))
+            uri405 = URI.replace('bitcoin:', '405:', 1) if URI.startswith('bitcoin:') else URI
+            copy_menu.addAction(_("Payment Link"), lambda: self.main_window.do_copy(uri405, title=_('405 URI')))
         if req.is_lightning():
             copy_menu.addAction(_("Lightning Request"), lambda: self.main_window.do_copy(self.wallet.get_bolt11_invoice(req), title='Lightning Request'))
-        #if 'view_url' in req:
-        #    menu.addAction(_("View in web browser"), lambda: webopen(req['view_url']))
+
+
         menu.addAction(_("Delete"), lambda: self.delete_requests([key]))
         run_hook('receive_list_menu', self.main_window, menu, key)
         menu.exec(self.viewport().mapToGlobal(position))
@@ -224,5 +229,18 @@ class RequestList(MyTreeView):
     def set_visibility_of_columns(self):
         def set_visible(col: int, b: bool):
             self.showColumn(col) if b else self.hideColumn(col)
+        set_visible(self.Columns.DESCRIPTION, True)
+        set_visible(self.Columns.AMOUNT, False)
+        set_visible(self.Columns.STATUS, False)
         set_visible(self.Columns.ADDRESS, False)
         set_visible(self.Columns.LN_RHASH, False)
+
+    def eventFilter(self, obj, event):
+        if obj is self.viewport() and event.type() == QEvent.Type.ToolTip:
+            return True
+        return super().eventFilter(obj, event)
+
+    def viewportEvent(self, event):
+        if event.type() == QEvent.Type.ToolTip:
+            return True
+        return super().viewportEvent(event)

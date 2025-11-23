@@ -60,9 +60,9 @@ import warnings
 from ctypes import c_size_t, sizeof, c_wchar_p, get_errno, c_wchar
 
 
-# `import PyQt4` sys.exit()s if DISPLAY is not in the environment.
-# Thus, we need to detect the presence of $DISPLAY manually
-# and not load PyQt4 if it is absent.
+                                                                  
+                                                           
+                                     
 HAS_DISPLAY = os.getenv("DISPLAY", False)
 
 EXCEPT_MSG = """
@@ -71,14 +71,14 @@ EXCEPT_MSG = """
 
 PY2 = sys.version_info[0] == 2
 
-STR_OR_UNICODE = unicode if PY2 else str # For paste(): Python 3 uses str, Python 2 uses unicode.
+STR_OR_UNICODE = unicode if PY2 else str                                                         
 
 ENCODING = 'utf-8'
 
 try:
     from shutil import which as _executable_exists
 except ImportError:
-    # The "which" unix command finds where a command is.
+                                                        
     if platform.system() == 'Windows':
         WHICH_CMD = 'where'
     else:
@@ -90,7 +90,7 @@ except ImportError:
 
 
 
-# Exceptions
+            
 class PyperclipException(RuntimeError):
     pass
 
@@ -115,7 +115,7 @@ def _stringifyText(text):
 def init_osx_pbcopy_clipboard():
 
     def copy_osx_pbcopy(text):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         p = subprocess.Popen(['pbcopy', 'w'],
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
@@ -132,7 +132,7 @@ def init_osx_pbcopy_clipboard():
 def init_osx_pyobjc_clipboard():
     def copy_osx_pyobjc(text):
         '''Copy string argument to clipboard'''
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         newStr = Foundation.NSString.stringWithString_(text).nsstring()
         newData = newStr.dataUsingEncoding_(Foundation.NSUTF8StringEncoding)
         board = AppKit.NSPasteboard.generalPasteboard()
@@ -154,14 +154,14 @@ def init_gtk_clipboard():
 
     def copy_gtk(text):
         global cb
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         cb = gtk.Clipboard()
         cb.set_text(text)
         cb.store()
 
     def paste_gtk():
         clipboardContents = gtk.Clipboard().wait_for_text()
-        # for python 2, returns None if the clipboard is blank.
+                                                               
         if clipboardContents is None:
             return ''
         else:
@@ -172,9 +172,9 @@ def init_gtk_clipboard():
 
 def init_qt_clipboard():
     global QApplication
-    # $DISPLAY should exist
+                           
 
-    # Try to import from qtpy, but if that fails try PyQt5 then PyQt4
+                                                                     
     try:
         from qtpy.QtWidgets import QApplication
     except:
@@ -191,7 +191,7 @@ def init_qt_clipboard():
         app = QApplication([])
 
     def copy_qt(text):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         cb = app.clipboard()
         cb.setText(text)
 
@@ -207,7 +207,7 @@ def init_xclip_clipboard():
     PRIMARY_SELECTION='p'
 
     def copy_xclip(text, primary=False):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         selection=DEFAULT_SELECTION
         if primary:
             selection=PRIMARY_SELECTION
@@ -224,7 +224,7 @@ def init_xclip_clipboard():
                              stderr=subprocess.PIPE,
                              close_fds=True)
         stdout, stderr = p.communicate()
-        # Intentionally ignore extraneous output on stderr when clipboard is empty
+                                                                                  
         return stdout.decode(ENCODING)
 
     return copy_xclip, paste_xclip
@@ -235,7 +235,7 @@ def init_xsel_clipboard():
     PRIMARY_SELECTION='-p'
 
     def copy_xsel(text, primary=False):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         selection_flag = DEFAULT_SELECTION
         if primary:
             selection_flag = PRIMARY_SELECTION
@@ -259,7 +259,7 @@ def init_wl_clipboard():
     PRIMARY_SELECTION = "-p"
 
     def copy_wl(text, primary=False):
-        text = _stringifyText(text)  # Converts non-str values to str.
+        text = _stringifyText(text)                                   
         args = ["wl-copy"]
         if primary:
             args.append(PRIMARY_SELECTION)
@@ -284,7 +284,7 @@ def init_wl_clipboard():
 
 def init_klipper_clipboard():
     def copy_klipper(text):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         p = subprocess.Popen(
             ['qdbus', 'org.kde.klipper', '/klipper', 'setClipboardContents',
              text.encode(ENCODING)],
@@ -297,12 +297,12 @@ def init_klipper_clipboard():
             stdout=subprocess.PIPE, close_fds=True)
         stdout, stderr = p.communicate()
 
-        # Workaround for https://bugs.kde.org/show_bug.cgi?id=342874
-        # TODO: https://github.com/asweigart/pyperclip/issues/43
+                                                                    
+                                                                
         clipboardContents = stdout.decode(ENCODING)
-        # even if blank, Klipper will append a newline at the end
+                                                                 
         assert len(clipboardContents) > 0
-        # make sure that newline is there
+                                         
         assert clipboardContents.endswith('\n')
         if clipboardContents.endswith('\n'):
             clipboardContents = clipboardContents[:-1]
@@ -313,7 +313,7 @@ def init_klipper_clipboard():
 
 def init_dev_clipboard_clipboard():
     def copy_dev_clipboard(text):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         if text == '':
             warnings.warn('Pyperclip cannot copy a blank string to the clipboard on Cygwin. This is effectively a no-op.')
         if '\r' in text:
@@ -350,7 +350,7 @@ def init_no_clipboard():
 
 
 
-# Windows-related clipboard functions:
+                                      
 class CheckedCall(object):
     def __init__(self, f):
         super(CheckedCall, self).__setattr__("f", f)
@@ -426,8 +426,8 @@ def init_windows_clipboard():
         """
         Context that provides a valid Windows hwnd.
         """
-        # we really just need the hwnd, so setting "STATIC"
-        # as predefined lpClass is just fine.
+                                                           
+                                             
         hwnd = safeCreateWindowExA(0, b"STATIC", None, 0, 0, 0, 0, 0,
                                    None, None, None, None)
         try:
@@ -441,9 +441,9 @@ def init_windows_clipboard():
         Context manager that opens the clipboard and prevents
         other applications from modifying the clipboard content.
         """
-        # We may not get the clipboard handle immediately because
-        # some other application is accessing it (?)
-        # We try for at least 500ms to get the clipboard.
+                                                                 
+                                                    
+                                                         
         t = time.time() + 0.5
         success = False
         while time.time() < t:
@@ -460,25 +460,25 @@ def init_windows_clipboard():
             safeCloseClipboard()
 
     def copy_windows(text):
-        # This function is heavily based on
-        # http://msdn.com/ms649016#_win32_Copying_Information_to_the_Clipboard
+                                           
+                                                                              
 
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
 
         with window() as hwnd:
-            # http://msdn.com/ms649048
-            # If an application calls OpenClipboard with hwnd set to NULL,
-            # EmptyClipboard sets the clipboard owner to NULL;
-            # this causes SetClipboardData to fail.
-            # => We need a valid hwnd to copy something.
+                                      
+                                                                          
+                                                              
+                                                   
+                                                        
             with clipboard(hwnd):
                 safeEmptyClipboard()
 
                 if text:
-                    # http://msdn.com/ms649051
-                    # If the hMem parameter identifies a memory object,
-                    # the object must have been allocated using the
-                    # function with the GMEM_MOVEABLE flag.
+                                              
+                                                                       
+                                                                   
+                                                           
                     count = wcslen(text) + 1
                     handle = safeGlobalAlloc(GMEM_MOVEABLE,
                                              count * sizeof(c_wchar))
@@ -493,10 +493,10 @@ def init_windows_clipboard():
         with clipboard(None):
             handle = safeGetClipboardData(CF_UNICODETEXT)
             if not handle:
-                # GetClipboardData may return NULL with errno == NO_ERROR
-                # if the clipboard is empty.
-                # (Also, it may return a handle to an empty buffer,
-                # but technically that's not empty)
+                                                                         
+                                            
+                                                                   
+                                                   
                 return ""
             locked_handle = safeGlobalLock(handle)
             return_value = c_wchar_p(locked_handle).value
@@ -508,25 +508,25 @@ def init_windows_clipboard():
 
 def init_wsl_clipboard():
     def copy_wsl(text):
-        text = _stringifyText(text) # Converts non-str values to str.
+        text = _stringifyText(text)                                  
         p = subprocess.Popen(['clip.exe'],
                              stdin=subprocess.PIPE, close_fds=True)
         p.communicate(input=text.encode(ENCODING))
 
     def paste_wsl():
-        # '-noprofile' speeds up load time
+                                          
         p = subprocess.Popen(['powershell.exe', '-noprofile', '-command', 'Get-Clipboard'],
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              close_fds=True)
         stdout, stderr = p.communicate()
-        # WSL appends "\r\n" to the contents.
+                                             
         return stdout[:-2].decode(ENCODING)
 
     return copy_wsl, paste_wsl
 
 
-# Automatic detection of clipboard mechanisms and importing is done in deteremine_clipboard():
+                                                                                              
 def determine_clipboard():
     '''
     Determine the OS/platform and set the copy() and paste() functions
@@ -535,15 +535,15 @@ def determine_clipboard():
 
     global Foundation, AppKit, gtk, qtpy, PyQt4, PyQt5, PyQt6
 
-    # Setup for the CYGWIN platform:
-    if 'cygwin' in platform.system().lower(): # Cygwin has a variety of values returned by platform.system(), such as 'CYGWIN_NT-6.1'
-        # FIXME: pyperclip currently does not support Cygwin,
-        # see https://github.com/asweigart/pyperclip/issues/55
+                                    
+    if 'cygwin' in platform.system().lower():                                                                                        
+                                                             
+                                                              
         if os.path.exists('/dev/clipboard'):
             warnings.warn('Pyperclip\'s support for Cygwin is not perfect, see https://github.com/asweigart/pyperclip/issues/55')
             return init_dev_clipboard_clipboard()
 
-    # Setup for the WINDOWS platform:
+                                     
     elif os.name == 'nt' or platform.system() == 'Windows':
         return init_windows_clipboard()
 
@@ -552,22 +552,22 @@ def determine_clipboard():
             if "microsoft" in f.read().lower():
                 return init_wsl_clipboard()
 
-    # Setup for the MAC OS X platform:
+                                      
     if os.name == 'mac' or platform.system() == 'Darwin':
         try:
-            import Foundation  # check if pyobjc is installed
+            import Foundation                                
             import AppKit
         except ImportError:
             return init_osx_pbcopy_clipboard()
         else:
             return init_osx_pyobjc_clipboard()
 
-    # Setup for the LINUX platform:
+                                   
     if HAS_DISPLAY:
         try:
-            import gtk  # check if gtk is installed
+            import gtk                             
         except ImportError:
-            pass # We want to fail fast for all non-ImportError exceptions.
+            pass                                                           
         else:
             return init_gtk_clipboard()
 
@@ -584,21 +584,21 @@ def determine_clipboard():
             return init_klipper_clipboard()
 
         try:
-            # qtpy is a small abstraction layer that lets you write applications using a single api call to either PyQt or PySide.
-            # https://pypi.python.org/pypi/QtPy
-            import qtpy  # check if qtpy is installed
+                                                                                                                                  
+                                               
+            import qtpy                              
         except ImportError:
-            # If qtpy isn't installed, fall back on importing PyQt4.
+                                                                    
             try:
-                import PyQt6  # check if PyQt6 is installed
+                import PyQt6                               
             except ImportError:
                 try:
-                    import PyQt5  # check if PyQt5 is installed
+                    import PyQt5                               
                 except ImportError:
                     try:
-                        import PyQt4  # check if PyQt4 is installed
+                        import PyQt4                               
                     except ImportError:
-                        pass # We want to fail fast for all non-ImportError exceptions.
+                        pass                                                           
                     else:
                         return init_qt_clipboard()
                 else:
@@ -633,7 +633,7 @@ def set_clipboard(clipboard):
         "pbcopy": init_osx_pbcopy_clipboard,
         "pyobjc": init_osx_pyobjc_clipboard,
         "gtk": init_gtk_clipboard,
-        "qt": init_qt_clipboard,  # TODO - split this into 'qtpy', 'pyqt4', and 'pyqt5'
+        "qt": init_qt_clipboard,                                                       
         "xclip": init_xclip_clipboard,
         "xsel": init_xsel_clipboard,
         "wl-clipboard": init_wl_clipboard,
@@ -645,7 +645,7 @@ def set_clipboard(clipboard):
     if clipboard not in clipboard_types:
         raise ValueError('Argument must be one of %s' % (', '.join([repr(_) for _ in clipboard_types.keys()])))
 
-    # Sets pyperclip's copy() and paste() functions:
+                                                    
     copy, paste = clipboard_types[clipboard]()
 
 
@@ -697,9 +697,9 @@ def is_available():
     return copy != lazy_load_stub_copy and paste != lazy_load_stub_paste
 
 
-# Initially, copy() and paste() are set to lazy loading wrappers which will
-# set `copy` and `paste` to real functions the first time they're used, unless
-# set_clipboard() or determine_clipboard() is called first.
+                                                                           
+                                                                              
+                                                           
 copy, paste = lazy_load_stub_copy, lazy_load_stub_paste
 
 

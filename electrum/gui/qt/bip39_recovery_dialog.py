@@ -1,6 +1,6 @@
-# Copyright (C) 2020 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+
+
+
 
 import asyncio
 import concurrent.futures
@@ -36,7 +36,7 @@ class Bip39RecoveryDialog(WindowModalDialog):
         vbox.addLayout(self.content)
 
         self.thread = TaskThread(self)
-        self.thread.finished.connect(self.deleteLater) # see #3956
+        self.thread.finished.connect(self.deleteLater)
         network = Network.get_instance()
         coro = account_discovery(network, self.get_account_xpub)
         fut = asyncio.run_coroutine_threadsafe(coro, get_asyncio_loop())

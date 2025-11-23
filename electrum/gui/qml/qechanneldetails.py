@@ -24,7 +24,7 @@ class QEChannelDetails(AuthMixin, QObject, QtEventListener):
     _logger = get_logger(__name__)
 
     @pyqtEnum
-    class State(IntEnum):  # subset, only ones we currently need in UI
+    class State(IntEnum):                                             
         Closed = ChannelState.CLOSED
         Redeemed = ChannelState.REDEEMED
 
@@ -37,9 +37,9 @@ class QEChannelDetails(AuthMixin, QObject, QtEventListener):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
-        self._channelid = None  # type: Optional[str]
-        self._channel = None  # type: Optional[AbstractChannel]
+        self._wallet = None                            
+        self._channelid = None                       
+        self._channel = None                                   
 
         self._capacity = QEAmount()
         self._local_capacity = QEAmount()
@@ -250,8 +250,8 @@ class QEChannelDetails(AuthMixin, QObject, QtEventListener):
 
     @pyqtProperty(bool, notify=isClosingChanged)
     def isClosing(self):
-        # Note: isClosing only applies to a closing action started by this instance, not
-        # whether the channel is closing
+                                                                                        
+                                        
         return self._is_closing
 
     @pyqtSlot()
@@ -292,7 +292,7 @@ class QEChannelDetails(AuthMixin, QObject, QtEventListener):
 
                 self._is_closing = False
                 self.isClosingChanged.emit()
-            except RuntimeError:  # QEChannelDetails might be deleted at this point if the user closed the dialog.
+            except RuntimeError:                                                                                  
                 pass
 
         def do_close():

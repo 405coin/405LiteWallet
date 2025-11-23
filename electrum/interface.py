@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2011 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                      
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import os
 import re
 import ssl
@@ -84,7 +84,7 @@ assert MAX_NUM_HEADERS_PER_REQUEST >= CHUNK_SIZE
 
 
 class NetworkTimeout:
-    # seconds
+             
     class Generic:
         NORMAL = 30
         RELAXED = 45
@@ -168,7 +168,7 @@ class NotificationSession(RPCSession):
         self._msg_counter = itertools.count(start=1)
         self.interface = interface
         self.taskgroup = interface.taskgroup
-        self.cost_hard_limit = 0  # disable aiorpcx resource limits
+        self.cost_hard_limit = 0                                   
 
     async def handle_request(self, request):
         self.maybe_log(f"--> {request}")
@@ -189,13 +189,13 @@ class NotificationSession(RPCSession):
             await self.close()
 
     async def send_request(self, *args, timeout=None, **kwargs):
-        # note: semaphores/timeouts/backpressure etc are handled by
-        # aiorpcx. the timeout arg here in most cases should not be set
+                                                                   
+                                                                       
         msg_id = next(self._msg_counter)
         self.maybe_log(f"<-- {args} {kwargs} (id: {msg_id})")
         try:
-            # note: RPCSession.send_request raises TaskTimeout in case of a timeout.
-            # TaskTimeout is a subclass of CancelledError, which is *suppressed* in TaskGroups
+                                                                                    
+                                                                                              
             response = await util.wait_for2(
                 super().send_request(*args, **kwargs),
                 timeout)
@@ -205,7 +205,7 @@ class NotificationSession(RPCSession):
         except CodeMessageError as e:
             self.maybe_log(f"--> {repr(e)} (id: {msg_id})")
             raise
-        except BaseException as e:  # cancellations, etc. are useful for debugging
+        except BaseException as e:                                                
             self.maybe_log(f"--> {repr(e)} (id: {msg_id})")
             raise
         else:
@@ -213,14 +213,14 @@ class NotificationSession(RPCSession):
             return response
 
     def set_default_timeout(self, timeout):
-        assert hasattr(self, "sent_request_timeout")  # in base class
+        assert hasattr(self, "sent_request_timeout")                 
         self.sent_request_timeout = timeout
-        assert hasattr(self, "max_send_delay")        # in base class
+        assert hasattr(self, "max_send_delay")                       
         self.max_send_delay = timeout
 
     async def subscribe(self, method: str, params: List, queue: asyncio.Queue):
-        # note: until the cache is written for the first time,
-        # each 'subscribe' call might make a request on the network.
+                                                              
+                                                                    
         key = self.get_hashable_key_for_rpc_call(method, params)
         self.subscriptions[key].append(queue)
         if key in self.cache:
@@ -232,8 +232,8 @@ class NotificationSession(RPCSession):
 
     def unsubscribe(self, queue):
         """Unsubscribe a callback to free object references to enable GC."""
-        # note: we can't unsubscribe from the server, so we keep receiving
-        # subsequent notifications
+                                                                          
+                                  
         for v in self.subscriptions.values():
             if queue in v:
                 v.remove(queue)
@@ -249,7 +249,7 @@ class NotificationSession(RPCSession):
             self.interface.logger.debug(msg)
 
     def default_framer(self):
-        # overridden so that max_size can be customized
+                                                       
         max_size = self.interface.network.config.NETWORK_MAX_INCOMING_MSG_SIZE
         assert max_size > 500_000, f"{max_size=} (< 500_000) is too small"
         return NewlineFramer(max_size=max_size)
@@ -259,12 +259,12 @@ class NotificationSession(RPCSession):
         We try to flush buffered data to the wire, which can take some time.
         """
         if force_after is None:
-            # We give up after a while and just abort the connection.
-            # Note: specifically if the server is running Fulcrum, waiting seems hopeless,
-            #       the connection must be aborted (see https://github.com/cculianu/Fulcrum/issues/76)
-            # Note: if the ethernet cable was pulled or wifi disconnected, that too might
-            #       wait until this timeout is triggered
-            force_after = 1  # seconds
+                                                                     
+                                                                                          
+                                                                                                      
+                                                                                         
+                                                        
+            force_after = 1           
         await super().close(force_after=force_after)
 
 
@@ -301,7 +301,7 @@ class TxBroadcastError(NetworkException):
 
 class TxBroadcastHashMismatch(TxBroadcastError):
     def get_message_for_gui(self):
-        return "{}\n{}\n\n{}" \
+        return "{}\n{}\n\n{}"\
             .format(_("The server returned an unexpected transaction ID when broadcasting the transaction."),
                     _("Consider trying to connect to a different server, or updating Electrum."),
                     str(self))
@@ -309,7 +309,7 @@ class TxBroadcastHashMismatch(TxBroadcastError):
 
 class TxBroadcastServerReturnedError(TxBroadcastError):
     def get_message_for_gui(self):
-        return "{}\n{}\n\n{}" \
+        return "{}\n{}\n\n{}"\
             .format(_("The server returned an error when broadcasting the transaction."),
                     _("Consider trying to connect to a different server, or updating Electrum."),
                     str(self))
@@ -317,7 +317,7 @@ class TxBroadcastServerReturnedError(TxBroadcastError):
 
 class TxBroadcastUnknownError(TxBroadcastError):
     def get_message_for_gui(self):
-        return "{}\n{}" \
+        return "{}\n{}"\
             .format(_("Unknown error when broadcasting the transaction."),
                     _("Consider trying to connect to a different server, or updating Electrum."))
 
@@ -327,7 +327,7 @@ class _RSClient(RSClient):
         try:
             return await super().create_connection()
         except OSError as e:
-            # note: using "from e" here will set __cause__ of ConnectError
+                                                                          
             raise ConnectError(e) from e
 
 
@@ -340,21 +340,21 @@ class PaddedRSTransport(RSTransport):
 
     MIN_PACKET_SIZE = 1024
     WAIT_FOR_BUFFER_GROWTH_SECONDS = 1.0
-    # (unpadded) amount of bytes sent instantly before beginning with polling.
-    # This makes the initial handshake where a few small messages are exchanged faster.
+                                                                              
+                                                                                       
     WARMUP_BUDGET_SIZE = 1024
 
     session: Optional['RPCSession']
 
     def __init__(self, *args, **kwargs):
         RSTransport.__init__(self, *args, **kwargs)
-        self._sbuffer = bytearray()  # "send buffer"
-        self._sbuffer_task = None  # type: Optional[asyncio.Task]
+        self._sbuffer = bytearray()                 
+        self._sbuffer_task = None                                
         self._sbuffer_has_data_evt = asyncio.Event()
         self._last_send = time.monotonic()
-        self._force_send = False  # type: bool
+        self._force_send = False              
 
-    # note: this does not call super().write() but is a complete reimplementation
+                                                                                 
     async def write(self, message):
         await self._can_send.wait()
         if self.is_closing():
@@ -371,7 +371,7 @@ class PaddedRSTransport(RSTransport):
         buf = self._sbuffer
         if not buf:
             return
-        # if there is enough data in the buffer, or if we haven't sent in a while, send now:
+                                                                                            
         if not (
             self._force_send
             or len(buf) >= self.MIN_PACKET_SIZE
@@ -380,34 +380,34 @@ class PaddedRSTransport(RSTransport):
         ):
             return
         assert buf[-2:] in (b"}\n", b"]\n"), f"unexpected json-rpc terminator: {buf[-2:]=!r}"
-        # either (1) pad length to next power of two, to create "lsize" packet:
+                                                                               
         payload_lsize = len(buf)
         total_lsize = max(self.MIN_PACKET_SIZE, 2 ** (payload_lsize.bit_length()))
         npad_lsize = total_lsize - payload_lsize
-        # or if that wasted a lot of bandwidth with padding, (2) defer sending some messages
-        # and create a packet with half that size ("ssize", s for small)
+                                                                                            
+                                                                        
         total_ssize = max(self.MIN_PACKET_SIZE, total_lsize // 2)
         payload_ssize = buf.rfind(b"\n", 0, total_ssize)
         if payload_ssize != -1:
-            payload_ssize += 1  # for "\n" char
+            payload_ssize += 1                 
             npad_ssize = total_ssize - payload_ssize
         else:
             npad_ssize = float("inf")
-        # decide between (1) and (2):
+                                     
         if self._force_send or npad_lsize <= npad_ssize:
-            # (1) create "lsize" packet: consume full buffer
+                                                            
             npad = npad_lsize
             p_idx = payload_lsize
         else:
-            # (2) create "ssize" packet: consume some, but defer some for later
+                                                                               
             npad = npad_ssize
             p_idx = payload_ssize
-        # pad by adding spaces near end
-        # self.session.maybe_log(
-        #     f"PaddedRSTransport. calling low-level write(). "
-        #     f"chose between (lsize:{payload_lsize}+{npad_lsize}, ssize:{payload_ssize}+{npad_ssize}). "
-        #     f"won: {'tie' if npad_lsize == npad_ssize else 'lsize' if npad_lsize < npad_ssize else 'ssize'}."
-        # )
+                                       
+                                 
+                                                               
+                                                                                                         
+                                                                                                               
+           
         json_rpc_terminator = buf[p_idx-2:p_idx]
         assert json_rpc_terminator in (b"}\n", b"]\n"), f"unexpected {json_rpc_terminator=!r}"
         buf2 = buf[:p_idx-2] + (npad * b" ") + json_rpc_terminator
@@ -420,11 +420,11 @@ class PaddedRSTransport(RSTransport):
     async def _poll_sbuffer(self):
         while not self.is_closing():
             await self._can_send.wait()
-            await self._sbuffer_has_data_evt.wait()  # to avoid busy-waiting
+            await self._sbuffer_has_data_evt.wait()                         
             self._maybe_consume_sbuffer()
-            # If there is still data in the buffer, sleep until it would time out.
-            # note: If the transport is ~idle, when we wake up, we will send the current buf data,
-            #       but if busy, we might wake up to completely new buffer contents. Either is fine.
+                                                                                  
+                                                                                                  
+                                                                                                    
             if len(self._sbuffer) > 0:
                 timeout_abs = self._last_send + self.WAIT_FOR_BUFFER_GROWTH_SECONDS
                 timeout_rel = max(0.0, timeout_abs - time.monotonic())
@@ -436,13 +436,13 @@ class PaddedRSTransport(RSTransport):
             coro = self.session.taskgroup.spawn(self._poll_sbuffer())
             self._sbuffer_task = self.loop.create_task(coro)
         else:
-            # This a short-lived "fetch_certificate"-type session.
-            # No polling here, we always force-empty the buffer.
+                                                                  
+                                                                
             self._force_send = True
 
     async def close(self, *args, **kwargs):
         '''Close the connection and return when closed.'''
-        # Flush buffer before disconnecting. This makes ReplyAndDisconnect work:
+                                                                                
         self._force_send = True
         self._maybe_consume_sbuffer()
         await super().close(*args, **kwargs)
@@ -456,15 +456,15 @@ class ServerAddr:
             protocol = 's'
         if not host:
             raise ValueError('host must not be empty')
-        if host[0] == '[' and host[-1] == ']':  # IPv6
+        if host[0] == '[' and host[-1] == ']':        
             host = host[1:-1]
         try:
-            net_addr = NetAddress(host, port)  # this validates host and port
+            net_addr = NetAddress(host, port)                                
         except Exception as e:
             raise ValueError(f"cannot construct ServerAddr: invalid host or port (host={host}, port={port})") from e
         if protocol not in _KNOWN_NETWORK_PROTOCOLS:
             raise ValueError(f"invalid network protocol: {protocol}")
-        self.host = str(net_addr.host)  # canonical form (if e.g. IPv6 address)
+        self.host = str(net_addr.host)                                         
         self.port = int(net_addr.port)
         self.protocol = protocol
         self._net_addr_str = str(net_addr)
@@ -472,7 +472,7 @@ class ServerAddr:
     @classmethod
     def from_str(cls, s: str) -> 'ServerAddr':
         """Constructs a ServerAddr or raises ValueError."""
-        # host might be IPv6 address, hence do rsplit:
+                                                      
         host, port, protocol = str(s).rsplit(':', 2)
         return ServerAddr(host=host, port=port, protocol=protocol)
 
@@ -485,13 +485,13 @@ class ServerAddr:
         if not s:
             return None
         host = ""
-        if s[0] == "[" and "]" in s:  # IPv6 address
+        if s[0] == "[" and "]" in s:                
             host_end = s.index("]")
             host = s[1:host_end]
             s = s[host_end+1:]
         items = str(s).rsplit(':', 2)
         if len(items) < 2:
-            return None  # although maybe we could guess the port too?
+            return None                                               
         host = host or items[0]
         port = items[1]
         if len(items) >= 3:
@@ -504,8 +504,8 @@ class ServerAddr:
             return None
 
     def to_friendly_name(self) -> str:
-        # note: this method is closely linked to from_str_with_inference
-        if self.protocol == 's':  # hide trailing ":s"
+                                                                        
+        if self.protocol == 's':                      
             return self.net_addr_str()
         return str(self)
 
@@ -558,37 +558,37 @@ class Interface(Logger):
         Logger.__init__(self)
         assert network.config.path
         self.cert_path = _get_cert_path_for_host(config=network.config, host=self.host)
-        self.blockchain = None  # type: Optional[Blockchain]
-        self._requested_chunks = set()  # type: Set[int]
+        self.blockchain = None                              
+        self._requested_chunks = set()                  
         self.network = network
-        self.session = None  # type: Optional[NotificationSession]
+        self.session = None                                       
         self._ipaddr_bucket = None
-        # Set up proxy.
-        # - for servers running on localhost, the proxy is not used. If user runs their own server
-        #   on same machine, this lets them enable the proxy (which is used for e.g. FX rates).
-        #   note: we could maybe relax this further and bypass the proxy for all private
-        #         addresses...? e.g. 192.168.x.x
+                       
+                                                                                                  
+                                                                                               
+                                                                                        
+                                                
         if util.is_localhost(server.host):
             self.logger.info(f"looks like localhost: not using proxy for this server")
             self.proxy = None
         else:
             self.proxy = ESocksProxy.from_network_settings(network)
 
-        # Latest block header and corresponding height, as claimed by the server.
-        # Note that these values are updated before they are verified.
-        # Especially during initial header sync, verification can take a long time.
-        # Failing verification will get the interface closed.
-        self.tip_header = None  # type: Optional[dict]
+                                                                                 
+                                                                      
+                                                                                   
+                                                             
+        self.tip_header = None                        
         self.tip = 0
 
-        self._headers_cache = {}  # type: Dict[int, bytes]
-        self._rawtx_cache = LRUCache(maxsize=20)  # type: LRUCache[str, bytes]  # txid->rawtx
+        self._headers_cache = {}                          
+        self._rawtx_cache = LRUCache(maxsize=20)                                             
 
-        self.fee_estimates_eta = {}  # type: Dict[int, int]
+        self.fee_estimates_eta = {}                        
 
-        self.active_protocol_tuple = (0,)  # type: Optional[tuple[int, ...]]
+        self.active_protocol_tuple = (0,)                                   
 
-        # Dump network messages (only for this interface).  Set at runtime from the console.
+                                                                                            
         self.debug = False
 
         self.taskgroup = OldTaskGroup()
@@ -627,12 +627,12 @@ class Interface(Logger):
             cause = e.__cause__
             if (isinstance(cause, ssl.SSLCertVerificationError)
                     and cause.reason == 'CERTIFICATE_VERIFY_FAILED'
-                    and cause.verify_code == 18):  # "self signed certificate"
-                # Good. We will use this server as self-signed.
+                    and cause.verify_code == 18):                             
+                                                               
                 return False
-            # Not good. Cannot use this server.
+                                               
             raise
-        # Good. We will use this server as CA-signed.
+                                                     
         return True
 
     async def _try_saving_ssl_cert_for_first_time(self, ca_ssl_context: ssl.SSLContext) -> None:
@@ -641,7 +641,7 @@ class Interface(Logger):
             if self._get_expected_fingerprint():
                 raise InvalidOptionCombination("cannot use --serverfingerprint with CA signed servers")
             with open(self.cert_path, 'w') as f:
-                # empty file means this is CA signed, not self-signed
+                                                                     
                 f.write('')
         else:
             await self._save_certificate()
@@ -651,11 +651,11 @@ class Interface(Logger):
             return False
         with open(self.cert_path, 'r') as f:
             contents = f.read()
-        if contents == '':  # CA signed
+        if contents == '':             
             if self._get_expected_fingerprint():
                 raise InvalidOptionCombination("cannot use --serverfingerprint with CA signed servers")
             return True
-        # pinned self-signed cert
+                                 
         try:
             b = pem.dePem(contents, 'CERTIFICATE')
         except SyntaxError as e:
@@ -670,33 +670,33 @@ class Interface(Logger):
             x.check_date()
         except x509.CertificateError as e:
             self.logger.info(f"certificate has expired: {e}")
-            os.unlink(self.cert_path)  # delete pinned cert only in this case
+            os.unlink(self.cert_path)                                        
             return False
         self._verify_certificate_fingerprint(bytes(b))
         return True
 
     async def _get_ssl_context(self) -> Optional[ssl.SSLContext]:
         if self.protocol != 's':
-            # using plaintext TCP
+                                 
             return None
 
-        # see if we already have cert for this server; or get it for the first time
+                                                                                   
         ca_sslc = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=ca_path)
         if not self._is_saved_ssl_cert_available():
             try:
                 await self._try_saving_ssl_cert_for_first_time(ca_sslc)
             except (OSError, ConnectError, aiorpcx.socks.SOCKSError) as e:
                 raise ErrorGettingSSLCertFromServer(e) from e
-        # now we have a file saved in our certificate store
+                                                           
         siz = os.stat(self.cert_path).st_size
         if siz == 0:
-            # CA signed cert
+                            
             sslc = ca_sslc
         else:
-            # pinned self-signed cert
+                                     
             sslc = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=self.cert_path)
-            # note: Flag "ssl.VERIFY_X509_STRICT" is enabled by default in python 3.13+ (disabled in older versions).
-            #       We explicitly disable it as it breaks lots of servers.
+                                                                                                                     
+                                                                          
             sslc.verify_flags &= ~ssl.VERIFY_X509_STRICT
             sslc.check_hostname = False
         return sslc
@@ -713,15 +713,15 @@ class Interface(Logger):
                 self.logger.debug(f"(disconnect) trace for {repr(e)}", exc_info=True)
             finally:
                 self.got_disconnected.set()
-                # Make sure taskgroup gets cleaned-up. This explicit clean-up is needed here
-                # in case the "with taskgroup" ctx mgr never got a chance to run:
+                                                                                            
+                                                                                 
                 await self.taskgroup.cancel_remaining()
                 await self.network.connection_down(self)
-                # if was not 'ready' yet, schedule waiting coroutines:
+                                                                      
                 self.ready.cancel()
         return wrapper_func
 
-    @ignore_exceptions  # do not kill network.taskgroup
+    @ignore_exceptions                                 
     @log_exceptions
     @handle_disconnect
     async def run(self):
@@ -733,7 +733,7 @@ class Interface(Logger):
         try:
             await self.open_session(ssl_context=ssl_context)
         except (asyncio.CancelledError, ConnectError, aiorpcx.socks.SOCKSError) as e:
-            # make SSL errors for main interface more visible (to help servers ops debug cert pinning issues)
+                                                                                                             
             if (isinstance(e, ConnectError) and isinstance(e.__cause__, ssl.SSLError)
                     and self.is_main_server() and not self.network.auto_connect):
                 self.logger.warning(f'Cannot connect to main server due to SSL error '
@@ -765,7 +765,7 @@ class Interface(Logger):
 
     async def _save_certificate(self) -> None:
         if not os.path.exists(self.cert_path):
-            # we may need to retry this a few times, in case the handshake hasn't completed
+                                                                                           
             for _ in range(10):
                 dercert = await self._fetch_certificate()
                 if dercert:
@@ -773,12 +773,12 @@ class Interface(Logger):
                     self._verify_certificate_fingerprint(dercert)
                     with open(self.cert_path, 'w') as f:
                         cert = ssl.DER_cert_to_PEM_cert(dercert)
-                        # workaround android bug
+                                                
                         cert = re.sub("([^\n])-----END CERTIFICATE-----","\\1\n-----END CERTIFICATE-----",cert)
                         f.write(cert)
-                        # even though close flushes, we can't fsync when closed.
-                        # and we must flush before fsyncing, cause flush flushes to OS buffer
-                        # fsync writes to OS buffer to disk
+                                                                                
+                                                                                             
+                                                           
                         f.flush()
                         os.fsync(f.fileno())
                     break
@@ -797,8 +797,8 @@ class Interface(Logger):
             proxy=self.proxy,
             transport=PaddedRSTransport,
         ) as session:
-            asyncio_transport = session.transport._asyncio_transport  # type: asyncio.BaseTransport
-            ssl_object = asyncio_transport.get_extra_info("ssl_object")  # type: ssl.SSLObject
+            asyncio_transport = session.transport._asyncio_transport                               
+            ssl_object = asyncio_transport.get_extra_info("ssl_object")                       
             return ssl_object.getpeercert(binary_form=True)
 
     def _get_expected_fingerprint(self) -> Optional[str]:
@@ -822,9 +822,9 @@ class Interface(Logger):
         assert from_height <= to_height, (from_height, to_height)
         assert to_height - from_height < MAX_NUM_HEADERS_PER_REQUEST
         if all(height in self._headers_cache for height in range(from_height, to_height+1)):
-            # cache already has all requested headers
+                                                     
             return
-        # use lower timeout as we usually have network.bhi_lock here
+                                                                    
         timeout = self.network.get_network_timeout_seconds(NetworkTimeout.Urgent)
         count = to_height - from_height + 1
         headers = await self.get_block_headers(start_height=from_height, count=count, timeout=timeout, mode=mode)
@@ -835,8 +835,8 @@ class Interface(Logger):
     async def get_block_header(self, height: int, *, mode: ChainResolutionMode) -> dict:
         if not is_non_negative_integer(height):
             raise Exception(f"{repr(height)} is not a block height")
-        #self.logger.debug(f'get_block_header() {height} in {mode=}')
-        # use lower timeout as we usually have network.bhi_lock here
+                                                                     
+                                                                    
         timeout = self.network.get_network_timeout_seconds(NetworkTimeout.Urgent)
         if raw_header := self._headers_cache.get(height):
             return blockchain.deserialize_header(raw_header, height)
@@ -866,7 +866,7 @@ class Interface(Logger):
             + (f" (in {mode=})" if mode is not None else "")
         )
         res = await self.session.send_request('blockchain.block.headers', [start_height, count], timeout=timeout)
-        # check response
+                        
         assert_dict_contains_field(res, field_name='count')
         assert_dict_contains_field(res, field_name='max')
         assert_non_negative_integer(res['count'])
@@ -881,24 +881,24 @@ class Interface(Logger):
             if len(hex_headers_list) != res['count']:
                 raise RequestCorrupted(f"{len(hex_headers_list)=} != {res['count']=}")
             headers = list(bfh(hex_header) for hex_header in hex_headers_list)
-        else: # proto 1.4
+        else:            
             hex_headers_concat = assert_dict_contains_field(res, field_name='hex')
             assert_hex_str(hex_headers_concat)
             if len(hex_headers_concat) != HEADER_SIZE * 2 * res['count']:
                 raise RequestCorrupted('inconsistent chunk hex and count')
             headers = list(util.chunks(bfh(hex_headers_concat), size=HEADER_SIZE))
-        # we never request more than MAX_NUM_HEADERS_IN_REQUEST headers, but we enforce those fit in a single response
+                                                                                                                      
         if res['max'] < MAX_NUM_HEADERS_PER_REQUEST:
             raise RequestCorrupted(f"server uses too low 'max' count for block.headers: {res['max']} < {MAX_NUM_HEADERS_PER_REQUEST}")
         if res['count'] > count:
             raise RequestCorrupted(f"asked for {count} headers but got more: {res['count']}")
         elif res['count'] < count:
-            # we only tolerate getting fewer headers if it is due to reaching the tip
+                                                                                     
             end_height = start_height + res['count'] - 1
-            if end_height < self.tip:  # still below tip. why did server not send more?!
+            if end_height < self.tip:                                                   
                 raise RequestCorrupted(
                     f"asked for {count} headers but got fewer: {res['count']}. ({start_height=}, {self.tip=})")
-        # checks done.
+                      
         return headers
 
     async def request_chunk_below_max_checkpoint(
@@ -926,8 +926,8 @@ class Interface(Logger):
     async def _fast_forward_chain(
         self,
         *,
-        height: int,  # usually local chain tip + 1
-        tip: int,  # server tip. we should not request past this.
+        height: int,                               
+        tip: int,                                                
     ) -> int:
         """Request some headers starting at `height` to grow the blockchain of this interface.
         Returns number of headers we managed to connect, starting at `height`.
@@ -940,13 +940,13 @@ class Interface(Logger):
                 or height == 0 == constants.net.max_checkpoint()):
             raise Exception(f"{height=} must be > cp={constants.net.max_checkpoint()}")
         assert height <= tip, f"{height=} must be <= {tip=}"
-        # Request a few chunks of headers concurrently.
-        # tradeoffs:
-        # - more chunks: higher memory requirements
-        # - more chunks: higher concurrency => syncing needs fewer network round-trips
-        # - if a chunk does not connect, bandwidth for all later chunks is wasted
+                                                       
+                    
+                                                   
+                                                                                      
+                                                                                 
         async with OldTaskGroup() as group:
-            tasks = []  # type: List[Tuple[int, asyncio.Task[Sequence[bytes]]]]
+            tasks = []                                                         
             index0 = height // CHUNK_SIZE
             for chunk_cnt in range(10):
                 index = index0 + chunk_cnt
@@ -956,7 +956,7 @@ class Interface(Logger):
                 end_height = min(start_height + CHUNK_SIZE - 1, tip)
                 size = end_height - start_height + 1
                 tasks.append((index, await group.spawn(self.get_block_headers(start_height=start_height, count=size))))
-        # try to connect chunks
+                               
         num_headers = 0
         for index, task in tasks:
             headers = task.result()
@@ -964,7 +964,7 @@ class Interface(Logger):
             if not conn:
                 break
             num_headers += len(headers)
-        # We started at a chunk boundary, instead of requested `height`. Need to correct for that.
+                                                                                                  
         offset = height - index0 * CHUNK_SIZE
         return max(0, num_headers - offset)
 
@@ -987,13 +987,13 @@ class Interface(Logger):
             transport=PaddedRSTransport,
         ) as session:
             start = time.perf_counter()
-            self.session = session  # type: NotificationSession
+            self.session = session                             
             self.session.set_default_timeout(self.network.get_network_timeout_seconds(NetworkTimeout.Generic))
             client_prange = [version.PROTOCOL_VERSION_MIN, version.PROTOCOL_VERSION_MAX]
             try:
                 ver = await session.send_request('server.version', [self.client_name(), client_prange])
             except aiorpcx.jsonrpc.RPCError as e:
-                raise GracefulDisconnect(e)  # probably 'unsupported protocol version'
+                raise GracefulDisconnect(e)                                           
             if exit_early:
                 return
             self.active_protocol_tuple = protocol_tuple(ver[1])
@@ -1032,26 +1032,26 @@ class Interface(Logger):
                     raise GracefulDisconnect(e, log_level=log_level) from e
                 raise
             finally:
-                self.got_disconnected.set()  # set this ASAP, ideally before any awaits
+                self.got_disconnected.set()                                            
 
     async def monitor_connection(self):
         while True:
             await asyncio.sleep(1)
-            # If the session/transport is no longer open, we disconnect.
-            # e.g. if the remote cleanly sends EOF, we would handle that here.
-            # note: If the user pulls the ethernet cable or disconnects wifi,
-            #       ideally we would detect that here, so that the GUI/etc can reflect that.
-            #       - On Android, this seems to work reliably , where asyncio.BaseProtocol.connection_lost()
-            #         gets called with e.g. ConnectionAbortedError(103, 'Software caused connection abort').
-            #       - On desktop Linux/Win, it seems BaseProtocol.connection_lost() is not called in such cases.
-            #         Hence, in practice the connection issue will only be detected the next time we try
-            #         to send a message (plus timeout), which can take minutes...
+                                                                        
+                                                                              
+                                                                             
+                                                                                            
+                                                                                                            
+                                                                                                            
+                                                                                                                
+                                                                                                        
+                                                                                 
             if not self.session or self.session.is_closing():
                 raise GracefulDisconnect('session was closed')
 
     async def ping(self):
-        # We periodically send a "ping" msg to make sure the server knows we are still here.
-        # Adding a bit of randomness generates some noise against traffic analysis.
+                                                                                            
+                                                                                   
         while True:
             await asyncio.sleep(random.random() * 300)
             await self.session.send_request('server.ping')
@@ -1082,7 +1082,7 @@ class Interface(Logger):
         """
         if self.session:
             await self.session.close(force_after=force_after)
-        # monitor_connection will cancel tasks
+                                              
 
     async def run_fetch_blocks(self):
         header_queue = asyncio.Queue()
@@ -1099,13 +1099,13 @@ class Interface(Logger):
                 raise GracefulDisconnect(
                     f"server tip below max checkpoint. ({self.tip} < {constants.net.max_checkpoint()})")
             self._mark_ready()
-            self._headers_cache.clear()  # tip changed, so assume anything could have happened with chain
+            self._headers_cache.clear()                                                                  
             self._headers_cache[height] = header_bytes
             try:
                 blockchain_updated = await self._process_header_at_tip()
             finally:
-                self._headers_cache.clear()  # to reduce memory usage
-            # header processing done
+                self._headers_cache.clear()                          
+                                    
             if self.is_main_server() or blockchain_updated:
                 self.logger.info(f"new chain tip. {height=}")
             if blockchain_updated:
@@ -1125,7 +1125,7 @@ class Interface(Logger):
         height, header = self.tip, self.tip_header
         async with self.network.bhi_lock:
             if self.blockchain.height() >= height and self.blockchain.check_header(header):
-                # another interface amended the blockchain
+                                                          
                 return False
             await self.sync_until(height)
             return True
@@ -1134,17 +1134,17 @@ class Interface(Logger):
         self,
         height: int,
         *,
-        next_height: Optional[int] = None,  # sync target. typically the tip, except in unit tests
+        next_height: Optional[int] = None,                                                        
     ) -> Tuple[ChainResolutionMode, int]:
         if next_height is None:
             next_height = self.tip
-        last = None  # type: Optional[ChainResolutionMode]
+        last = None                                       
         while last is None or height <= next_height:
             prev_last, prev_height = last, height
             if next_height > height + 144:
-                # We are far from the tip.
-                # It is more efficient to process headers in large batches (CPU/disk_usage/logging).
-                # (but this wastes a little bandwidth, if we are not on a chunk boundary)
+                                          
+                                                                                                    
+                                                                                         
                 num_headers = await self._fast_forward_chain(
                     height=height, tip=next_height)
                 if num_headers == 0:
@@ -1152,7 +1152,7 @@ class Interface(Logger):
                         raise GracefulDisconnect('server chain conflicts with checkpoints or genesis')
                     last, height = await self.step(height)
                     continue
-                # report progress to gui/etc
+                                            
                 util.trigger_callback('blockchain_updated')
                 self._blockchain_updated.set()
                 self._blockchain_updated.clear()
@@ -1161,8 +1161,8 @@ class Interface(Logger):
                 assert height <= next_height+1, (height, self.tip)
                 last = ChainResolutionMode.CATCHUP
             else:
-                # We are close to the tip, so process headers one-by-one.
-                # (note: due to headers_cache, to save network latency, this can still batch-request headers)
+                                                                         
+                                                                                                             
                 last, height = await self.step(height)
             assert (prev_last, prev_height) != (last, height), 'had to prevent infinite loop in interface.sync_until'
         return last, height
@@ -1182,10 +1182,10 @@ class Interface(Logger):
         chain = blockchain.check_header(header)
         if chain:
             self.blockchain = chain
-            # note: there is an edge case here that is not handled.
-            # we might know the blockhash (enough for check_header) but
-            # not have the header itself. e.g. regtest chain with only genesis.
-            # this situation resolves itself on the next block
+                                                                   
+                                                                       
+                                                                               
+                                                              
             return ChainResolutionMode.CATCHUP, height+1
 
         can_connect = blockchain.can_connect(header)
@@ -1220,7 +1220,7 @@ class Interface(Logger):
             assert 0 <= good < bad, (good, bad)
             height = (good + bad) // 2
             self.logger.info(f"binary step. good {good}, bad {bad}, height {height}")
-            if bad - good + 1 <= MAX_NUM_HEADERS_PER_REQUEST:  # if interval is small, trade some bandwidth for lower latency
+            if bad - good + 1 <= MAX_NUM_HEADERS_PER_REQUEST:                                                                
                 await self._maybe_warm_headers_cache(
                     from_height=good, to_height=bad, mode=ChainResolutionMode.BINARY)
             header = await self.get_block_header(height, mode=ChainResolutionMode.BINARY)
@@ -1250,8 +1250,8 @@ class Interface(Logger):
         assert good + 1 == bad
         assert bad == bad_header['block_height']
         _assert_header_does_not_check_against_any_chain(bad_header)
-        # 'good' is the height of a block 'good_header', somewhere in self.blockchain.
-        # bad_header connects to good_header; bad_header itself is NOT in self.blockchain.
+                                                                                      
+                                                                                          
 
         bh = self.blockchain.height()
         assert bh >= good, (bh, good)
@@ -1260,10 +1260,10 @@ class Interface(Logger):
             self.logger.info(f"catching up from {height}")
             return ChainResolutionMode.NO_FORK, height
 
-        # this is a new fork we don't yet have
+                                              
         height = bad + 1
         self.logger.info(f"new fork at bad height {bad}")
-        b = self.blockchain.fork(bad_header)  # type: Blockchain
+        b = self.blockchain.fork(bad_header)                    
         self.blockchain = b
         assert b.forkpoint == bad
         return ChainResolutionMode.FORK, height
@@ -1328,12 +1328,12 @@ class Interface(Logger):
             if self.is_tor():
                 return BUCKET_NAME_OF_ONION_SERVERS
             try:
-                ip_addr = ip_address(self.ip_addr())  # type: Union[IPv4Address, IPv6Address]
+                ip_addr = ip_address(self.ip_addr())                                         
             except ValueError:
                 return ''
             if not ip_addr:
                 return ''
-            if ip_addr.is_loopback:  # localhost is exempt
+            if ip_addr.is_loopback:                       
                 return ''
             if ip_addr.version == 4:
                 slash16 = IPv4Network(ip_addr).supernet(prefixlen_diff=32-16)
@@ -1352,13 +1352,13 @@ class Interface(Logger):
             raise Exception(f"{repr(tx_hash)} is not a txid")
         if not is_non_negative_integer(tx_height):
             raise Exception(f"{repr(tx_height)} is not a block height")
-        # do request
+                    
         res = await self.session.send_request('blockchain.transaction.get_merkle', [tx_hash, tx_height])
-        # check response
+                        
         block_height = assert_dict_contains_field(res, field_name='block_height')
         merkle = assert_dict_contains_field(res, field_name='merkle')
         pos = assert_dict_contains_field(res, field_name='pos')
-        # note: tx_height was just a hint to the server, don't enforce the response to match it
+                                                                                               
         assert_non_negative_integer(block_height)
         assert_non_negative_integer(pos)
         assert_list_or_tuple(merkle)
@@ -1372,12 +1372,12 @@ class Interface(Logger):
         if rawtx_bytes := self._rawtx_cache.get(tx_hash):
             return rawtx_bytes.hex()
         raw = await self.session.send_request('blockchain.transaction.get', [tx_hash], timeout=timeout)
-        # validate response
+                           
         if not is_hex_str(raw):
             raise RequestCorrupted(f"received garbage (non-hex) as tx data (txid {tx_hash}): {raw!r}")
         tx = Transaction(raw)
         try:
-            tx.deserialize()  # see if raises
+            tx.deserialize()                 
         except Exception as e:
             raise RequestCorrupted(f"cannot deserialize received transaction (txid {tx_hash})") from e
         if tx.txid() != tx_hash:
@@ -1397,13 +1397,13 @@ class Interface(Logger):
             raise DummyAddressUsedInTxException("tried to broadcast tx with dummy address!")
         try:
             out = await self.session.send_request('blockchain.transaction.broadcast', [rawtx], timeout=timeout)
-            # note: both 'out' and exception messages are untrusted input from the server
+                                                                                         
         except (RequestTimedOut, asyncio.CancelledError, asyncio.TimeoutError):
-            raise  # pass-through
+            raise                
         except aiorpcx.jsonrpc.CodeMessageError as e:
             self.logger.info(f"broadcast_transaction error [DO NOT TRUST THIS MESSAGE]: {error_text_str_to_safe_str(repr(e))}. tx={str(tx)}")
             raise TxBroadcastServerReturnedError(sanitize_tx_broadcast_response(e.message)) from e
-        except BaseException as e:  # intentional BaseException for sanity!
+        except BaseException as e:                                         
             self.logger.info(f"broadcast_transaction error2 [DO NOT TRUST THIS MESSAGE]: {error_text_str_to_safe_str(repr(e))}. tx={str(tx)}")
             send_exception_to_crash_reporter(e)
             raise TxBroadcastUnknownError() from e
@@ -1411,9 +1411,9 @@ class Interface(Logger):
             self.logger.info(f"unexpected txid for broadcast_transaction [DO NOT TRUST THIS MESSAGE]: "
                              f"{error_text_str_to_safe_str(out)} != {txid_calc}. tx={str(tx)}")
             raise TxBroadcastHashMismatch(_("Server returned unexpected transaction ID."))
-        # broadcast succeeded.
-        # We now cache the rawtx, for *this interface only*. The tx likely touches some ismine addresses, affecting
-        # the status of a scripthash we are subscribed to. Caching here will save a future get_transaction RPC.
+                              
+                                                                                                                   
+                                                                                                               
         self._rawtx_cache[txid_calc] = bytes.fromhex(rawtx)
 
     async def broadcast_txpackage(self, txs: Sequence['Transaction']) -> bool:
@@ -1436,9 +1436,9 @@ class Interface(Logger):
             self.logger.info(f"broadcast_txpackage error [DO NOT TRUST THIS MESSAGE]: {error_text_str_to_safe_str(repr(errors))}. {rawtxs=}")
             return False
         assert success
-        # broadcast succeeded.
-        # We now cache the rawtx, for *this interface only*. The tx likely touches some ismine addresses, affecting
-        # the status of a scripthash we are subscribed to. Caching here will save a future get_transaction RPC.
+                              
+                                                                                                                   
+                                                                                                               
         for tx, rawtx in zip(txs, rawtxs):
             self._rawtx_cache[tx.txid()] = bytes.fromhex(rawtx)
         return True
@@ -1446,9 +1446,9 @@ class Interface(Logger):
     async def get_history_for_scripthash(self, sh: str) -> List[dict]:
         if not is_hash256_str(sh):
             raise Exception(f"{repr(sh)} is not a scripthash")
-        # do request
+                    
         res = await self.session.send_request('blockchain.scripthash.get_history', [sh])
-        # check response
+                        
         assert_list_or_tuple(res)
         prev_height = 1
         for tx_item in res:
@@ -1461,31 +1461,31 @@ class Interface(Logger):
             if height in (-1, 0):
                 assert_dict_contains_field(tx_item, field_name='fee')
                 assert_non_negative_integer(tx_item['fee'])
-                prev_height = float("inf")  # this ensures confirmed txs can't follow mempool txs
+                prev_height = float("inf")                                                       
             else:
-                # check monotonicity of heights
+                                               
                 if height < prev_height:
                     raise RequestCorrupted(f'heights of confirmed txs must be in increasing order')
                 prev_height = height
         if self.active_protocol_tuple >= (1, 6):
-            # enforce order of mempool txs
+                                          
             mempool_txs = [tx_item for tx_item in res if tx_item['height'] <= 0]
             if mempool_txs != sorted(mempool_txs, key=lambda x: (-x['height'], bytes.fromhex(x['tx_hash']))):
                 raise RequestCorrupted(f'mempool txs not in canonical order')
         hashes = set(map(lambda item: item['tx_hash'], res))
         if len(hashes) != len(res):
-            # Either server is sending garbage... or maybe if server is race-prone
-            # a recently mined tx could be included in both last block and mempool?
-            # Still, it's simplest to just disregard the response.
+                                                                                  
+                                                                                   
+                                                                  
             raise RequestCorrupted(f"server history has non-unique txids for sh={sh}")
         return res
 
     async def listunspent_for_scripthash(self, sh: str) -> List[dict]:
         if not is_hash256_str(sh):
             raise Exception(f"{repr(sh)} is not a scripthash")
-        # do request
+                    
         res = await self.session.send_request('blockchain.scripthash.listunspent', [sh])
-        # check response
+                        
         assert_list_or_tuple(res)
         for utxo_item in res:
             assert_dict_contains_field(utxo_item, field_name='tx_pos')
@@ -1501,9 +1501,9 @@ class Interface(Logger):
     async def get_balance_for_scripthash(self, sh: str) -> dict:
         if not is_hash256_str(sh):
             raise Exception(f"{repr(sh)} is not a scripthash")
-        # do request
+                    
         res = await self.session.send_request('blockchain.scripthash.get_balance', [sh])
-        # check response
+                        
         assert_dict_contains_field(res, field_name='confirmed')
         assert_dict_contains_field(res, field_name='unconfirmed')
         assert_non_negative_integer(res['confirmed'])
@@ -1515,12 +1515,12 @@ class Interface(Logger):
             raise Exception(f"{repr(tx_height)} is not a block height")
         if not is_non_negative_integer(tx_pos):
             raise Exception(f"{repr(tx_pos)} should be non-negative integer")
-        # do request
+                    
         res = await self.session.send_request(
             'blockchain.transaction.id_from_pos',
             [tx_height, tx_pos, merkle],
         )
-        # check response
+                        
         if merkle:
             assert_dict_contains_field(res, field_name='tx_hash')
             assert_dict_contains_field(res, field_name='merkle')
@@ -1533,49 +1533,49 @@ class Interface(Logger):
         return res
 
     async def get_fee_histogram(self) -> Sequence[Tuple[Union[float, int], int]]:
-        # do request
+                    
         res = await self.session.send_request('mempool.get_fee_histogram')
-        # check response
+                        
         assert_list_or_tuple(res)
         prev_fee = float('inf')
         for fee, s in res:
             assert_non_negative_int_or_float(fee)
             assert_non_negative_integer(s)
-            if fee >= prev_fee:  # check monotonicity
+            if fee >= prev_fee:                      
                 raise RequestCorrupted(f'fees must be in decreasing order')
             prev_fee = fee
         return res
 
     async def get_server_banner(self) -> str:
-        # do request
+                    
         res = await self.session.send_request('server.banner')
-        # check response
+                        
         if not isinstance(res, str):
             raise RequestCorrupted(f'{res!r} should be a str')
         return res
 
     async def get_donation_address(self) -> str:
-        # do request
+                    
         res = await self.session.send_request('server.donation_address')
-        # check response
-        if not res:  # ignore empty string
+                        
+        if not res:                       
             return ''
         if not bitcoin.is_address(res):
-            # note: do not hard-fail -- allow server to use future-type
-            #       bitcoin address we do not recognize
+                                                                       
+                                                       
             self.logger.info(f"invalid donation address from server: {repr(res)}")
             res = ''
         return res
 
     async def get_relay_fee(self) -> int:
         """Returns the min relay feerate in sat/kbyte."""
-        # do request
+                    
         if self.active_protocol_tuple >= (1, 6):
             res = await self.session.send_request('mempool.get_info')
             minrelaytxfee = assert_dict_contains_field(res, field_name='minrelaytxfee')
         else:
             minrelaytxfee = await self.session.send_request('blockchain.relayfee')
-        # check response
+                        
         assert_non_negative_int_or_float(minrelaytxfee)
         relayfee = int(minrelaytxfee * bitcoin.COIN)
         relayfee = max(0, relayfee)
@@ -1588,26 +1588,26 @@ class Interface(Logger):
         """
         if not is_non_negative_integer(num_blocks):
             raise Exception(f"{repr(num_blocks)} is not a num_blocks")
-        # do request
+                    
         try:
             res = await self.session.send_request('blockchain.estimatefee', [num_blocks])
         except aiorpcx.jsonrpc.ProtocolError as e:
-            # The protocol spec says the server itself should already have returned -1
-            # if it cannot provide an estimate, however apparently "electrs" does not conform
-            # and sends an error instead. Convert it here:
+                                                                                      
+                                                                                             
+                                                          
             if "cannot estimate fee" in e.message:
                 res = -1
             else:
                 raise
         except aiorpcx.jsonrpc.RPCError as e:
-            # The protocol spec says the server itself should already have returned -1
-            # if it cannot provide an estimate. "Fulcrum" often sends:
-            #   aiorpcx.jsonrpc.RPCError: (-32603, 'internal error: bitcoind request timed out')
+                                                                                      
+                                                                      
+                                                                                                
             if e.code == JSONRPC.INTERNAL_ERROR:
                 res = -1
             else:
                 raise
-        # check response
+                        
         if res != -1:
             assert_non_negative_int_or_float(res)
             res = int(res * bitcoin.COIN)
@@ -1621,13 +1621,13 @@ def _assert_header_does_not_check_against_any_chain(header: dict) -> None:
 
 
 def sanitize_tx_broadcast_response(server_msg) -> str:
-    # Unfortunately, bitcoind and hence the Electrum protocol doesn't return a useful error code.
-    # So, we use substring matching to grok the error message.
-    # server_msg is untrusted input so it should not be shown to the user. see #4968
+                                                                                                 
+                                                              
+                                                                                    
     server_msg = str(server_msg)
     server_msg = server_msg.replace("\n", r"\n")
 
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/script/script_error.cpp
+                                                                                                                  
     script_error_messages = {
         r"Script evaluated without error but finished with a false/empty top stack element",
         r"Script failed an OP_VERIFY operation",
@@ -1685,10 +1685,10 @@ def sanitize_tx_broadcast_response(server_msg) -> str:
     for substring in script_error_messages:
         if substring in server_msg:
             return substring
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/validation.cpp
-    # grep "REJECT_"
-    # grep "TxValidationResult"
-    # should come after script_error.cpp (due to e.g. "non-mandatory-script-verify-flag")
+                                                                                                         
+                    
+                               
+                                                                                         
     validation_error_messages = {
         r"coinbase": None,
         r"tx-size-small": None,
@@ -1724,12 +1724,12 @@ def sanitize_tx_broadcast_response(server_msg) -> str:
         if substring in server_msg:
             msg = validation_error_messages[substring]
             return msg if msg else substring
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/rpc/rawtransaction.cpp
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/util/error.cpp
-    # https://github.com/bitcoin/bitcoin/blob/3f83c744ac28b700090e15b5dda2260724a56f49/src/common/messages.cpp#L126
-    # grep "RPC_TRANSACTION"
-    # grep "RPC_DESERIALIZATION_ERROR"
-    # grep "TransactionError"
+                                                                                                                 
+                                                                                                         
+                                                                                                                   
+                            
+                                      
+                             
     rawtransaction_error_messages = {
         r"Missing inputs": None,
         r"Inputs missing or spent": None,
@@ -1750,10 +1750,10 @@ def sanitize_tx_broadcast_response(server_msg) -> str:
         if substring in server_msg:
             msg = rawtransaction_error_messages[substring]
             return msg if msg else substring
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/consensus/tx_verify.cpp
-    # https://github.com/bitcoin/bitcoin/blob/c7ad94428ab6f54661d7a5441e1fdd0ebf034903/src/consensus/tx_check.cpp
-    # grep "REJECT_"
-    # grep "TxValidationResult"
+                                                                                                                  
+                                                                                                                 
+                    
+                               
     tx_verify_error_messages = {
         r"bad-txns-vin-empty": None,
         r"bad-txns-vout-empty": None,
@@ -1777,10 +1777,10 @@ def sanitize_tx_broadcast_response(server_msg) -> str:
         if substring in server_msg:
             msg = tx_verify_error_messages[substring]
             return msg if msg else substring
-    # https://github.com/bitcoin/bitcoin/blob/5bb64acd9d3ced6e6f95df282a1a0f8b98522cb0/src/policy/policy.cpp
-    # grep "reason ="
-    # should come after validation.cpp (due to "tx-size" vs "tx-size-small")
-    # should come after script_error.cpp (due to e.g. "version")
+                                                                                                            
+                     
+                                                                            
+                                                                
     policy_error_messages = {
         r"version": _("Transaction uses non-standard version."),
         r"tx-size": _("The transaction was rejected because it is too large (in bytes)."),
@@ -1800,7 +1800,7 @@ def sanitize_tx_broadcast_response(server_msg) -> str:
         if substring in server_msg:
             msg = policy_error_messages[substring]
             return msg if msg else substring
-    # otherwise:
+                
     return _("Unknown error")
 
 
@@ -1823,7 +1823,7 @@ def check_cert(host, cert):
     util.print_msg(m)
 
 
-# Used by tests
+               
 def _match_hostname(name, val):
     if val == name:
         return True

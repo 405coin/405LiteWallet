@@ -76,15 +76,15 @@ class TestUtil(ElectrumTestCase):
     def test_format_satoshis_add_thousands_sep(self):
         self.assertEqual("178 890 000.", format_satoshis(Decimal(178890000), decimal_point=0, add_thousands_sep=True))
         self.assertEqual("458 312.757 48", format_satoshis(Decimal("45831275.748"), decimal_point=2, add_thousands_sep=True, precision=5))
-        # is_diff
+                 
         self.assertEqual("+4 583 127.574 8", format_satoshis(Decimal("45831275.748"), decimal_point=1, is_diff=True, add_thousands_sep=True, precision=4))
         self.assertEqual("+456 789 112.004 56", format_satoshis(Decimal("456789112.00456"), decimal_point=0, is_diff=True, add_thousands_sep=True, precision=5))
         self.assertEqual("-0.000 012 34", format_satoshis(-1234, is_diff=True, add_thousands_sep=True))
         self.assertEqual("-456 789.000 012 34", format_satoshis(-45678900001234, is_diff=True, add_thousands_sep=True))
-        # num_zeros
+                   
         self.assertEqual("-456 789.123 400", format_satoshis(-45678912340000, num_zeros=6, add_thousands_sep=True))
         self.assertEqual("-456 789.123 4", format_satoshis(-45678912340000, num_zeros=2, add_thousands_sep=True))
-        # whitespaces
+                     
         self.assertEqual("      1 432.731 11", format_satoshis(143273111, decimal_point=5, add_thousands_sep=True, whitespaces=True))
         self.assertEqual("      1 432.731   ", format_satoshis(143273100, decimal_point=5, add_thousands_sep=True, whitespaces=True))
         self.assertEqual(" 67 891 432.731   ", format_satoshis(6789143273100, decimal_point=5, add_thousands_sep=True, whitespaces=True))
@@ -155,36 +155,36 @@ class TestUtil(ElectrumTestCase):
     def test_parse_URI_unsupported_req_key(self):
         self._do_test_parse_URI('bitcoin:TB1QXJ6KVTE6URY2MX695METFTFT7LR5HYK4M3VT5F?amount=0.00100000&label=test&somethingyoudontunderstand=50',
                                 {'address': 'TB1QXJ6KVTE6URY2MX695METFTFT7LR5HYK4M3VT5F', 'amount': 100000, 'label': 'test', 'somethingyoudontunderstand': '50'})
-        # now test same URI but with "req-test=1" added
+                                                       
         self.assertRaises(InvalidBitcoinURI, parse_bip21_URI, 'bitcoin:TB1QXJ6KVTE6URY2MX695METFTFT7LR5HYK4M3VT5F?amount=0.00100000&label=test&req-test=1&somethingyoudontunderstand=50')
 
     @as_testnet
     def test_parse_URI_lightning_consistency(self):
-        # bip21 uri that *only* includes a "lightning" key. LN part does not have fallback address
+                                                                                                  
         self._do_test_parse_URI('bitcoin:?lightning=lntb700u1p3kqy0cpp5azvqy3wez7hcz3ka7tpqqvw5mpsa7fknxl4ca7a7669kswhf0hgqsp5qxhxul9k88w2nsk643elzuu4nepwkq052ek79esmz47yj6lfrhuqdqvw3jhxapjxcmscqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqyznyzw55q63yytup920n9qcsnh6qqht48maapzgadll2qy5vheeq26crapt0rcv9aqmpm93ljkapgtc05keud9jhlasns795fylfdjsphud9uh',
                                 {'lightning': 'lntb700u1p3kqy0cpp5azvqy3wez7hcz3ka7tpqqvw5mpsa7fknxl4ca7a7669kswhf0hgqsp5qxhxul9k88w2nsk643elzuu4nepwkq052ek79esmz47yj6lfrhuqdqvw3jhxapjxcmscqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqyznyzw55q63yytup920n9qcsnh6qqht48maapzgadll2qy5vheeq26crapt0rcv9aqmpm93ljkapgtc05keud9jhlasns795fylfdjsphud9uh'})
-        # bip21 uri that *only* includes a "lightning" key. LN part has fallback address
+                                                                                        
         self._do_test_parse_URI('bitcoin:?lightning=lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql',
                                 {'lightning': 'lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql'})
-        # bip21 uri that includes "lightning" key. LN part does not have fallback address
+                                                                                         
         self._do_test_parse_URI('bitcoin:tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl?amount=0.0007&message=test266&lightning=lntb700u1p3kqy0cpp5azvqy3wez7hcz3ka7tpqqvw5mpsa7fknxl4ca7a7669kswhf0hgqsp5qxhxul9k88w2nsk643elzuu4nepwkq052ek79esmz47yj6lfrhuqdqvw3jhxapjxcmscqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqyznyzw55q63yytup920n9qcsnh6qqht48maapzgadll2qy5vheeq26crapt0rcv9aqmpm93ljkapgtc05keud9jhlasns795fylfdjsphud9uh',
                                 {'address': 'tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl',
                                  'amount': 70000,
                                  'lightning': 'lntb700u1p3kqy0cpp5azvqy3wez7hcz3ka7tpqqvw5mpsa7fknxl4ca7a7669kswhf0hgqsp5qxhxul9k88w2nsk643elzuu4nepwkq052ek79esmz47yj6lfrhuqdqvw3jhxapjxcmscqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqyznyzw55q63yytup920n9qcsnh6qqht48maapzgadll2qy5vheeq26crapt0rcv9aqmpm93ljkapgtc05keud9jhlasns795fylfdjsphud9uh',
                                  'memo': 'test266',
                                  'message': 'test266'})
-        # bip21 uri that includes "lightning" key. LN part has fallback address
+                                                                               
         self._do_test_parse_URI('bitcoin:tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl?amount=0.0007&message=test266&lightning=lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql',
                                 {'address': 'tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl',
                                  'amount': 70000,
                                  'lightning': 'lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql',
                                  'memo': 'test266',
                                  'message': 'test266'})
-        # bip21 uri that includes "lightning" key. LN part has fallback address BUT it mismatches the top-level address
+                                                                                                                       
         self.assertRaises(InvalidBitcoinURI, parse_bip21_URI, 'bitcoin:tb1qvu0c9xme0ul3gzx4nzqdgxsu25acuk9wvsj2j2?amount=0.0007&message=test266&lightning=lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql')
-        # bip21 uri that includes "lightning" key. top-level amount mismatches LN amount
+                                                                                        
         self.assertRaises(InvalidBitcoinURI, parse_bip21_URI, 'bitcoin:tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl?amount=0.0008&message=test266&lightning=lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdhkk8a597sn865rhap4h4jenjefdk7ssp5d9zjr96ezp89gsyenfse5f4jn9ls29p0awvp0zxlt6tpzn2m3j5qdqvw3jhxapjxcmqcqzynxq8zals8sq9q7sqqqqqqqqqqqqqqqqqqqqqqqqq9qsqfppqu5ua3szskclyd48wlfdwfd32j65phxy9vu8dmmk3u20u0e0yqw484xzn4hc3cux6kk2wenhw7zy0mseu9ntpk9l4fws2d46svzszrc6mqy535740ks9j22w67fw0x4dt8w2hhzspcqakql')
-        # bip21 uri that includes "lightning" key with garbage unparsable value
+                                                                               
         self.assertRaises(InvalidBitcoinURI, parse_bip21_URI, 'bitcoin:tb1qu5ua3szskclyd48wlfdwfd32j65phxy9yf7ytl?amount=0.0008&message=test266&lightning=lntb700u1p3kqy26pp5l7rj7w0u5sdsj24umzdlhdasdasdasdasd')
 
     def test_is_hash256_str(self):
@@ -305,7 +305,7 @@ class TestUtil(ElectrumTestCase):
 
     def test_is_ip_address(self):
         self.assertTrue(is_ip_address("127.0.0.1"))
-        #self.assertTrue(is_ip_address("127.000.000.1"))  # disabled as result differs based on python version
+                                                                                                              
         self.assertTrue(is_ip_address("255.255.255.255"))
         self.assertFalse(is_ip_address("255.255.256.255"))
         self.assertFalse(is_ip_address("123.456.789.000"))
@@ -325,13 +325,13 @@ class TestUtil(ElectrumTestCase):
         self.assertTrue(is_private_netaddress("[::1]"))
         self.assertTrue(is_private_netaddress("localhost"))
         self.assertTrue(is_private_netaddress("localhost."))
-        self.assertTrue(is_private_netaddress("192.168.1.1"))  # RFC1918
-        self.assertTrue(is_private_netaddress("10.10.10.10"))  # RFC1918
-        self.assertTrue(is_private_netaddress("172.16.0.1"))   # RFC1918
-        self.assertTrue(is_private_netaddress("172.31.255.254"))  # RFC1918
-        self.assertTrue(is_private_netaddress("::ffff:ac10:0001"))  # RFC1918 IPv4 in IPv6
-        self.assertTrue(is_private_netaddress("[::ffff:c0a8:0001]"))  # RFC1918 IPv4 in IPv6
-        self.assertTrue(is_private_netaddress("fe80::0001"))  # IPv6 link-local
+        self.assertTrue(is_private_netaddress("192.168.1.1"))           
+        self.assertTrue(is_private_netaddress("10.10.10.10"))           
+        self.assertTrue(is_private_netaddress("172.16.0.1"))            
+        self.assertTrue(is_private_netaddress("172.31.255.254"))           
+        self.assertTrue(is_private_netaddress("::ffff:ac10:0001"))                        
+        self.assertTrue(is_private_netaddress("[::ffff:c0a8:0001]"))                        
+        self.assertTrue(is_private_netaddress("fe80::0001"))                   
         self.assertFalse(is_private_netaddress("[::2]"))
         self.assertFalse(is_private_netaddress("2a00:1450:400e:80d::200e"))
         self.assertFalse(is_private_netaddress("[2a00:1450:400e:80d::200e]"))
@@ -361,32 +361,32 @@ class TestUtil(ElectrumTestCase):
         self.assertFalse(util.is_subpath("c", "/a/b/c"))
 
     def test_error_text_bytes_to_safe_str(self):
-        # ascii
+               
         self.assertEqual("'test'", util.error_text_bytes_to_safe_str(b"test"))
         self.assertEqual('"test123 \'QWE"', util.error_text_bytes_to_safe_str(b"test123 'QWE"))
         self.assertEqual("'prefix: \\x08\\x08\\x08\\x08\\x08\\x08\\x08\\x08malicious_stuff'",
                          util.error_text_bytes_to_safe_str(b"prefix: " + 8 * b"\x08" + b"malicious_stuff"))
-        # unicode
+                 
         self.assertEqual("'here is some unicode: \\\\xe2\\\\x82\\\\xbf \\\\xf0\\\\x9f\\\\x98\\\\x80 \\\\xf0\\\\x9f\\\\x98\\\\x88'",
                          util.error_text_bytes_to_safe_str(b'here is some unicode: \xe2\x82\xbf \xf0\x9f\x98\x80 \xf0\x9f\x98\x88'))
-        # not even unicode
+                          
         self.assertEqual("""\'\\x00\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x08\\t\\n\\x0b\\x0c\\r\\x0e\\x0f\\x10\\x11\\x12\\x13\\x14\\x15\\x16\\x17\\x18\\x19\\x1a\\x1b\\x1c\\x1d\\x1e\\x1f !"#$%&\\\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\\x7f\\\\x80\\\\x81\\\\x82\\\\x83\\\\x84\\\\x85\\\\x86\\\\x87\\\\x88\\\\x89\\\\x8a\\\\x8b\\\\x8c\\\\x8d\\\\x8e\\\\x8f\\\\x90\\\\x91\\\\x92\\\\x93\\\\x94\\\\x95\\\\x96\\\\x97\\\\x98\\\\x99\\\\x9a\\\\x9b\\\\x9c\\\\x9d\\\\x9e\\\\x9f\\\\xa0\\\\xa1\\\\xa2\\\\xa3\\\\xa4\\\\xa5\\\\xa6\\\\xa7\\\\xa8\\\\xa9\\\\xaa\\\\xab\\\\xac\\\\xad\\\\xae\\\\xaf\\\\xb0\\\\xb1\\\\xb2\\\\xb3\\\\xb4\\\\xb5\\\\xb6\\\\xb7\\\\xb8\\\\xb9\\\\xba\\\\xbb\\\\xbc\\\\xbd\\\\xbe\\\\xbf\\\\xc0\\\\xc1\\\\xc2\\\\xc3\\\\xc4\\\\xc5\\\\xc6\\\\xc7\\\\xc8\\\\xc9\\\\xca\\\\xcb\\\\xcc\\\\xcd\\\\xce\\\\xcf\\\\xd0\\\\xd1\\\\xd2\\\\xd3\\\\xd4\\\\xd5\\\\xd6\\\\xd7\\\\xd8\\\\xd9\\\\xda\\\\xdb\\\\xdc\\\\xdd\\\\xde\\\\xdf\\\\xe0\\\\xe1\\\\xe2\\\\xe3\\\\xe4\\\\xe5\\\\xe6\\\\xe7\\\\xe8\\\\xe9\\\\xea\\\\xeb\\\\xec\\\\xed\\\\xee\\\\xef\\\\xf0\\\\xf1\\\\xf2\\\\xf3\\\\xf4\\\\xf5\\\\xf6\\\\xf7\\\\xf8\\\\xf9\\\\xfa\\\\xfb\\\\xfc\\\\xfd\\\\xfe\\\\xff\'""",
                          util.error_text_bytes_to_safe_str(bytes(range(256)), max_len=1000))
-        # long text
+                   
         t1 = util.error_text_bytes_to_safe_str(b"test" * 10000)
         self.assertTrue(t1.endswith("... (truncated. orig_len=40002)"))
         self.assertTrue(len(t1) < 550)
 
     def test_error_text_str_to_safe_str(self):
-        # ascii
+               
         self.assertEqual("'test'", util.error_text_str_to_safe_str("test"))
         self.assertEqual('"test123 \'QWE"', util.error_text_str_to_safe_str("test123 'QWE"))
         self.assertEqual("'prefix: \\x08\\x08\\x08\\x08\\x08\\x08\\x08\\x08malicious_stuff'",
                          util.error_text_str_to_safe_str("prefix: " + 8 * "\x08" + "malicious_stuff"))
-        # unicode
+                 
         self.assertEqual("'here is some unicode: \\\\u20bf \\\\U0001f600 \\\\U0001f608'",
                          util.error_text_str_to_safe_str("here is some unicode: ₿ 😀 😈"))
-        # long text
+                   
         t1 = util.error_text_str_to_safe_str("test"*10000)
         self.assertTrue(t1.endswith("... (truncated. orig_len=40002)"))
         self.assertTrue(len(t1) < 550)
@@ -395,7 +395,7 @@ class TestUtil(ElectrumTestCase):
         now = datetime(2023, 4, 16, 22, 30, 00)
         self.assertEqual("Unknown",
                          util.age(from_date=None, since_date=now))
-        # past
+              
         self.assertEqual("less than a minute ago",
                          util.age(from_date=now.timestamp()-1, since_date=now))
         self.assertEqual("1 seconds ago",
@@ -426,7 +426,7 @@ class TestUtil(ElectrumTestCase):
                          util.age(from_date=now.timestamp()-39853800, since_date=now))
         self.assertEqual("over 3 years ago",
                          util.age(from_date=now.timestamp()-103012200, since_date=now))
-        # future
+                
         self.assertEqual("in less than a minute",
                          util.age(from_date=now.timestamp()+1, since_date=now))
         self.assertEqual("in 1 seconds",
@@ -482,14 +482,14 @@ class TestUtil(ElectrumTestCase):
 
     async def test_custom_task_factory(self):
         loop = util.get_running_loop()
-        # set our factory.  note: this does not leak into other unit tests
+                                                                          
         util._set_custom_task_factory(loop)
 
         evt = asyncio.Event()
         async def foo():
             await evt.wait()
 
-        # spawn tasks
+                     
         fut = asyncio.ensure_future(foo())
         self.assertTrue(fut in util._running_asyncio_tasks)
         fut = asyncio.create_task(foo())
@@ -497,23 +497,23 @@ class TestUtil(ElectrumTestCase):
         fut = loop.create_task(foo())
         self.assertTrue(fut in util._running_asyncio_tasks)
         fut = asyncio.run_coroutine_threadsafe(foo(), loop=loop)
-        # run_coroutine_threadsafe will create a different (chained) future in _running_asyncio_tasks
-        # (which btw will only happen a few event loop iterations later)
-        #self.assertTrue(fut in util._running_asyncio_tasks)
+                                                                                                     
+                                                                        
+                                                            
 
-        # wait a few event loop iterations
+                                          
         for _ in range(10):
             await asyncio.sleep(0)
-        # we should have stored one ref for each above.
-        # (though what if test framework is doing stuff ~concurrently?)
+                                                       
+                                                                       
         self.assertEqual(4, len(util._running_asyncio_tasks))
         for task in util._running_asyncio_tasks:
             self.assertEqual(foo.__qualname__, task.get_coro().__qualname__)
-        # let tasks finish
+                          
         evt.set()
-        # wait a few event loop iterations
+                                          
         for _ in range(10):
             await asyncio.sleep(0)
-        # refs should be cleaned up by now:
+                                           
         self.assertEqual(0, len(util._running_asyncio_tasks))
 

@@ -1,6 +1,6 @@
-# Copyright (C) 2023 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+
+
+
 
 import os
 from typing import TYPE_CHECKING
@@ -35,7 +35,7 @@ class WalletInfoDialog(WindowModalDialog):
         self.setMinimumSize(800, 100)
         self.window = window
         self.wallet = wallet = window.wallet
-        # required for @protected decorator
+
         self._protected_requires_password = lambda: self.wallet.has_keystore_encryption() or self.wallet.storage.is_encrypted_with_user_pw()
         config = window.config
         vbox = QVBoxLayout()
@@ -71,7 +71,7 @@ class WalletInfoDialog(WindowModalDialog):
             ks_type = str(keystore_types[0]) if keystore_types else _('No keystore')
             grid.addWidget(WWLabel(ks_type), cur_row, 1)
             cur_row += 1
-        # lightning
+
         grid.addWidget(WWLabel(_('Lightning') + ':'), cur_row, 0)
         from .util import IconLabel
         if wallet.has_lightning():
@@ -82,13 +82,13 @@ class WalletInfoDialog(WindowModalDialog):
                 label.setIcon(read_QIcon('cloud_no'))
                 grid.addWidget(label, cur_row, 1)
                 if wallet.get_seed_type() == 'segwit':
-                    msg = _("Your channels cannot be recovered from seed, because they were created with an old version of Electrum. "
+                    msg = _("Your channels cannot be recovered from seed, because they were created with an old version of 405LiteWallet. "
                             "This means that you must save a backup of your wallet every time you create a new channel.\n\n"
                             "If you want this wallet to have recoverable channels, you must close your existing channels and restore this wallet from seed")
                 else:
                     msg = _("Your channels cannot be recovered from seed. "
                             "This means that you must save a backup of your wallet every time you create a new channel.\n\n"
-                            "If you want to have recoverable channels, you must create a new wallet with an Electrum seed")
+                            "If you want to have recoverable channels, you must create a new wallet with a 405LiteWallet seed")
                 grid.addWidget(HelpButton(msg), cur_row, 3)
             cur_row += 1
             grid.addWidget(WWLabel(_('Lightning Node ID:')), cur_row, 0)

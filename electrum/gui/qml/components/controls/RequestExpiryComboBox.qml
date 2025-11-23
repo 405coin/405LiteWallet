@@ -12,7 +12,7 @@ ElComboBox {
     model: ListModel {
         id: expiresmodel
         Component.onCompleted: {
-            // we need to fill the model like this, as ListElement can't evaluate script
+            
             expiresmodel.append({'text': qsTr('10 minutes'), 'value': 10*60})
             expiresmodel.append({'text': qsTr('1 hour'), 'value': 60*60})
             expiresmodel.append({'text': qsTr('1 day'), 'value': 24*60*60})

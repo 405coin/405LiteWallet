@@ -1,35 +1,34 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2013 ecdsa@github
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import TYPE_CHECKING
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (QVBoxLayout, QCheckBox, QHBoxLayout, QLineEdit,
-                             QLabel, QCompleter, QDialog, QStyledItemDelegate,
-                             QWidget, QPushButton)
+                             QLabel, QCompleter, QStyledItemDelegate,
+                             QWidget, QPushButton, QFrame)
 
 from electrum.i18n import _
 from electrum.mnemonic import Mnemonic, calc_seed_type, is_any_2fa_seed_type
@@ -38,8 +37,9 @@ from electrum import slip39
 from electrum.util import ChoiceItem
 
 from .util import (
-    Buttons, OkButton, WWLabel, ButtonsTextEdit, icon_path, EnterButton,
+    Buttons, OkButton, WWLabel, ButtonsTextEdit,
     CloseButton, WindowModalDialog, ColorScheme, font_height, ChoiceWidget,
+    read_QIcon, apply_dashboard_dialog_style,
 )
 from .qrtextedit import ShowQRTextEdit, ScanQRTextEdit
 from .completion_text_edit import CompletionTextEdit
@@ -50,9 +50,9 @@ if TYPE_CHECKING:
 
 MSG_PASSPHRASE_WARN_ISSUE4566 = _("Warning") + ": "\
                               + _("You have multiple consecutive whitespaces or leading/trailing "
-                                  "whitespaces in your passphrase.") + " " \
-                              + _("This is discouraged.") + " " \
-                              + _("Due to a bug, old versions of Electrum will NOT be creating the "
+                                  "whitespaces in your passphrase.") + " "\
+                              + _("This is discouraged.") + " "\
+                              + _("Due to a bug, old versions of 405LiteWallet will NOT be creating the "
                                   "same wallet as newer versions or other software.")
 
 
@@ -84,17 +84,26 @@ class SeedWidget(QWidget):
             icon=True,
             msg=None,
             options=None,
-            is_seed=None,  # only used for electrum seeds
+            is_seed=None,
             passphrase=None,
             parent=None,
             for_seed_words=True,
             *,
             config: 'SimpleConfig',
+            show_seed_controls=True,
     ):
         QWidget.__init__(self, parent)
+        apply_dashboard_dialog_style(self, "SeedEntryWidget")
         vbox = QVBoxLayout()
+        vbox.setContentsMargins(24, 24, 24, 24)
+        vbox.setSpacing(18)
         self.setLayout(vbox)
 
+        from electrum import constants
+        if options:
+            options = list(options)
+            if getattr(constants.net, 'DISABLE_BIP39', False):
+                options = [opt for opt in options if opt != 'bip39']
         self.options = options
         self.config = config
         self.msg = msg
@@ -102,7 +111,7 @@ class SeedWidget(QWidget):
         if options:
             self.seed_types = [
                 ChoiceItem(key=stype, label=label) for stype, label in (
-                    ('electrum', _('Electrum')),
+                    ('electrum', _('405LiteWallet')),
                     ('bip39', _('BIP39 seed')),
                     ('slip39', _('SLIP39 seed')),
                 )
@@ -114,21 +123,22 @@ class SeedWidget(QWidget):
             self.seed_type = 'electrum'
 
         self.is_seed = is_seed
+        self.show_seed_controls = show_seed_controls
 
         if title:
             vbox.addWidget(WWLabel(title))
-        if seed:  # "read only", we already have the text
+        if seed:
             if for_seed_words:
                 self.seed_e = ButtonsTextEdit()
-            else:  # e.g. xpub
+            else:
                 self.seed_e = ShowQRTextEdit(config=self.config)
                 self.seed_e.addCopyButton()
             self.seed_e.setReadOnly(True)
             self.seed_e.setText(seed)
-        else:  # we expect user to enter text
+        else:
             assert for_seed_words
             self.seed_e = CompletionTextEdit()
-            self.seed_e.setTabChangesFocus(False)  # so that tab auto-completes
+            self.seed_e.setTabChangesFocus(False)
             self.seed_e.textChanged.connect(self.on_edit)
             self.initialize_completer()
 
@@ -136,8 +146,7 @@ class SeedWidget(QWidget):
         hbox = QHBoxLayout()
         if icon:
             logo = QLabel()
-            logo.setPixmap(QPixmap(icon_path("seed.png"))
-                           .scaledToWidth(64, mode=Qt.TransformationMode.SmoothTransformation))
+            logo.setPixmap(read_QIcon("seed.svg").pixmap(64, 64))
             logo.setMaximumWidth(60)
             hbox.addWidget(logo)
         hbox.addWidget(self.seed_e)
@@ -146,13 +155,13 @@ class SeedWidget(QWidget):
         hbox.addStretch(1)
         self.seed_type_label = QLabel('')
         hbox.addWidget(self.seed_type_label)
+        vbox.addLayout(hbox)
 
-        # options
         self.is_ext = False
-        if options:
-            opt_button = EnterButton(_('Options'), self.seed_options)
-            hbox.addWidget(opt_button)
-            vbox.addLayout(hbox)
+        self.seed_type_choice = None
+        self.ext_checkbox = None
+        if options and show_seed_controls:
+            self._build_options_panel(vbox)
         if passphrase:
             hbox = QHBoxLayout()
             passphrase_e = QLineEdit()
@@ -162,7 +171,7 @@ class SeedWidget(QWidget):
             hbox.addWidget(passphrase_e)
             vbox.addLayout(hbox)
 
-        # slip39 shares
+
         self.slip39_mnemonic_index = 0
         self.slip39_mnemonics = [""]
         self.slip39_seed = None
@@ -189,40 +198,41 @@ class SeedWidget(QWidget):
 
         vbox.addWidget(self.seed_warning)
 
-    def seed_options(self):
-        dialog = QDialog()
-        dialog.setWindowTitle(_("Seed Options"))
-        vbox = QVBoxLayout(dialog)
-
-        if 'ext' in self.options:
-            cb_ext = QCheckBox(_('Extend this seed with custom words'))
-            cb_ext.setChecked(self.is_ext)
-            vbox.addWidget(cb_ext)
-
-        def on_selected(idx):
-            self.seed_type = seed_type_choice.selected_key
-            self.slip39_current_mnemonic_invalid = None
-            self.seed_status.setText('')
-            self.update_seed_warning()
-            self.on_edit()
-            self.update_share_buttons()
-            self.initialize_completer()
-
+    def _build_options_panel(self, parent_layout: QVBoxLayout) -> None:
+        panel = QFrame()
+        panel.setObjectName("SeedOptionsCard")
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setSpacing(12)
         if len(self.seed_types) > 1:
-            seed_type_choice = ChoiceWidget(message=_('Seed type'), choices=self.seed_types, default_key=self.seed_type)
-            seed_type_choice.itemSelected.connect(on_selected)
-            vbox.addWidget(seed_type_choice)
+            self.seed_type_choice = ChoiceWidget(
+                message=_('Seed format'),
+                choices=self.seed_types,
+                default_key=self.seed_type,
+            )
+            self.seed_type_choice.itemSelected.connect(self._on_seed_type_selected)
+            layout.addWidget(self.seed_type_choice)
+        if self.options and 'ext' in self.options:
+            self.ext_checkbox = QCheckBox(_('Extend this seed with custom words'))
+            self.ext_checkbox.setChecked(self.is_ext)
+            self.ext_checkbox.stateChanged.connect(self._on_ext_toggled)
+            layout.addWidget(self.ext_checkbox)
+        layout.addStretch(1)
+        parent_layout.addWidget(panel)
 
-        vbox.addLayout(Buttons(OkButton(dialog)))
+    def _on_seed_type_selected(self, idx: int) -> None:
+        if not self.seed_type_choice:
+            return
+        self.seed_type = self.seed_type_choice.selected_key
+        self.slip39_current_mnemonic_invalid = None
+        self.seed_status.setText('')
+        self.update_seed_warning()
+        self.on_edit()
+        self.update_share_buttons()
+        self.initialize_completer()
 
-        if not dialog.exec():
-            return None
-
-        if 'ext' in self.options:
-            self.is_ext = cb_ext.isChecked()
-        if len(self.seed_types) > 1:
-            self.seed_type = seed_type_choice.selected_key
-
+    def _on_ext_toggled(self, state: int) -> None:
+        self.is_ext = bool(state)
         self.update_seed_warning()
         self.updated.emit()
 
@@ -233,15 +243,15 @@ class SeedWidget(QWidget):
         if self.seed_type == 'bip39':
             message = ' '.join([
                 '<b>' + _('Warning') + ':</b>  ',
-                _('BIP39 seeds can be imported in Electrum, so that users can access funds locked in other wallets.'),
+                _('BIP39 seeds can be imported in 405LiteWallet, so that users can access funds locked in other wallets.'),
                 _('However, we do not generate BIP39 seeds, because they do not meet our safety standard.'),
                 _('BIP39 seeds do not include a version number, which compromises compatibility with future software.'),
-                _('We do not guarantee that BIP39 imports will always be supported in Electrum.'),
+                _('We do not guarantee that BIP39 imports will always be supported in 405LiteWallet.'),
             ])
         elif self.seed_type == 'slip39':
             message = ' '.join([
                 '<b>' + _('Warning') + ':</b>  ',
-                _('SLIP39 seeds can be imported in Electrum, so that users can access funds locked in other wallets.'),
+                _('SLIP39 seeds can be imported in 405LiteWallet, so that users can access funds locked in other wallets.'),
                 _('However, we do not generate SLIP39 seeds.'),
             ])
         else:
@@ -254,18 +264,18 @@ class SeedWidget(QWidget):
             bip39_english_list = Mnemonic('en').wordlist
             old_list = old_mnemonic.wordlist
             only_old_list = set(old_list) - set(bip39_english_list)
-            self.wordlist = list(bip39_english_list) + list(only_old_list)  # concat both lists
+            self.wordlist = list(bip39_english_list) + list(only_old_list)
             self.wordlist.sort()
 
             class CompleterDelegate(QStyledItemDelegate):
                 def initStyleOption(self, option, index):
                     super().initStyleOption(option, index)
-                    # Some people complained that due to merging the two word lists,
-                    # it is difficult to restore from a metal backup, as they planned
-                    # to rely on the "4 letter prefixes are unique in bip39 word list" property.
-                    # So we color words that are only in old list.
+
+
+
+
                     if option.text in only_old_list:
-                        # yellow bg looks ~ok on both light/dark theme, regardless if (un)selected
+
                         option.backgroundBrush = ColorScheme.YELLOW.as_color(background=True)
 
             delegate = CompleterDelegate(self.seed_e)
@@ -309,7 +319,7 @@ class SeedWidget(QWidget):
 
             label = _('SLIP39 share') + ' #%d: %s' % (self.slip39_mnemonic_index + 1, share_status)
 
-            # No need to process mnemonics if the current mnemonic remains invalid after editing.
+
             if not (self.slip39_current_mnemonic_invalid and current_mnemonic_invalid):
                 self.slip39_seed, seed_status = slip39.process_mnemonics(self.slip39_mnemonics)
                 self.seed_status.setText(seed_status)
@@ -321,7 +331,7 @@ class SeedWidget(QWidget):
             valid = self.is_seed(s)
             t = calc_seed_type(s)
             label = _('Seed Type') + ': ' + t if t else ''
-            if t and not valid:  # electrum seed, but does not conform to dialog rules
+            if t and not valid:
                 wiztype_fullname = _('Wallet with two-factor authentication') if is_any_2fa_seed_type(t) else _("Standard wallet")
                 msg = ' '.join([
                     '<b>' + _('Warning') + ':</b>  ',
@@ -335,7 +345,7 @@ class SeedWidget(QWidget):
         self.seed_type_label.setText(label)
         self.validChanged.emit(valid)
 
-        # disable suggestions if user already typed an unknown word
+
         for word in self.get_seed_words()[:-1]:
             if word not in self.wordlist:
                 self.seed_e.disable_suggestions()
@@ -353,9 +363,9 @@ class SeedWidget(QWidget):
         self.next_share_btn.show()
         self.prev_share_btn.setEnabled(self.slip39_mnemonic_index != 0)
         self.next_share_btn.setEnabled(
-            # already pressed "prev" and undoing that:
+
             self.slip39_mnemonic_index < len(self.slip39_mnemonics) - 1
-            # finished entering latest share and starting new one:
+
             or (bool(self.seed_e.text().strip()) and not self.slip39_current_mnemonic_invalid and not finished)
         )
 
@@ -420,7 +430,8 @@ class KeysWidget(QWidget):
 class SeedDialog(WindowModalDialog):
 
     def __init__(self, parent, seed, passphrase, *, config: 'SimpleConfig'):
-        WindowModalDialog.__init__(self, parent, ('Electrum - ' + _('Seed')))
+        WindowModalDialog.__init__(self, parent, ('405LiteWallet - ' + _('Seed')))
+        apply_dashboard_dialog_style(self, "SeedDialog")
         self.setMinimumWidth(400)
         vbox = QVBoxLayout(self)
         title = _("Your wallet generation seed is:")

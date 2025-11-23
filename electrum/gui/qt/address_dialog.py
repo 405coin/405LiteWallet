@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2012 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import TYPE_CHECKING
 
@@ -29,7 +29,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QLabel
 
 from electrum.i18n import _
 
-from .util import WindowModalDialog, ButtonsLineEdit, ShowQRLineEdit, Buttons, CloseButton
+from .util import WindowModalDialog, ButtonsLineEdit, ShowQRLineEdit, Buttons, CloseButton, apply_dashboard_dialog_style
 from .history_list import HistoryList, HistoryModel
 from .qrtextedit import ShowQRTextEdit
 
@@ -55,6 +55,7 @@ class AddressDialog(WindowModalDialog):
         if parent is None:
             parent = window
         WindowModalDialog.__init__(self, parent, _("Address"))
+        apply_dashboard_dialog_style(self, "DashboardAddressDialog")
         self.address = address
         self.window = window
         self.config = window.config
@@ -68,6 +69,7 @@ class AddressDialog(WindowModalDialog):
 
         vbox.addWidget(QLabel(_("Address") + ":"))
         self.addr_e = ShowQRLineEdit(self.address, self.config, title=_("Address"))
+        self.addr_e.overlay_widget.hide()
         vbox.addWidget(self.addr_e)
 
         try:
@@ -78,27 +80,28 @@ class AddressDialog(WindowModalDialog):
             vbox.addWidget(QLabel(_("Public keys") + ':'))
             for pubkey in pubkeys:
                 pubkey_e = ShowQRLineEdit(pubkey, self.config, title=_("Public Key"))
+                pubkey_e.overlay_widget.hide()
                 vbox.addWidget(pubkey_e)
 
         redeem_script = self.wallet.get_redeem_script(address)
         if redeem_script:
             vbox.addWidget(QLabel(_("Redeem Script") + ':'))
             redeem_e = ShowQRTextEdit(text=redeem_script, config=self.config)
-            redeem_e.addCopyButton()
+            redeem_e.overlay_widget.hide()
             vbox.addWidget(redeem_e)
 
         witness_script = self.wallet.get_witness_script(address)
         if witness_script:
             vbox.addWidget(QLabel(_("Witness Script") + ':'))
             witness_e = ShowQRTextEdit(text=witness_script, config=self.config)
-            witness_e.addCopyButton()
+            witness_e.overlay_widget.hide()
             vbox.addWidget(witness_e)
 
         address_path_str = self.wallet.get_address_path_str(address)
         if address_path_str:
             vbox.addWidget(QLabel(_("Derivation path") + ':'))
             der_path_e = ButtonsLineEdit(address_path_str)
-            der_path_e.addCopyButton()
+            der_path_e.overlay_widget.hide()
             der_path_e.setReadOnly(True)
             vbox.addWidget(der_path_e)
 

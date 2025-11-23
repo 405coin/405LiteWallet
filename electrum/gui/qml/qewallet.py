@@ -13,7 +13,7 @@ from electrum.invoices import InvoiceError, PR_PAID, PR_BROADCASTING, PR_BROADCA
 from electrum.logging import get_logger
 from electrum.network import TxBroadcastError, BestEffortRequestFailed
 from electrum.transaction import PartialTransaction, Transaction
-from electrum.util import InvalidPassword, event_listener, AddTransactionException, get_asyncio_loop, NotEnoughFunds, \
+from electrum.util import InvalidPassword, event_listener, AddTransactionException, get_asyncio_loop, NotEnoughFunds,\
     NoDynamicFeeEstimates
 from electrum.lnutil import MIN_FUNDING_SAT
 from electrum.plugin import run_hook
@@ -37,8 +37,8 @@ if TYPE_CHECKING:
 class QEWallet(AuthMixin, QObject, QtEventListener):
     __instances = []
 
-    # this factory method should be used to instantiate QEWallet
-    # so we have only one QEWallet for each electrum.wallet
+                                                                
+                                                           
     @classmethod
     def getInstanceFor(cls, wallet):
         for i in cls.__instances:
@@ -50,11 +50,11 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
 
     _logger = get_logger(__name__)
 
-    # emitted when wallet wants to display a user notification
-    # actual presentation should be handled on app or window level
+                                                              
+                                                                  
     userNotify = pyqtSignal(object, object)
 
-    # shared signal for many static wallet properties
+                                                     
     dataChanged = pyqtSignal()
 
     balanceChanged = pyqtSignal()
@@ -114,7 +114,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
 
         self.notification_timer = QTimer(self)
         self.notification_timer.setSingleShot(False)
-        self.notification_timer.setInterval(500)  # msec
+        self.notification_timer.setInterval(500)        
         self.notification_timer.timeout.connect(self.notify_transactions)
 
         self.sync_progress_timer = QTimer(self)
@@ -122,13 +122,13 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
         self.sync_progress_timer.setInterval(2000)
         self.sync_progress_timer.timeout.connect(self.update_sync_progress)
 
-        # post-construction init in GUI thread
-        # QMetaObject.invokeMethod(self, 'qt_init', Qt.QueuedConnection)
+                                              
+                                                                        
 
-        # To avoid leaking references to "self" that prevent the
-        # window from being GC-ed when closed, callbacks should be
-        # methods of this class only, and specifically not be
-        # partials, lambdas or methods of subobjects.  Hence...
+                                                                
+                                                                  
+                                                             
+                                                               
 
         self.register_callbacks()
         self.destroyed.connect(lambda: self.on_destroy())
@@ -182,10 +182,10 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
             self._logger.debug('request status %d for key %s' % (status, key))
             self.requestStatusChanged.emit(key, status)
             if status == PR_PAID:
-                # might be new incoming LN payment, update history
-                # TODO: only update if it was paid over lightning,
-                # and even then, we can probably just add the payment instead
-                # of recreating the whole history (expensive)
+                                                                  
+                                                                  
+                                                                             
+                                                             
                 self.historyModel.initModel(True)
 
     @event_listener
@@ -200,19 +200,19 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
             self._logger.info(f'new transaction {tx.txid()}')
             self.add_tx_notification(tx)
             self.addressCoinModel.setDirty()
-            self.historyModel.setDirty()  # assuming wallet.is_up_to_date triggers after
+            self.historyModel.setDirty()                                                
             self.balanceChanged.emit()
 
     @qt_event_listener
     def on_event_adb_tx_height_changed(self, adb, txid, old_height, new_height):
         if adb == self.wallet.adb:
             self._logger.info(f'tx_height_changed {txid}. {old_height} -> {new_height}')
-            self.historyModel.setDirty()  # assuming wallet.is_up_to_date triggers after
+            self.historyModel.setDirty()                                                
 
     @qt_event_listener
     def on_event_removed_transaction(self, wallet, tx):
-        # NOTE: this event only triggers once, only for the first deleted tx, when for imported wallets an address
-        # is deleted along with multiple associated txs
+                                                                                                                  
+                                                       
         if wallet == self.wallet:
             self._logger.info(f'removed transaction {tx.txid()}')
             self.addressCoinModel.setDirty()
@@ -227,7 +227,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
             self.historyModel.setDirty()
             self.synchronizing = not wallet.is_up_to_date()
             if not self.synchronizing:
-                self.historyModel.initModel()  # refresh if dirty
+                self.historyModel.initModel()                    
 
     @event_listener
     def on_event_channel(self, wallet, channel):
@@ -245,7 +245,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
     def on_event_payment_succeeded(self, wallet, key):
         if wallet == self.wallet:
             self.paymentSucceeded.emit(key)
-            self.historyModel.initModel(True)  # TODO: be less dramatic
+            self.historyModel.initModel(True)                          
 
     @event_listener
     def on_event_payment_failed(self, wallet, key, reason):
@@ -268,9 +268,9 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
             self.notification_timer.stop()
             return
         if not self.wallet.is_up_to_date():
-            return  # no notifications while syncing
+            return                                  
         now = time.time()
-        rate_limit = 20  # seconds
+        rate_limit = 20           
         if self.tx_notification_last_time + rate_limit > now:
             return
         self.tx_notification_last_time = now
@@ -283,7 +283,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
                 break
 
         config = self.wallet.config
-        # Combine the transactions if there are at least three
+                                                              
         if len(txns) >= 3:
             total_amount = 0
             for tx in txns:
@@ -303,7 +303,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
     def update_sync_progress(self):
         if self.wallet.network and self.wallet.network.is_connected():
             num_sent, num_answered = self.wallet.adb.get_history_sync_state_details()
-            self.synchronizingProgress = \
+            self.synchronizingProgress =\
                 ("{} ({}/{})".format(_("Synchronizing..."), num_answered, num_sent))
 
     historyModelChanged = pyqtSignal()
@@ -453,7 +453,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
     @pyqtProperty(bool, notify=dataChanged)
     def canSignWithoutCosigner(self):
         if isinstance(self.wallet, Multisig_Wallet):
-            if self.wallet.wallet_type == '2fa':  # 2fa is multisig, but it handles cosigning itself
+            if self.wallet.wallet_type == '2fa':                                                    
                 return True
             return self.wallet.m == 1
         return True
@@ -547,12 +547,12 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
         self.do_sign(tx, False, on_success, on_failure)
 
     def do_sign(self, tx, broadcast, on_success: Callable[[Transaction], None] = None, on_failure: Callable[[Optional[Any]], None] = None):
-        # tc_sign_wrapper is only used by 2fa. don't pass on_failure handler, it is handled via otpFailed signal
+                                                                                                                
         sign_hook = run_hook('tc_sign_wrapper', self.wallet, tx,
                              partial(self.on_sign_complete, broadcast, on_success),
                              partial(self.on_sign_failed, None))
         try:
-            # ignore_warnings=True, because UI checks and asks user confirmation itself
+                                                                                       
             tx = self.wallet.sign_transaction(tx, self.password, ignore_warnings=True)
         except BaseException as e:
             self._logger.error(f'{e!r}')
@@ -581,13 +581,13 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
         if broadcast:
             self.broadcast(tx)
         else:
-            # not broadcasted, so refresh history here
+                                                      
             self.historyModel.initModel(True)
 
         if on_success:
             on_success(tx)
 
-    # this assumes a 2fa wallet, but there are no other tc_sign_wrapper hooks, so that's ok
+                                                                                           
     def on_sign_complete(self, broadcast, cb: Callable[[Transaction], None] = None, tx: Transaction = None):
         self.otpSuccess.emit()
         if cb:
@@ -595,7 +595,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
         if broadcast:
             self.broadcast(tx)
 
-    # this assumes a 2fa wallet, but there are no other tc_sign_wrapper hooks, so that's ok
+                                                                                           
     def on_sign_failed(self, cb: Callable[[], None] = None, error: str = None):
         self.otpFailed.emit('error', error)
         if cb:
@@ -630,12 +630,12 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
             else:
                 self._logger.info('broadcast success')
                 self.broadcastSucceeded.emit(tx.txid())
-                self.historyModel.requestRefresh.emit()  # via qt thread
+                self.historyModel.requestRefresh.emit()                 
                 self.wallet.set_broadcasting(tx, broadcasting_status=PR_BROADCAST)
 
         threading.Thread(target=broadcast_thread, daemon=True).start()
 
-        # TODO: properly catch server side errors, e.g. bad-txns-inputs-missingorspent
+                                                                                      
 
     def save_tx(self, tx: 'PartialTransaction') -> bool:
         assert tx
@@ -658,12 +658,12 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
 
     @auth_protect(message=_('Pay lightning invoice?'), reject='ln_auth_rejected')
     def pay_lightning_invoice(self, invoice: 'Invoice', amount_msat: int = None):
-        # at this point, the user confirmed the payment, potentially with an override amount.
-        # we save the invoice with the override amount if there was no amount defined in the invoice.
-        # (this is similar to what the desktop client does)
-        #
-        # Note: amount_msat can be greater than the invoice-specified amount. This is validated and handled
-        # in lnworker.pay_invoice()
+                                                                                             
+                                                                                                     
+                                                           
+         
+                                                                                                           
+                                   
         if amount_msat is not None:
             assert type(amount_msat) is int
             if invoice.get_amount_msat() is None:
@@ -756,7 +756,7 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
 
         storage = self.wallet.storage
 
-        # HW wallet not supported yet
+                                     
         if storage.is_encrypted_with_hw_device():
             return False
 
@@ -853,15 +853,15 @@ class QEWallet(AuthMixin, QObject, QtEventListener):
         return base64.b64encode(sig).decode('ascii')
 
     def determine_max(self, *, mktx: Callable[[FeePolicy], PartialTransaction]) -> Tuple[Optional[int], Optional[str]]:
-        # TODO: merge with SendTab.spend_max() and move to backend wallet
+                                                                         
         amount = message = None
         try:
             try:
                 fee_policy = FeePolicy(self.wallet.config.FEE_POLICY)
                 tx = mktx(fee_policy)
             except (NotEnoughFunds, NoDynamicFeeEstimates) as e:
-                # Check if we had enough funds excluding fees,
-                # if so, still provide opportunity to set lower fees.
+                                                              
+                                                                     
                 fee_policy = FixedFeePolicy(0)
                 tx = mktx(fee_policy)
             amount = tx.output_value()

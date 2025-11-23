@@ -12,7 +12,7 @@ Image {
     property bool syncing: connected && Daemon.currentWallet && Daemon.currentWallet.synchronizing
     property bool proxy: connected && Network.proxy.enabled
 
-    // ?: in order to keep this a binding..
+    
     source: Qt.resolvedUrl(!connected
                 ? '../../../icons/status_disconnected.png'
                 : syncing

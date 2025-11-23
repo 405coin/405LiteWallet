@@ -1,25 +1,25 @@
-# Electrum - Lightweight Bitcoin Client
-# Copyright (c) 2011-2016 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                                       
+                                         
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import time
 import os
@@ -101,7 +101,7 @@ def parse_servers(result: Sequence[Tuple[str, str, List[str]]]) -> Dict[str, dic
                 if re.match(r"[st]\d*", v):
                     protocol, port = v[0], v[1:]
                     if port == '': port = constants.net.DEFAULT_PORTS[protocol]
-                    ServerAddr(host, port, protocol=protocol)  # check if raises
+                    ServerAddr(host, port, protocol=protocol)                   
                     out[protocol] = port
                 elif re.match("v(.?)+", v):
                     version = v[1:]
@@ -181,7 +181,7 @@ class ProxySettings:
         self.password = None
 
     def set_defaults(self):
-        self.__init__()  # call __init__ for default values
+        self.__init__()                                    
 
     def serialize_proxy_cfgstr(self):
         return ':'.join([self.mode, self.host, self.port])
@@ -201,8 +201,8 @@ class ProxySettings:
             self.mode = args[0]
             args = args[1:]
 
-        # detect migrate from old settings
-        if len(args) == 4 and is_valid_host(args[0]) and is_valid_port(args[1]):  # host:port:user:pass,
+                                          
+        if len(args) == 4 and is_valid_host(args[0]) and is_valid_port(args[1]):                        
             self.host = args[0]
             self.port = args[1]
             self.user = args[2]
@@ -260,16 +260,16 @@ class ProxySettings:
             finally:
                 cls.probe_fut = None
 
-        if cls.probe_fut:  # one probe at a time
+        if cls.probe_fut:                       
             return
         cls.probe_fut = asyncio.run_coroutine_threadsafe(detect_task(on_finished), util.get_asyncio_loop())
 
     def __eq__(self, other):
-        return self.enabled == other.enabled \
-            and self.mode == other.mode \
-            and self.host == other.host \
-            and self.port == other.port \
-            and self.user == other.user \
+        return self.enabled == other.enabled\
+            and self.mode == other.mode\
+            and self.host == other.host\
+            and self.port == other.port\
+            and self.user == other.user\
             and self.password == other.password
 
     def __str__(self):
@@ -299,13 +299,13 @@ class UntrustedServerReturnedError(NetworkException):
                 f"[DO NOT TRUST THIS MESSAGE] original_exception: {error_text_str_to_safe_str(repr(e))}>")
 
     def __str__(self):
-        # We should not show the untrusted text from self.original_exception,
-        # to avoid accidentally showing it in the GUI.
+                                                                             
+                                                      
         return _("The server returned an error.")
 
     def __repr__(self):
-        # We should not show the untrusted text from self.original_exception,
-        # to avoid accidentally showing it in the GUI.
+                                                                             
+                                                      
         return f"<UntrustedServerReturnedError {str(self)!r}>"
 
 
@@ -352,48 +352,54 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         blockchain.read_blockchains(self.config)
         blockchain.init_headers_file_for_best_chain()
         self.logger.info(f"blockchains {list(map(lambda b: b.forkpoint, blockchain.blockchains.values()))}")
-        self._blockchain_preferred_block = self.config.BLOCKCHAIN_PREFERRED_BLOCK  # type: Dict[str, Any]
+        self._blockchain_preferred_block = self.config.BLOCKCHAIN_PREFERRED_BLOCK                        
         if self._blockchain_preferred_block is None:
             self._set_preferred_chain(None)
         self._blockchain = blockchain.get_best_chain()
 
-        self._allowed_protocols = {PREFERRED_NETWORK_PROTOCOL}
+        default_protocols = set(constants.net.DEFAULT_PORTS.keys())
+        if not default_protocols:
+            default_protocols = {PREFERRED_NETWORK_PROTOCOL}
+        if PREFERRED_NETWORK_PROTOCOL in default_protocols:
+            self._allowed_protocols = {PREFERRED_NETWORK_PROTOCOL}
+        else:
+            self._allowed_protocols = default_protocols
 
         self.proxy = ProxySettings()
-        self.is_proxy_tor = None  # type: Optional[bool]  # tri-state. None means unknown.
+        self.is_proxy_tor = None                                                          
         self._init_parameters_from_config()
 
         self.taskgroup = None
 
-        # locks
+               
         self.restart_lock = asyncio.Lock()
         self.bhi_lock = asyncio.Lock()
-        self.recent_servers_lock = threading.RLock()       # <- re-entrant
-        self.interfaces_lock = threading.Lock()            # for mutating/iterating self.interfaces
+        self.recent_servers_lock = threading.RLock()                      
+        self.interfaces_lock = threading.Lock()                                                    
 
-        self.server_peers = {}  # returned by interface (servers that the main interface knows about)
-        self._recent_servers = self._read_recent_servers()  # note: needs self.recent_servers_lock
+        self.server_peers = {}                                                                       
+        self._recent_servers = self._read_recent_servers()                                        
 
         self.banner = ''
         self.donation_address = ''
-        self.relay_fee = None  # type: Optional[int]
+        self.relay_fee = None                       
 
         dir_path = os.path.join(self.config.path, 'certs')
         util.make_dir(dir_path)
 
-        # the main server we are currently communicating with
+                                                             
         self.interface = None
         self.default_server_changed_event = asyncio.Event()
-        # Set of servers we have an ongoing connection with.
-        # For any ServerAddr, at most one corresponding Interface object
-        # can exist at any given time. Depending on the state of that Interface,
-        # the ServerAddr can be found in one of the following sets.
-        # Note: during a transition, the ServerAddr can appear in two sets momentarily.
+                                                            
+                                                                        
+                                                                                
+                                                                   
+                                                                                       
         self._connecting_ifaces = set()
-        self.interfaces = {}  # these are the ifaces in "initialised and usable" state
+        self.interfaces = {}                                                          
         self._closing_ifaces = set()
 
-        # Dump network messages (all interfaces).  Set at runtime from the console.
+                                                                                   
         self.debug = False
 
         self._set_status(ConnectionState.DISCONNECTED)
@@ -402,7 +408,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
 
         self.mempool_fees = FeeHistogram()
         self.fee_estimates = FeeTimeEstimates()
-        self.last_time_fee_estimates_requested = 0  # zero ensures immediate fees
+        self.last_time_fee_estimates_requested = 0                               
 
     def has_internet_connection(self) -> bool:
         """Our guess whether the device has Internet-connectivity."""
@@ -524,7 +530,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
             random.shuffle(server_peers)
             max_accepted_peers = len(constants.net.DEFAULT_SERVERS) + NUM_RECENT_SERVERS
             server_peers = server_peers[:max_accepted_peers]
-            # note that 'parse_servers' also validates the data (which is untrusted input!)
+                                                                                           
             self.server_peers = parse_servers(server_peers)
             util.trigger_callback('servers', self.get_servers())
 
@@ -571,10 +577,10 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         dns_hacks.configure_dns_resolver()
         self.auto_connect = self.config.NETWORK_AUTO_CONNECT
         if self.auto_connect and self.config.NETWORK_ONESERVER:
-            # enabling both oneserver and auto_connect doesn't really make sense
-            # assume oneserver is enabled for privacy reasons, disable auto_connect and assume server is unpredictable
+                                                                                
+                                                                                                                      
             self.logger.warning(f'both "oneserver" and "auto_connect" options enabled, disabling "auto_connect" and resetting "server".')
-            self.config.NETWORK_SERVER = ""  # let _set_default_server set harmless default (localhost)
+            self.config.NETWORK_SERVER = ""                                                            
             self.auto_connect = False
 
         self._set_default_server()
@@ -625,24 +631,24 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
 
     @with_recent_servers_lock
     def get_servers(self):
-        # note: order of sources when adding servers here is crucial!
-        # don't let "server_peers" overwrite anything,
-        # otherwise main server can eclipse the client
+                                                                     
+                                                      
+                                                      
         out = dict()
-        # add servers received from main interface
+                                                  
         server_peers = self.server_peers
         if server_peers:
             out.update(filter_version(server_peers.copy()))
-        # hardcoded servers
+                           
         out.update(constants.net.DEFAULT_SERVERS)
-        # add recent servers
+                            
         for server in self._recent_servers:
             port = str(server.port)
             if server.host in out:
                 out[server.host].update({server.protocol: port})
             else:
                 out[server.host] = {server.protocol: port}
-        # add bookmarks
+                       
         bookmarks = self.config.NETWORK_BOOKMARKED_SERVERS or []
         for server_str in bookmarks:
             try:
@@ -654,7 +660,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 out[server.host].update({server.protocol: port})
             else:
                 out[server.host] = {server.protocol: port}
-        # potentially filter out some
+                                     
         if self.config.NETWORK_NOONION:
             out = filter_noonion(out)
         return out
@@ -663,12 +669,12 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         now = time.time()
         with self.interfaces_lock:
             connected_servers = set(self.interfaces) | self._connecting_ifaces | self._closing_ifaces
-        # First try from recent servers. (which are persisted)
-        # As these are servers we successfully connected to recently, they are
-        # most likely to work. This also makes servers "sticky".
-        # Note: with sticky servers, it is more difficult for an attacker to eclipse the client,
-        #       however if they succeed, the eclipsing would persist. To try to balance this,
-        #       we only give priority to recent_servers up to NUM_STICKY_SERVERS.
+                                                              
+                                                                              
+                                                                
+                                                                                                
+                                                                                             
+                                                                                 
         with self.recent_servers_lock:
             recent_servers = list(self._recent_servers)
         recent_servers = [s for s in recent_servers if s.protocol in self._allowed_protocols]
@@ -679,7 +685,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 if not self._can_retry_addr(server, now=now):
                     continue
                 return server
-        # try all servers we know about, pick one at random
+                                                           
         hostmap = self.get_servers()
         servers = list(set(filter_protocol(hostmap, allowed_protocols=self._allowed_protocols)) - connected_servers)
         random.shuffle(servers)
@@ -690,9 +696,9 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         return None
 
     def _set_default_server(self) -> None:
-        # Server for addresses and transactions
+                                               
         server = self.config.NETWORK_SERVER
-        # Sanitize default server
+                                 
         if server:
             try:
                 self.default_server = ServerAddr.from_str(server)
@@ -700,7 +706,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 self.logger.warning(f'failed to parse server-string ({server!r}); falling back to localhost:1:s.')
                 self.default_server = ServerAddr.from_str("localhost:1:s")
         else:
-            # if oneserver is enabled but no server specified then don't pick a random server
+                                                                                             
             if self.config.NETWORK_ONESERVER:
                 self.logger.warning(f'"oneserver" option enabled, but no "server" defined; falling back to localhost:1:s.')
                 self.default_server = ServerAddr.from_str("localhost:1:s")
@@ -715,7 +721,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         self.logger.info(f'setting proxy {proxy}')
         self.proxy = proxy
 
-        # reset is_proxy_tor to unknown, and re-detect it:
+                                                          
         self.is_proxy_tor = None
         self._detect_if_proxy_is_tor()
 
@@ -725,7 +731,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         async def tor_probe_task(p):
             assert p is not None
             is_tor = await util.is_tor_socks_port(p.host, int(p.port))
-            if self.proxy == p:  # is this the proxy we probed?
+            if self.proxy == p:                                
                 if self.is_proxy_tor != is_tor:
                     self.logger.info(f'Proxy is {"" if is_tor else "not "}TOR')
                     self.is_proxy_tor = is_tor
@@ -743,16 +749,16 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         proxy_user = proxy.user
         proxy_pass = proxy.password
         server = net_params.server
-        # sanitize parameters
+                             
         try:
             if proxy:
-                # proxy_modes.index(proxy['mode']) + 1
+                                                      
                 ProxySettings.MODES.index(proxy.mode) + 1
-                # int(proxy['port'])
+                                    
                 int(proxy.port)
         except Exception:
             proxy.enabled = False
-            # return
+                    
         self.config.NETWORK_AUTO_CONNECT = net_params.auto_connect
         self.config.NETWORK_ONESERVER = net_params.oneserver
         self.config.NETWORK_PROXY_ENABLED = proxy_enabled
@@ -760,12 +766,12 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         self.config.NETWORK_PROXY_USER = proxy_user
         self.config.NETWORK_PROXY_PASSWORD = proxy_pass
         self.config.NETWORK_SERVER = str(server)
-        # abort if changes were not allowed by config
-        if self.config.NETWORK_SERVER != str(server) \
-                or self.config.NETWORK_PROXY_ENABLED != proxy_enabled \
-                or self.config.NETWORK_PROXY != proxy_str \
-                or self.config.NETWORK_PROXY_USER != proxy_user \
-                or self.config.NETWORK_PROXY_PASSWORD != proxy_pass \
+                                                     
+        if self.config.NETWORK_SERVER != str(server)\
+                or self.config.NETWORK_PROXY_ENABLED != proxy_enabled\
+                or self.config.NETWORK_PROXY != proxy_str\
+                or self.config.NETWORK_PROXY_USER != proxy_user\
+                or self.config.NETWORK_PROXY_PASSWORD != proxy_pass\
                 or self.config.NETWORK_ONESERVER != net_params.oneserver:
             return
 
@@ -778,7 +784,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
 
         async with self.restart_lock:
             if proxy_changed or oneserver_changed:
-                # Restart the network
+                                     
                 await self.stop(full_shutdown=False)
                 await self._start()
             elif default_server_changed:
@@ -803,14 +809,14 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
             if add:
                 if server_str not in bookmarks:
                     bookmarks.append(server_str)
-            else:  # remove
+            else:          
                 if server_str in bookmarks:
                     bookmarks.remove(server_str)
             self.config.NETWORK_BOOKMARKED_SERVERS = bookmarks
 
     async def _switch_to_random_interface(self):
         '''Switch to a random connected server other than the current one'''
-        servers = self.get_interfaces()    # Those in connected state
+        servers = self.get_interfaces()                              
         if self.default_server in servers:
             servers.remove(self.default_server)
         if servers:
@@ -819,7 +825,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
     async def switch_lagging_interface(self):
         """If auto_connect and lagging, switch interface (only within fork)."""
         if self.auto_connect and await self._server_is_lagging():
-            # switch to one that has the correct header (not height)
+                                                                    
             best_header = self.blockchain().header_at_tip()
             with self.interfaces_lock: interfaces = list(self.interfaces.values())
             filtered = list(filter(lambda iface: iface.tip_header == best_header, interfaces))
@@ -834,17 +840,17 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         with self.interfaces_lock: interfaces = list(self.interfaces.values())
         pref_height = self._blockchain_preferred_block['height']
         pref_hash   = self._blockchain_preferred_block['hash']
-        # shortcut for common case
+                                  
         if pref_height == 0:
             return
-        # maybe try switching chains; starting with most desirable first
+                                                                        
         matching_chains = blockchain.get_chains_that_contain_header(pref_height, pref_hash)
         chains_to_try = list(matching_chains) + [blockchain.get_best_chain()]
         for rank, chain in enumerate(chains_to_try):
-            # check if main interface is already on this fork
+                                                             
             if self.interface.blockchain == chain:
                 return
-            # switch to another random interface that is on this fork, if any
+                                                                             
             filtered = [iface for iface in interfaces
                         if iface.blockchain == chain]
             if filtered:
@@ -864,10 +870,10 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         old_interface = self.interface
         old_server = old_interface.server if old_interface else None
 
-        # Stop any current interface in order to terminate subscriptions,
-        # and to cancel tasks in interface.taskgroup.
+                                                                         
+                                                     
         if old_server and old_server != server:
-            # don't wait for old_interface to close as that might be slow:
+                                                                          
             await self.taskgroup.spawn(self._close_interface(old_interface))
 
         if server not in self.interfaces:
@@ -884,7 +890,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
             self.interface = i
             try:
                 await i.taskgroup.spawn(self._request_server_info(i))
-            except RuntimeError as e:  # see #7677
+            except RuntimeError as e:             
                 if len(e.args) >= 1 and e.args[0] == 'task group terminated':
                     self.logger.warning(f"tried to switch to {server} but interface.taskgroup is already dead.")
                     self.interface = None
@@ -910,7 +916,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         if interface == self.interface:
             self.interface = None
         try:
-            # this can take some time if server/connection is slow:
+                                                                   
             await interface.close()
             await interface.got_disconnected.wait()
         finally:
@@ -919,7 +925,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
     @with_recent_servers_lock
     def _add_recent_server(self, server: ServerAddr) -> None:
         self._on_connection_successfully_established(server)
-        # list is ordered
+                         
         if server in self._recent_servers:
             self._recent_servers.remove(server)
         self._recent_servers.insert(0, server)
@@ -944,7 +950,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
             return request_type.RELAXED
         return request_type.NORMAL
 
-    @ignore_exceptions  # do not kill outer taskgroup
+    @ignore_exceptions                               
     @log_exceptions
     async def _run_new_interface(self, server: ServerAddr):
         assert isinstance(server, ServerAddr), f"expected ServerAddr, got {type(server)}"
@@ -959,7 +965,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         self._trying_addr_now(server)
 
         interface = Interface(network=self, server=server)
-        # note: using longer timeouts here as DNS can sometimes be slow!
+                                                                        
         timeout = self.get_network_timeout_seconds(NetworkTimeout.Generic)
         try:
             await util.wait_for2(interface.ready, timeout)
@@ -980,17 +986,17 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         self._has_ever_managed_to_connect_to_server = True
         self._add_recent_server(server)
         util.trigger_callback('network_updated')
-        # When the proxy settings were set, the proxy (if any) might have been unreachable,
-        # resulting in a false-negative for Tor-detection. Given we just connected to a server, re-test now.
+                                                                                           
+                                                                                                            
         self._detect_if_proxy_is_tor()
 
     def check_interface_against_healthy_spread_of_connected_servers(self, iface_to_check: Interface) -> bool:
-        # main interface is exempt. this makes switching servers easier
+                                                                       
         if iface_to_check.is_main_server():
             return True
         if not iface_to_check.bucket_based_on_ipaddress():
             return True
-        # bucket connected interfaces
+                                     
         with self.interfaces_lock:
             interfaces = list(self.interfaces.values())
         if iface_to_check in interfaces:
@@ -998,10 +1004,10 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         buckets = defaultdict(list)
         for iface in interfaces:
             buckets[iface.bucket_based_on_ipaddress()].append(iface)
-        # check proposed server against buckets
+                                               
         onion_servers = buckets[BUCKET_NAME_OF_ONION_SERVERS]
         if iface_to_check.is_tor():
-            # keep number of onion servers below half of all connected servers
+                                                                              
             if len(onion_servers) > NUM_TARGET_CONNECTED_SERVERS // 2:
                 return False
         else:
@@ -1015,13 +1021,13 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         async def make_reliable_wrapper(self: 'Network', *args, **kwargs):
             for i in range(10):
                 iface = self.interface
-                # retry until there is a main interface
+                                                       
                 if not iface:
                     async with ignore_after(1):
                         await self.default_server_changed_event.wait()
-                    continue  # try again
+                    continue             
                 assert iface.ready.done(), "interface not ready yet"
-                # try actual request
+                                    
                 try:
                     async with OldTaskGroup(wait=any) as group:
                         task = await group.spawn(func(self, *args, **kwargs))
@@ -1029,16 +1035,16 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 except RequestTimedOut:
                     await iface.close()
                     await iface.got_disconnected.wait()
-                    continue  # try again
+                    continue             
                 except RequestCorrupted as e:
-                    # TODO ban server?
+                                      
                     iface.logger.exception(f"RequestCorrupted: {e}")
                     await iface.close()
                     await iface.got_disconnected.wait()
-                    continue  # try again
+                    continue             
                 if task.done() and not task.cancelled():
                     return task.result()
-                # otherwise; try again
+                                      
             raise BestEffortRequestFailed('cannot establish a connection... gave up.')
         return make_reliable_wrapper
 
@@ -1052,7 +1058,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
                 return await func(self, *args, **kwargs)
             except aiorpcx.jsonrpc.CodeMessageError as e:
                 wrapped_exc = UntrustedServerReturnedError(original_exception=e)
-                # log (sanitized) untrusted error text now, to ease debugging
+                                                                             
                 self.logger.debug(f"got error from server for {func.__qualname__}: {wrapped_exc.get_untrusted_message()!r}")
                 raise wrapped_exc from e
         return wrapper
@@ -1060,14 +1066,14 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
     @best_effort_reliable
     @catch_server_exceptions
     async def get_merkle_for_transaction(self, tx_hash: str, tx_height: int) -> dict:
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.get_merkle_for_transaction(tx_hash=tx_hash, tx_height=tx_height)
 
     @best_effort_reliable
     async def broadcast_transaction(self, tx: 'Transaction', *, timeout=None) -> None:
         """caller should handle TxBroadcastError"""
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         await self.interface.broadcast_transaction(tx, timeout=timeout)
 
@@ -1084,35 +1090,35 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
     @best_effort_reliable
     @catch_server_exceptions
     async def get_transaction(self, tx_hash: str, *, timeout=None) -> str:
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.get_transaction(tx_hash=tx_hash, timeout=timeout)
 
     @best_effort_reliable
     @catch_server_exceptions
     async def get_history_for_scripthash(self, sh: str) -> List[dict]:
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.get_history_for_scripthash(sh)
 
     @best_effort_reliable
     @catch_server_exceptions
     async def listunspent_for_scripthash(self, sh: str) -> List[dict]:
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.listunspent_for_scripthash(sh)
 
     @best_effort_reliable
     @catch_server_exceptions
     async def get_balance_for_scripthash(self, sh: str) -> dict:
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.get_balance_for_scripthash(sh)
 
     @best_effort_reliable
     @catch_server_exceptions
     async def get_txid_from_txpos(self, tx_height, tx_pos, merkle):
-        if self.interface is None:  # handled by best_effort_reliable
+        if self.interface is None:                                   
             raise RequestTimedOut()
         return await self.interface.get_txid_from_txpos(tx_height, tx_pos, merkle)
 
@@ -1123,7 +1129,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         return self._blockchain
 
     def get_blockchains(self):
-        out = {}  # blockchain_id -> list(interfaces)
+        out = {}                                     
         with blockchain.blockchains_lock: blockchain_items = list(blockchain.blockchains.items())
         with self.interfaces_lock: interfaces_values = list(self.interfaces.values())
         for chain_id, bc in blockchain_items:
@@ -1150,19 +1156,19 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         if not bc:
             raise Exception('blockchain {} not found'.format(chain_id))
         self._set_preferred_chain(bc)
-        # select server on this chain
+                                     
         with self.interfaces_lock: interfaces = list(self.interfaces.values())
         interfaces_on_selected_chain = list(filter(lambda iface: iface.blockchain == bc, interfaces))
         if len(interfaces_on_selected_chain) == 0: return
-        chosen_iface = random.choice(interfaces_on_selected_chain)  # type: Interface
-        # switch to server (and save to config)
+        chosen_iface = random.choice(interfaces_on_selected_chain)                   
+                                               
         net_params = self.get_parameters()
-        # we select a random interface, so set connection mode back to autoconnect
+                                                                                  
         net_params = net_params._replace(server=chosen_iface.server, auto_connect=True, oneserver=False)
         await self.set_parameters(net_params)
 
     def follow_chain_given_server(self, server: ServerAddr) -> None:
-        # note that server_str should correspond to a connected interface
+                                                                         
         iface = self.interfaces[server]
         self._set_preferred_chain(iface.blockchain)
         self.logger.debug(f"following {self.config.BLOCKCHAIN_PREFERRED_BLOCK=}")
@@ -1201,8 +1207,8 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         async def main():
             self.logger.info(f"starting taskgroup ({hex(id(taskgroup))}).")
             try:
-                # note: if a task finishes with CancelledError, that
-                # will NOT raise, and the group will keep the other tasks running
+                                                                    
+                                                                                 
                 async with taskgroup as group:
                     await group.spawn(self._maintain_sessions())
                     [await group.spawn(job) for job in self._jobs]
@@ -1230,8 +1236,8 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
             self.logger.info("not stopping network as it was never started")
             return
         self.logger.info("stopping network")
-        # timeout: if full_shutdown, it is up to the caller to time us out,
-        #          otherwise if e.g. restarting due to proxy changes, we time out fast
+                                                                           
+                                                                                      
         async with (nullcontext() if full_shutdown else ignore_after(1)):
             async with OldTaskGroup() as group:
                 await group.spawn(self.taskgroup.cancel_remaining())
@@ -1248,10 +1254,10 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
     async def _ensure_there_is_a_main_interface(self):
         if self.interface:
             return
-        # if auto_connect is set, try a different server
+                                                        
         if self.auto_connect and not self.is_connecting():
             await self._switch_to_random_interface()
-        # if auto_connect is not set, or still no main interface, retry current
+                                                                               
         if not self.interface and not self.is_connecting():
             if self._can_retry_addr(self.default_server, urgent=True):
                 await self.switch_to_interface(self.default_server)
@@ -1260,7 +1266,7 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         async def maybe_start_new_interfaces():
             num_existing_ifaces = len(self.interfaces) + len(self._connecting_ifaces) + len(self._closing_ifaces)
             for i in range(self.num_server - num_existing_ifaces):
-                # FIXME this should try to honour "healthy spread of connected servers"
+                                                                                       
                 server = self._get_next_server_to_try()
                 if server:
                     assert isinstance(server, ServerAddr), f"expected ServerAddr, got {type(server)}"
@@ -1324,10 +1330,10 @@ class Network(Logger, NetworkRetryManager[ServerAddr]):
         loop = util.get_asyncio_loop()
         assert util.get_running_loop() != loop, 'must not be called from asyncio thread'
         coro = asyncio.run_coroutine_threadsafe(cls.async_send_http_on_proxy(method, url, **kwargs), loop)
-        # note: _send_http_on_proxy has its own timeout, so no timeout here:
+                                                                            
         return coro.result()
 
-    # methods used in scripts
+                             
     async def get_peers(self):
         while not self.is_connected():
             await asyncio.sleep(1)

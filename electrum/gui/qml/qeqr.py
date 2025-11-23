@@ -11,9 +11,9 @@ from PyQt6.QtQuick import QQuickImageProvider
 try:
     from PyQt6.QtMultimedia import QVideoSink
 except ImportError:
-    # stub QVideoSink when not found, as it's not essential on android
-    # and requires many dependencies when unit testing.
-    # Note: missing QtMultimedia will lead to errors when using QR scanner on desktop
+                                                                      
+                                                       
+                                                                                     
     from PyQt6.QtCore import QObject as QVideoSink
 
 from electrum.logging import get_logger
@@ -76,10 +76,10 @@ class QEQRParser(QObject):
         img_crop_rect = self._get_crop(image, self._size)
         frame_cropped = image.copy(img_crop_rect)
 
-        # Convert to Y800 / GREY FourCC (single 8-bit channel)
+                                                              
         frame_y800 = frame_cropped.convertToFormat(QImage.Format.Format_Grayscale8)
         self.frame_id = 0
-        # Read the QR codes from the frame
+                                          
         self.qrreader_res = self.qrreader.read_qr_code(
             frame_y800.constBits().__int__(),
             frame_y800.sizeInBytes(),
@@ -126,7 +126,7 @@ class QEQRParser(QObject):
 class QEQRImageProvider(QQuickImageProvider):
     MAX_QR_PIXELSIZE = 400
     ERROR_CORRECT_LEVEL = qrcode.constants.ERROR_CORRECT_M
-    # ^ note: this is higher than for desktop. but on desktop we don't put a logo in the middle.
+                                                                                                
     QR_BORDER = 2
 
     def __init__(self, max_size, parent=None):
@@ -138,14 +138,14 @@ class QEQRImageProvider(QQuickImageProvider):
 
     @profiler
     def requestImage(self, qstr, size):
-        # Qt does a urldecode before passing the string here
-        # but BIP21 (and likely other uri based specs) requires urlencoding,
-        # so we re-encode percent-quoted if a known 'scheme' is found in the string
-        # (unknown schemes might be found when a colon is in a serialized TX, which
-        # leads to mangling of the tx, so we check for supported schemes.)
+                                                            
+                                                                            
+                                                                                   
+                                                                                   
+                                                                          
         uri = urllib.parse.urlparse(qstr)
         if uri.scheme and uri.scheme in ['bitcoin', 'lightning']:
-            # urlencode request parameters
+                                          
             query = urllib.parse.parse_qs(uri.query)
             query = urllib.parse.urlencode(query, doseq=True, quote_via=urllib.parse.quote)
             uri = uri._replace(query=query)
@@ -153,7 +153,7 @@ class QEQRImageProvider(QQuickImageProvider):
 
         qr = qrcode.main.QRCode(border=self.QR_BORDER, error_correction=self.ERROR_CORRECT_LEVEL)
 
-        # calculate best box_size
+                                 
         pixelsize = min(self._max_size, self.MAX_QR_PIXELSIZE)
         try:
             qr.add_data(qstr)
@@ -163,7 +163,7 @@ class QEQRImageProvider(QQuickImageProvider):
             self.qimg = QImage(modules * qr.box_size, modules * qr.box_size, QImage.Format.Format_RGB32)
             draw_qr(qr=qr, paint_device=self.qimg)
         except (ValueError, qrcode.exceptions.DataOverflowError):
-            # fake it
+                     
             modules = 17 + qr.border * 2
             box_size = math.floor(pixelsize/modules)
             self.qimg = QImage(box_size * modules, box_size * modules, QImage.Format.Format_RGB32)
@@ -171,9 +171,9 @@ class QEQRImageProvider(QQuickImageProvider):
         return self.qimg, self.qimg.size()
 
 
-# helper for placing icon exactly where it should go on the QR code
-# pyqt5 is unwilling to accept slots on QEQRImageProvider, so we need to define
-# a separate class (sigh)
+                                                                   
+                                                                               
+                         
 class QEQRImageProviderHelper(QObject):
     def __init__(self, max_size, parent=None):
         super().__init__(parent)
@@ -186,21 +186,21 @@ class QEQRImageProviderHelper(QObject):
             error_correction=QEQRImageProvider.ERROR_CORRECT_LEVEL,
         )
 
-        # calculate best box_size
+                                 
         pixelsize = min(self._max_size, QEQRImageProvider.MAX_QR_PIXELSIZE)
         try:
             qr.add_data(qstr)
             modules = len(qr.get_matrix())
             valid = True
         except (ValueError, qrcode.exceptions.DataOverflowError):
-            # fake it
+                     
             modules = 17 + qr.border * 2
             valid = False
 
         qr.box_size = math.floor(pixelsize/modules)
-        # calculate icon width in modules
+                                         
         icon_modules = int(modules / 5)
-        icon_modules += (icon_modules+1) % 2  # force odd
+        icon_modules += (icon_modules+1) % 2             
 
         return {
             'qr_pixelsize': modules * qr.box_size,

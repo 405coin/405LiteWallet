@@ -6,7 +6,7 @@ import org.electrum
 
 import "controls"
 
-// currently not used on android, kept for future use when qt6 camera stops crashing
+
 ElDialog {
     id: scanDialog
 
@@ -21,7 +21,7 @@ ElDialog {
     padding: 0
 
     header: null
-    topPadding: 0 // dialog needs topPadding override
+    topPadding: 0 
 
     function doClose() {
         qrscan.stop()

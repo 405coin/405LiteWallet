@@ -75,10 +75,10 @@ class RevealerPlugin(BasePlugin):
         elif version == '1':
             prng_seed = bfh(hex_seed + version + checksum)
             drbg = DRBG(prng_seed)
-            num_noise_bytes = 1929  # ~ w*h
+            num_noise_bytes = 1929         
             noise_array = bin(int.from_bytes(drbg.generate(num_noise_bytes), 'big'))[2:]
-            # there's an approx 1/1024 chance that the generated number is 'too small'
-            # and we would get IndexError below. easiest backwards compat fix:
+                                                                                      
+                                                                              
             noise_array += '0' * (w * h - len(noise_array))
             i = 0
             for x in range(w):

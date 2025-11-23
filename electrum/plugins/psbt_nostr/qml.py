@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import concurrent
 from typing import TYPE_CHECKING, List, Tuple, Optional
@@ -86,7 +86,7 @@ class QReceiveSignalObject(QObject):
             return
         cosigner_wallet.accept_psbt(event_id, save_to_wallet)
         if save_to_wallet:
-            # let GUI update view through wallet_updated callback
+                                                                 
             util.trigger_callback('wallet_updated', wallet.wallet)
 
     @pyqtSlot(QEWallet, str)
@@ -106,15 +106,15 @@ class Plugin(PsbtNostrPlugin):
     @hook
     def init_qml(self, app: 'ElectrumQmlApplication'):
         self._app = app
-        self.so.setParent(app)  # parent in QObject tree
-        # plugin enable for already open wallet
+        self.so.setParent(app)                          
+                                               
         wallet = app.daemon.currentWallet.wallet if app.daemon.currentWallet else None
         if wallet:
             self.load_wallet(wallet)
 
     @hook
     def load_wallet(self, wallet: 'Abstract_Wallet'):
-        # remove existing, only foreground wallet active
+                                                        
         for _wallet in self.cosigner_wallets.copy().keys():
             self.remove_cosigner_wallet(_wallet)
         if not isinstance(wallet, Multisig_Wallet):

@@ -13,8 +13,8 @@ WizardComponent {
 
     function apply() {
         wizard_data['seed'] = seedtext.text
-        wizard_data['seed_variant'] = 'electrum' // generated seed always electrum variant
-        wizard_data['seed_extend'] = true  // true so we get forwarded to the passphrase page
+        wizard_data['seed_variant'] = 'electrum' 
+        wizard_data['seed_extend'] = true  
     }
 
     function setWarningText(numwords) {

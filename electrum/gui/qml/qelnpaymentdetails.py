@@ -95,7 +95,7 @@ class QELnPaymentDetails(QObject):
             self._logger.error('wallet undefined')
             return
 
-        # TODO this is horribly inefficient. need a payment getter/query method
+                                                                               
         tx = self._wallet.wallet.lnworker.get_lightning_history()[self._key]
         self._logger.debug(str(tx))
 
@@ -104,7 +104,7 @@ class QELnPaymentDetails(QObject):
         self._label = tx.label
         self._date = format_time(tx.timestamp)
         self._timestamp = tx.timestamp
-        self._status = 'settled'  # TODO: other states? get_lightning_history is deciding the filter for us :(
+        self._status = 'settled'                                                                              
         self._phash = tx.payment_hash
         self._preimage = tx.preimage
 

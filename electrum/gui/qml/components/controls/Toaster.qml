@@ -48,7 +48,7 @@ Item {
                 Layout.margins: 10
                 text: toaster._text
                 onTextChanged: {
-                    // hack. ref implicitWidth so it gets recalculated
+                    
                     var _ = contentItem.implicitWidth
                 }
             }

@@ -1,6 +1,6 @@
-# Copyright (C) 2019 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+                                            
+                                                                  
+                                                                    
 
 import logging
 import logging.handlers
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class LogFormatterForFiles(logging.Formatter):
 
     def formatTime(self, record, datefmt=None):
-        # timestamps follow ISO 8601 UTC
+                                        
         date = datetime.datetime.fromtimestamp(record.created).astimezone(datetime.timezone.utc)
         if not datefmt:
             datefmt = "%Y%m%dT%H%M%S.%fZ"
@@ -42,22 +42,22 @@ class LogFormatterForConsole(logging.Formatter):
         return f"{t:6.2f}"
 
     def format(self, record):
-        record = copy.copy(record)  # avoid mutating arg
+        record = copy.copy(record)                      
         record = _shorten_name_of_logrecord(record)
         text = super().format(record)
         return text
 
 
-# try to make console log lines short... no timestamp, short levelname, no "electrum."
+                                                                                      
 console_formatter = LogFormatterForConsole(fmt="%(asctime)s | %(levelname).1s | %(name)s | %(message)s")
 
 
 def _shorten_name_of_logrecord(record: logging.LogRecord) -> logging.LogRecord:
-    record = copy.copy(record)  # avoid mutating arg
-    # strip the main module name from the logger name
+    record = copy.copy(record)                      
+                                                     
     if record.name.startswith("electrum."):
         record.name = record.name[9:]
-    # manual map to shorten common module names
+                                               
     record.name = record.name.replace("interface.Interface", "interface", 1)
     record.name = record.name.replace("network.Network", "network", 1)
     record.name = record.name.replace("synchronizer.Synchronizer", "synchronizer", 1)
@@ -75,14 +75,14 @@ class TruncatingMemoryHandler(logging.handlers.MemoryHandler):
     def __init__(self):
         logging.handlers.MemoryHandler.__init__(
             self,
-            capacity=1,  # note: this is the flushing frequency, ~unused by us
+            capacity=1,                                                       
             flushLevel=logging.DEBUG,
         )
-        self.max_size = 100  # max num of messages we keep
+        self.max_size = 100                               
         self.num_messages_seen = 0
         self.__never_dumped = True
 
-    # note: this flush implementation *keeps* the buffer as-is, instead of clearing it
+                                                                                      
     def flush(self):
         self.acquire()
         try:
@@ -109,8 +109,8 @@ class TruncatingMemoryHandler(logging.handlers.MemoryHandler):
             super().emit(record)
 
     def close(self) -> None:
-        # Check if captured log lines were never to dumped to e.g. stderr,
-        # and if so, try to do it now. This is useful e.g. in case of sys.exit().
+                                                                          
+                                                                                 
         if self.__never_dumped:
             _configure_stderr_logging()
         super().close()
@@ -121,11 +121,11 @@ def _delete_old_logs(path, *, num_files_keep: int, max_total_size: int):
     def sortkey_oldest_first(p: pathlib.PurePath):
         fname = p.name
         basename, ext, counter = str(fname).partition(".log")
-        # - each time electrum is launched, there will be a new basename, ordered by date
-        # - for any given basename, there might be multiple log files, differing by counter
-        #   - empty counter is newest, then .1 is older, .2 is even older, etc
+                                                                                         
+                                                                                           
+                                                                              
         try:
-            counter = int(counter[1:]) if counter else 0  # convert ".2" -> 2
+            counter = int(counter[1:]) if counter else 0                     
         except ValueError:
             _logger.warning(f"failed to parse log file name: {fname}")
             counter = 0
@@ -134,7 +134,7 @@ def _delete_old_logs(path, *, num_files_keep: int, max_total_size: int):
         list(pathlib.Path(path).glob("electrum_log_*.log*")),
         key=sortkey_oldest_first,
     )
-    total_size = sum(os.stat(f).st_size for f in files)  # in bytes
+    total_size = sum(os.stat(f).st_size for f in files)            
     num_files_remaining = len(files)
     for f in files:
         fsize = os.stat(f).st_size
@@ -166,7 +166,7 @@ def _configure_file_logging(
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     PID = os.getpid()
     _logfile_path = log_directory / f"electrum_log_{timestamp}_{PID}.log"
-    # we create the file with restrictive perms, instead of letting FileHandler create it
+                                                                                         
     with open(_logfile_path, "w+") as f:
         os_chmod(_logfile_path, 0o600)
 
@@ -185,7 +185,7 @@ def _configure_file_logging(
 
 console_stderr_handler = None
 def _configure_stderr_logging(*, verbosity=None):
-    # log to stderr; by default only WARNING and higher
+                                                       
     global console_stderr_handler
     if console_stderr_handler is not None:
         _logger.warning("stderr handler already exists")
@@ -206,9 +206,9 @@ def _configure_stderr_logging(*, verbosity=None):
 def _process_verbosity_log_levels(verbosity):
     if verbosity == '*' or not isinstance(verbosity, str):
         return
-    # example verbosity:
-    #   debug,network=error,interface=error      // effectively blacklists network and interface
-    #   warning,network=debug,interface=debug    // effectively whitelists network and interface
+                        
+                                                                                                
+                                                                                                
     filters = verbosity.split(',')
     for filt in filters:
         if not filt: continue
@@ -227,12 +227,12 @@ def _process_verbosity_log_levels(verbosity):
 class _CustomLogger(logging.getLoggerClass()):
     def __init__(self, name, *args, **kwargs):
         super().__init__(name, *args, **kwargs)
-        self.msg_hashes_seen = set()  # type: Set[bytes]
-        # ^ note: size grows without bounds, but only for log lines using "only_once".
+        self.msg_hashes_seen = set()                    
+                                                                                      
 
     def _log(self, level, msg: str, *args, only_once: bool = False, **kwargs) -> None:
         """Overridden to add 'only_once' arg to logger.debug()/logger.info()/logger.warning()/etc."""
-        if only_once:  # if set, this logger will only log this msg a single time during its lifecycle
+        if only_once:                                                                                 
             msg_hash = hashlib.sha256(msg.encode("utf-8")).digest()
             if msg_hash in self.msg_hashes_seen:
                 return
@@ -242,31 +242,31 @@ class _CustomLogger(logging.getLoggerClass()):
 logging.setLoggerClass(_CustomLogger)
 
 
-# enable logs universally (including for other libraries)
+                                                         
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.WARNING)
 
-# Start collecting log messages now, into an in-memory buffer. This buffer is only
-# used until the proper log handlers are fully configured, including their verbosity,
-# at which point we will dump its contents into those, and remove this log handler.
-# Note: this is set up at import-time instead of e.g. as part of a function that is
-#       called from run_electrum (the main script). This is to have this run as early
-#       as possible.
-# Note: some users might use Electrum as a python library and not use run_electrum,
-#       in which case these logs might never get redirected or cleaned up.
-#       Also, the python docs recommend libraries not to set a handler, to
-#       avoid interfering with the user's logging.
+                                                                                  
+                                                                                     
+                                                                                   
+                                                                                   
+                                                                                          
+                    
+                                                                                        
+                                                                          
+                                                                          
+                                                  
 _inmemory_startup_logs = None
-if getattr(sys, "_ELECTRUM_RUNNING_VIA_RUNELECTRUM", False):
+if getattr(sys, "_FOURZEROFIVE_RUNNING_VIA_LAUNCHER", False):
     _inmemory_startup_logs = TruncatingMemoryHandler()
     root_logger.addHandler(_inmemory_startup_logs)
 
-# creates a logger specifically for electrum library
+                                                    
 electrum_logger = logging.getLogger("electrum")
 electrum_logger.setLevel(logging.DEBUG)
 
 
-# --- External API
+                  
 
 def get_logger(name: str) -> _CustomLogger:
     prefix = "electrum."
@@ -320,7 +320,7 @@ def configure_logging(config: 'SimpleConfig', *, log_to_file: Optional[bool] = N
         max_total_size = config.LOGS_MAX_TOTAL_SIZE_BYTES
         _configure_file_logging(log_directory, num_files_keep=num_files_keep, max_total_size=max_total_size)
 
-    # clean up and delete in-memory logs
+                                        
     global _inmemory_startup_logs
     if _inmemory_startup_logs:
         num_discarded = _inmemory_startup_logs.num_messages_seen - _inmemory_startup_logs.max_size

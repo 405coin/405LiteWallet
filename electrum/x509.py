@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2014 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import hashlib
 import time
@@ -33,14 +33,14 @@ from .logging import get_logger
 _logger = get_logger(__name__)
 
 
-# algo OIDs
+           
 ALGO_RSA_SHA1 = '1.2.840.113549.1.1.5'
 ALGO_RSA_SHA256 = '1.2.840.113549.1.1.11'
 ALGO_RSA_SHA384 = '1.2.840.113549.1.1.12'
 ALGO_RSA_SHA512 = '1.2.840.113549.1.1.13'
 ALGO_ECDSA_SHA256 = '1.2.840.10045.4.3.2'
 
-# prefixes, see http://stackoverflow.com/questions/3713774/c-sharp-how-to-calculate-asn-1-der-encoding-of-a-particular-hash-algorithm
+                                                                                                                                     
 PREFIX_RSA_SHA256 = bytearray(
     [0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20])
 PREFIX_RSA_SHA384 = bytearray(
@@ -48,7 +48,7 @@ PREFIX_RSA_SHA384 = bytearray(
 PREFIX_RSA_SHA512 = bytearray(
     [0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40])
 
-# types used in ASN1 structured data
+                                    
 ASN1_TYPES = {
     'BOOLEAN'          : 0x01,
     'INTEGER'          : 0x02,
@@ -71,7 +71,7 @@ class CertificateError(Exception):
     pass
 
 
-# helper functions
+                  
 def bitstr_to_bytestr(s):
     if s[0] != 0x00:
         raise TypeError('no padding')
@@ -114,7 +114,7 @@ def encode_OID(oid):
 
 class ASN1_Node(bytes):
     def get_node(self, ix):
-        # return index of first byte, first content byte and last byte.
+                                                                       
         first = self[ix + 1]
         if (first & 0x80) == 0:
             length = first
@@ -147,12 +147,12 @@ class ASN1_Node(bytes):
         return ((ixf <= jxs) and (jxl <= ixl)) or ((jxf <= ixs) and (ixl <= jxl))
 
     def get_all(self, node):
-        # return type + length + value
+                                      
         ixs, ixf, ixl = node
         return self[ixs:ixl + 1]
 
     def get_value_of_type(self, node, asn1_type):
-        # verify type byte and return content
+                                             
         ixs, ixf, ixl = node
         if ASN1_TYPES[asn1_type] != self[ixs]:
             raise TypeError('Wrong type:', hex(self[ixs]), hex(ASN1_TYPES[asn1_type]))
@@ -203,10 +203,10 @@ class X509(object):
         der = ASN1_Node(b)
         root = der.root()
         cert = der.first_child(root)
-        # data for signature
+                            
         self.data = der.get_all(cert)
 
-        # optional version field
+                                
         if der.get_value(cert)[0] == 0xa0:
             version = der.first_child(cert)
             serial_number = der.next_node(version)
@@ -214,23 +214,23 @@ class X509(object):
             serial_number = der.first_child(cert)
         self.serial_number = bytestr_to_int(der.get_value_of_type(serial_number, 'INTEGER'))
 
-        # signature algorithm
+                             
         sig_algo = der.next_node(serial_number)
         ii = der.first_child(sig_algo)
         self.sig_algo = decode_OID(der.get_value_of_type(ii, 'OBJECT IDENTIFIER'))
 
-        # issuer
+                
         issuer = der.next_node(sig_algo)
         self.issuer = der.get_dict(issuer)
 
-        # validity
+                  
         validity = der.next_node(issuer)
         ii = der.first_child(validity)
         self.notBefore = der.decode_time(ii)
         ii = der.next_node(ii)
         self.notAfter = der.decode_time(ii)
 
-        # subject
+                 
         subject = der.next_node(validity)
         self.subject = der.get_dict(subject)
         subject_pki = der.next_node(subject)
@@ -238,8 +238,8 @@ class X509(object):
         ii = der.first_child(public_key_algo)
         self.public_key_algo = decode_OID(der.get_value_of_type(ii, 'OBJECT IDENTIFIER'))
 
-        if self.public_key_algo != '1.2.840.10045.2.1':  # for non EC public key
-            # pubkey modulus and exponent
+        if self.public_key_algo != '1.2.840.10045.2.1':                         
+                                         
             subject_public_key = der.next_node(public_key_algo)
             spk = der.get_value_of_type(subject_public_key, 'BIT STRING')
             spk = ASN1_Node(bitstr_to_bytestr(spk))
@@ -255,7 +255,7 @@ class X509(object):
             spk = der.get_value_of_type(subject_public_key, 'BIT STRING')
             self.ec_public_key = spk
 
-        # extensions
+                    
         self.CA = False
         self.AKI = None
         self.SKI = None
@@ -266,20 +266,20 @@ class X509(object):
             for oid, value in d.items():
                 value = ASN1_Node(value)
                 if oid == '2.5.29.19':
-                    # Basic Constraints
+                                       
                     self.CA = bool(value)
                 elif oid == '2.5.29.14':
-                    # Subject Key Identifier
+                                            
                     r = value.root()
                     value = value.get_value_of_type(r, 'OCTET STRING')
                     self.SKI = value.hex()
                 elif oid == '2.5.29.35':
-                    # Authority Key Identifier
+                                              
                     self.AKI = value.get_sequence()[0].hex()
                 else:
                     pass
 
-        # cert signature
+                        
         cert_sig_algo = der.next_node(cert)
         ii = der.first_child(cert_sig_algo)
         self.cert_sig_algo = decode_OID(der.get_value_of_type(ii, 'OBJECT IDENTIFIER'))
@@ -287,7 +287,7 @@ class X509(object):
         self.signature = der.get_value(cert_sig)[1:]
 
     def get_keyID(self):
-        # http://security.stackexchange.com/questions/72077/validating-an-ssl-certificate-chain-according-to-rfc-5280-am-i-understanding-th
+                                                                                                                                           
         return self.SKI if self.SKI else repr(self.subject)
 
     def get_issuer_keyID(self):
@@ -319,7 +319,7 @@ def load_certificates(ca_path):
     from . import pem
     ca_list = {}
     ca_keyID = {}
-    # ca_path = '/tmp/tmp.txt'
+                              
     with open(ca_path, 'r', encoding='utf-8') as f:
         s = f.read()
     bList = pem.dePemList(s, "CERTIFICATE")
@@ -328,8 +328,8 @@ def load_certificates(ca_path):
             x = X509(b)
             x.check_date()
         except BaseException as e:
-            # with open('/tmp/tmp.txt', 'w') as f:
-            #     f.write(pem.pem(b, 'CERTIFICATE').decode('ascii'))
+                                                  
+                                                                    
             _logger.info(f"cert error: {e}")
             continue
 

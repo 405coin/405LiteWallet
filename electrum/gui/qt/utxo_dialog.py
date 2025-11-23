@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2023 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 from typing import TYPE_CHECKING
 import copy
@@ -50,8 +50,8 @@ class UTXODialog(WindowModalDialog):
         self.utxo = utxo
 
         self.parents_list = QTextBrowserWithDefaultSize(800, 400)
-        self.parents_list.setOpenLinks(False)  # disable automatic link opening
-        self.parents_list.anchorClicked.connect(self.open_tx)  # send links to our handler
+        self.parents_list.setOpenLinks(False)
+        self.parents_list.anchorClicked.connect(self.open_tx)
         self.parents_list.setFont(QFont(MONOSPACE_FONT))
         self.parents_list.setReadOnly(True)
         self.parents_list.setTextInteractionFlags(
@@ -123,7 +123,7 @@ class UTXODialog(WindowModalDialog):
                 lnk = QTextCharFormat(self.txo_color_parent.text_char_format)
             lnk.setToolTip(_('Click to open, right-click for menu'))
             lnk.setAnchorHref(_txid)
-            #lnk.setAnchorNames([a_name])
+
             lnk.setAnchor(True)
             lnk.setUnderlineStyle(QTextCharFormat.UnderlineStyle.SingleUnderline)
             cursor.insertText(key, lnk)
@@ -137,7 +137,7 @@ class UTXODialog(WindowModalDialog):
                 is_uncle = (i > len(parents_list) - 1)
                 print_ascii_tree(p, next_prefix, is_last, is_uncle)
 
-        # recursively build the tree
+
         print_ascii_tree(txid, '', False, False)
         msg = _("This UTXO has {} parent transactions in your wallet.").format(num_parents)
         if self.num_reuse:
@@ -145,7 +145,7 @@ class UTXODialog(WindowModalDialog):
         self.stats_label.setText(msg)
         self.txo_color_parent.legend_label.setVisible(True)
         self.txo_color_uncle.legend_label.setVisible(bool(self.num_reuse))
-        # set cursor to top
+
         cursor.setPosition(0)
         self.parents_list.setTextCursor(cursor)
 

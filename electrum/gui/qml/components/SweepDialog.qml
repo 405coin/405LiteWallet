@@ -142,7 +142,7 @@ ElDialog {
             Layout.fillWidth: true
             Layout.preferredWidth: 1
             enabled: valid
-            icon.source: '../../icons/tab_send.png'
+            icon.source: '../../icons/tab_send.svg'
             text: qsTr('Sweep...')
             onClicked: {
                 console.log('sweeping')

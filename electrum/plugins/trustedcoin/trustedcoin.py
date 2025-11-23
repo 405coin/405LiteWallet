@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - Lightweight Bitcoin Client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import json
 import time
@@ -107,7 +107,7 @@ RESTORE_MSG = _("Enter the seed for your 2-factor wallet:")
 
 class TrustedCoinException(Exception):
     def __init__(self, message, *, status_code=0):
-        # note: 'message' is arbitrary text coming from the server
+                                                                  
         safer_message = (
             f"Received error from 2FA server\n"
             f"[DO NOT TRUST THIS MESSAGE]:\n\n"
@@ -263,11 +263,11 @@ class Wallet_2fa(Multisig_Wallet):
             'legacy': self.db.get('trustedcoin_billing_addresses', {}),
             'segwit': self.db.get('trustedcoin_billing_addresses_segwit', {})
         }
-        self._billing_addresses = {}  # type: Dict[str, Dict[int, str]]  # addr_type -> index -> addr
-        self._billing_addresses_set = set()  # set of addrs
+        self._billing_addresses = {}                                                                 
+        self._billing_addresses_set = set()                
         for addr_type, d in list(billing_addresses.items()):
             self._billing_addresses[addr_type] = {}
-            # convert keys from str to int
+                                          
             for index, addr in d.items():
                 self._billing_addresses[addr_type][int(index)] = addr
                 self._billing_addresses_set.add(addr)
@@ -300,8 +300,8 @@ class Wallet_2fa(Multisig_Wallet):
             return 0
         n = self.num_prepay()
         price = int(self.price_per_tx[n])
-        # sanity check: price capped at 0.5 mBTC per tx or 20 mBTC total
-        #               (note that the server can influence our choice of n by sending unexpected values)
+                                                                        
+                                                                                                         
         if price > min(50_000 * n, 2_000_000):
             raise Exception(f"too high trustedcoin fee ({price} for {n} txns)")
         return price
@@ -322,8 +322,8 @@ class Wallet_2fa(Multisig_Wallet):
             try:
                 tx = mk_tx(outputs + [fee_output])
             except NotEnoughFunds:
-                # TrustedCoin won't charge if the total inputs is
-                # lower than their fee
+                                                                 
+                                      
                 tx = mk_tx(outputs)
                 if tx.input_value() >= extra_fee:
                     raise
@@ -343,7 +343,7 @@ class Wallet_2fa(Multisig_Wallet):
         try:
             r = server.sign(short_id, raw_tx, otp)
         except TrustedCoinException as e:
-            if e.status_code == 400:  # invalid OTP
+            if e.status_code == 400:               
                 raise UserFacingException(_('Invalid one-time password.')) from e
             else:
                 raise
@@ -352,7 +352,7 @@ class Wallet_2fa(Multisig_Wallet):
             received_tx = Transaction(received_raw_tx)
             tx.combine_with_other_psbt(received_tx)
         self.logger.info(f"twofactor: is complete {tx.is_complete()}")
-        # reset billing_info
+                            
         self.billing_info = None
         self.plugin.start_request_thread(self)
 
@@ -361,19 +361,19 @@ class Wallet_2fa(Multisig_Wallet):
         saved_addr = billing_addresses_of_this_type.get(billing_index)
         if saved_addr is not None:
             if saved_addr == address:
-                return  # already saved this address
+                return                              
             else:
                 raise Exception('trustedcoin billing address inconsistency.. '
                                 'for index {}, already saved {}, now got {}'
                                 .format(billing_index, saved_addr, address))
-        # do we have all prior indices? (are we synced?)
+                                                        
         largest_index_we_have = max(billing_addresses_of_this_type) if billing_addresses_of_this_type else -1
-        if largest_index_we_have + 1 < billing_index:  # need to sync
+        if largest_index_we_have + 1 < billing_index:                
             for i in range(largest_index_we_have + 1, billing_index):
                 addr = make_billing_address(self, i, addr_type=addr_type)
                 billing_addresses_of_this_type[i] = addr
                 self._billing_addresses_set.add(addr)
-        # save this address; and persist to disk
+                                                
         billing_addresses_of_this_type[billing_index] = address
         self._billing_addresses_set.add(address)
         self._billing_addresses[addr_type] = billing_addresses_of_this_type
@@ -393,7 +393,7 @@ class Wallet_2fa(Multisig_Wallet):
         raise Exception("2fa wallet cannot disable keystore")
 
 
-# Utility functions
+                   
 
 def get_user_id(db):
     def make_long_id(xpub_hot, xpub_cold):
@@ -499,13 +499,13 @@ class TrustedCoinPlugin(BasePlugin):
                 return
             raise
         billing_index = billing_info['billing_index']
-        # add segwit billing address; this will be used for actual billing
+                                                                          
         billing_address = make_billing_address(wallet, billing_index, addr_type='segwit')
         if billing_address != billing_info['billing_address_segwit']:
             raise Exception(f'unexpected trustedcoin billing address: '
                             f'calculated {billing_address}, received {billing_info["billing_address_segwit"]}')
         wallet.add_new_billing_address(billing_index, billing_address, addr_type='segwit')
-        # also add legacy billing address; only used for detecting past payments in GUI
+                                                                                       
         billing_address = make_billing_address(wallet, billing_index, addr_type='legacy')
         wallet.add_new_billing_address(billing_index, billing_address, addr_type='legacy')
 
@@ -516,7 +516,7 @@ class TrustedCoinPlugin(BasePlugin):
         return True
 
     def billing_info_retrieved(self, wallet):
-        # override to handle billing info when it becomes available
+                                                                   
         pass
 
     def start_request_thread(self, wallet):
@@ -554,15 +554,15 @@ class TrustedCoinPlugin(BasePlugin):
         words = seed.split()
         n = len(words)
         if t == '2fa':
-            if n >= 20:  # old scheme
-                # note: pre-2.7 2fa seeds were typically 24-25 words, however they
-                # could probabilistically be arbitrarily shorter due to a bug. (see #3611)
-                # the probability of it being < 20 words is about 2^(-(256+12-19*11)) = 2^(-59)
+            if n >= 20:              
+                                                                                  
+                                                                                          
+                                                                                               
                 if passphrase:
                     raise Exception("old '2fa'-type electrum seed cannot have passphrase")
                 xprv1, xpub1 = cls.get_xkeys(' '.join(words[0:12]), t, '', "m/")
                 xprv2, xpub2 = cls.get_xkeys(' '.join(words[12:]), t, '', "m/")
-            elif n == 12:  # new scheme
+            elif n == 12:              
                 xprv1, xpub1 = cls.get_xkeys(seed, t, passphrase, "m/0'/")
                 xprv2, xpub2 = cls.get_xkeys(seed, t, passphrase, "m/1'/")
             else:
@@ -585,7 +585,7 @@ class TrustedCoinPlugin(BasePlugin):
         if not db.get('x3'):
             return self, 'accept_terms_of_use'
 
-    # insert trustedcoin pages in new wallet wizard
+                                                   
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         views = {
             'trustedcoin_start': {
@@ -634,10 +634,10 @@ class TrustedCoinPlugin(BasePlugin):
         }
         wizard.navmap_merge(views)
 
-    # combined create_keystore and create_remote_key pre
+                                                        
     def create_keys(self, wizard_data):
         if 'seed' not in wizard_data:
-            # online continuation
+                                 
             xprv1, xpub1, xprv2, xpub2 = (wizard_data['xprv1'], wizard_data['xpub1'], None, wizard_data['xpub2'])
         else:
             seed_extension = wizard_data['seed_extra_words'] if wizard_data['seed_extend'] else ''
@@ -645,7 +645,7 @@ class TrustedCoinPlugin(BasePlugin):
 
         data = {'x1': {'xpub': xpub1}, 'x2': {'xpub': xpub2}}
 
-        # Generate third key deterministically.
+                                               
         long_user_id, short_id = get_user_id(data)
         xtype = xpub_type(xpub1)
         xpub3 = make_xpub(get_signing_xpub(xtype), long_user_id)

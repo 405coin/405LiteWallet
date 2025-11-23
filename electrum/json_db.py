@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2019 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import threading
 import copy
 import json
@@ -38,8 +38,8 @@ if TYPE_CHECKING:
     from .storage import WalletStorage
 
 
-# We monkeypatch exceptions in the jsonpatch package to ensure they do not contain secrets from the DB.
-# We often log exceptions and offer to send them to the crash reporter, so they must not contain secrets.
+                                                                                                       
+                                                                                                         
 jsonpointer.JsonPointerException.__str__ = lambda self: """(JPE) 'redacted'"""
 jsonpointer.JsonPointerException.__repr__ = lambda self: """<JsonPointerException 'redacted'>"""
 setattr(jsonpointer.JsonPointerException, '__cause__', sticky_property(None))
@@ -131,7 +131,7 @@ class BaseStoredObject:
 
     @property
     def path(self) -> Sequence[str]:
-        # return None iff we are pruned from root
+                                                 
         x = self
         s = [x._key]
         while x._parent is not None:
@@ -166,46 +166,46 @@ class StoredObject(BaseStoredObject):
 
     def to_json(self):
         d = dict(vars(self))
-        # don't expose/store private stuff
+                                          
         d = {k: v for k, v in d.items()
              if not k.startswith('_')}
         return d
 
 
 
-_RaiseKeyError = object() # singleton for no-default behavior
+_RaiseKeyError = object()                                    
 
 
 class StoredDict(dict, BaseStoredObject):
 
     def __init__(self, data: dict, db: 'JsonDB'):
         self.set_db(db)
-        # recursively convert dicts to StoredDict
+                                                 
         for k, v in list(data.items()):
             self.__setitem__(k, v)
 
     @locked
     def __setitem__(self, key, v):
         is_new = key not in self
-        # early return to prevent unnecessary disk writes
+                                                         
         if not is_new and self._db and json.dumps(v, cls=self._db.encoder) == json.dumps(self[key], cls=self._db.encoder):
             return
-        # convert dict to StoredDict.
+                                     
         if type(v) == dict and (self._db is None or self._db._should_convert_to_stored_dict(key)):
             v = StoredDict(v, self._db)
-        # convert list to StoredList
+                                    
         elif type(v) == list:
             v = StoredList(v, self._db)
-        # reject sets. they do not work well with jsonpatch
+                                                           
         elif isinstance(v, set):
             raise Exception(f"Do not store sets inside jsondb. path={self.path!r}")
-        # set db for StoredObject, because it is not set in the constructor
+                                                                           
         if isinstance(v, StoredObject):
             v.set_db(self._db)
-        # set parent
+                    
         if isinstance(v, BaseStoredObject):
             v.set_parent(key, self)
-        # set item
+                  
         dict.__setitem__(self, key, v)
         self.db_add(key, v) if is_new else self.db_replace(key, v)
 
@@ -272,19 +272,19 @@ class JsonDB(Logger):
         self.lock = threading.RLock()
         self.storage = storage
         self.encoder = encoder
-        self.pending_changes = []  # type: List[str]
+        self.pending_changes = []                   
         self._modified = False
-        # load data
+                   
         data = self.load_data(s)
         if upgrader:
             data, was_upgraded = upgrader(data)
             self._modified |= was_upgraded
-        # convert json to python objects
+                                        
         data = self._convert_dict([], data)
-        # convert dict to StoredDict
+                                    
         self.data = StoredDict(data, self)
         self.data.set_parent('', None)
-        # write file in case there was a db upgrade
+                                                   
         if self.storage and self.storage.file_exists():
             self.write_and_force_consolidation()
 
@@ -304,7 +304,7 @@ class JsonDB(Logger):
         if not isinstance(data, dict):
             raise WalletFileException("Malformed wallet file (not dict)")
         if patches:
-            # apply patches
+                           
             self.logger.info('found %d patches'%len(patches))
             patch = jsonpatch.JsonPatch(patches)
             data = patch.apply(data)
@@ -392,8 +392,8 @@ class JsonDB(Logger):
 
     @locked
     def get_dict(self, name) -> dict:
-        # Warning: interacts un-intuitively with 'put': certain parts
-        # of 'data' will have pointers saved as separate variables.
+                                                                     
+                                                                   
         if name not in self.data:
             self.data[name] = {}
         return self.data[name]
@@ -454,7 +454,7 @@ class JsonDB(Logger):
         return v
 
     def _convert_dict(self, path, data: dict):
-        # recursively convert dict to StoredDict
+                                                
         d = {}
         for k, v in list(data.items()):
             child_path = path + [k]

@@ -11,15 +11,15 @@ ElDialog {
     id: root
 
     property bool canCancel: true
-    property string mode // [check, enter, change]
-    property string pincode // old one passed in when change, new one passed out
+    property string mode 
+    property string pincode 
     property bool checkError: false
     property string authMessage
-    property int _phase: mode == 'enter' ? 1 : 0 // 0 = existing pin, 1 = new pin, 2 = re-enter new pin
+    property int _phase: mode == 'enter' ? 1 : 0 
     property string _pin
 
     title: authMessage ? authMessage : qsTr('PIN')
-    iconSource: Qt.resolvedUrl('../../icons/lock.png')
+    iconSource: Qt.resolvedUrl('../../icons/lock.svg')
     width: parent.width * 3/4
     z: 1000
     focus: true
@@ -64,7 +64,7 @@ ElDialog {
     onRejected: result = Dialog.Rejected
     onClosed: {
         if (!root.result) {
-            root.reject() // make sure we reject the authed fn()
+            root.reject() 
         }
     }
 

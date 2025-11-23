@@ -152,7 +152,7 @@ class TrustedcoinPluginQObject(PluginQObject):
                     self.remoteKeyState = 'error'
                     self.logger.warning(str(e))
                     self.remoteKeyError.emit(f'Service error: {str(e)}')
-            except (KeyError, TypeError) as e:  # catch any assumptions
+            except (KeyError, TypeError) as e:                         
                 self.remoteKeyState = 'error'
                 self.remoteKeyError.emit(f'Error: {str(e)}')
                 self.logger.error(str(e))
@@ -229,14 +229,14 @@ class TrustedcoinPluginQObject(PluginQObject):
 
     @pyqtSlot(str, int)
     def checkOtp(self, short_id, otp):
-        assert type(otp) is int  # make sure this doesn't fail subtly
+        assert type(otp) is int                                      
 
         def check_otp_task():
             try:
                 self.plugin.logger.debug(f'check OTP, shortId={short_id}, otp={otp}')
                 server.auth(short_id, otp)
             except TrustedCoinException as e:
-                if e.status_code == 400:  # invalid OTP
+                if e.status_code == 400:               
                     self.plugin.logger.debug('Invalid one-time password.')
                     self.otpError.emit(_('Invalid one-time password.'))
                 else:

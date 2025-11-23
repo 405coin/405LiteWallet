@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 
 from decimal import Decimal
 from typing import Union
@@ -13,7 +13,7 @@ from electrum.util import (format_satoshis_plain, decimal_point_to_base_unit_nam
                            FEERATE_PRECISION, quantize_feerate, DECIMAL_POINT, UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE)
 from electrum.bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_BTC
 
-_NOT_GIVEN = object()  # sentinel value
+_NOT_GIVEN = object()
 
 
 class FreezableLineEdit(QLineEdit):
@@ -45,7 +45,7 @@ class AmountEdit(SizedFreezableLineEdit):
     shortcut = pyqtSignal()
 
     def __init__(self, base_unit, is_int=False, parent=None, *, max_amount=None):
-        # This seems sufficient for hundred-BTC amounts with 8 decimals
+
         width = 16 * char_width_in_lineedit()
         super().__init__(width=width, parent=parent)
         self.base_unit = base_unit
@@ -79,8 +79,8 @@ class AmountEdit(SizedFreezableLineEdit):
             if (amt := self._get_amount_from_text(s)) and amt >= self.max_amount:
                 s = self._get_text_from_amount(self.max_amount)
         self.setText(s)
-        # setText sets Modified to False.  Instead we want to remember
-        # if updates were because of user modification.
+
+
         self.setModified(self.hasFocus())
         self.setCursorPosition(pos)
 
@@ -128,19 +128,19 @@ class BTCAmountEdit(AmountEdit):
         return decimal_point_to_base_unit_name(self.decimal_point())
 
     def _get_amount_from_text(self, text):
-        # returns amt in satoshis
+
         try:
             text = text.replace(DECIMAL_POINT, '.')
             x = Decimal(text)
         except Exception:
             return None
-        # scale it to max allowed precision, make it an int
+
         power = pow(10, self.max_precision())
         max_prec_amount = int(power * x)
-        # if the max precision is simply what unit conversion allows, just return
+
         if self.max_precision() == self.decimal_point():
             return max_prec_amount
-        # otherwise, scale it back to the expected unit
+
         amount = Decimal(max_prec_amount) / pow(10, self.max_precision()-self.decimal_point())
         return Decimal(amount) if not self.is_int else int(amount)
 
@@ -151,12 +151,12 @@ class BTCAmountEdit(AmountEdit):
 
     def setAmount(self, amount_sat):
         if amount_sat is None:
-            self.setText(" ")  # Space forces repaint in case units changed
+            self.setText(" ")
         else:
             text = self._get_text_from_amount(amount_sat)
             self.setText(text)
-        self.setFrozen(self.isFrozen()) # re-apply styling, as it is nuked by setText (?)
-        self.repaint()  # macOS hack for #6269
+        self.setFrozen(self.isFrozen())
+        self.repaint()
 
 
 class FeerateEdit(BTCAmountEdit):

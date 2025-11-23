@@ -22,7 +22,7 @@ ElComboBox {
     ]
 
     Component.onCompleted: {
-        if (!Network.autoConnectDefined) { // initial setup
+        if (!Network.autoConnectDefined) { 
             server_connect_mode_cb.currentIndex = server_connect_mode_cb.indexOfValue(
                 ServerConnectModeComboBox.Mode.Manual)
         } else {

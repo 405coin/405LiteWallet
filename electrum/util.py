@@ -1,25 +1,25 @@
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2011 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import concurrent.futures
 from dataclasses import dataclass
 import logging
@@ -32,7 +32,6 @@ from typing import (
     NamedTuple, Union, TYPE_CHECKING, Tuple, Optional, Callable, Any, Sequence, Dict, Generic, TypeVar, List, Iterable,
     Set, Awaitable
 )
-from types import MappingProxyType
 from datetime import datetime, timezone, timedelta
 import decimal
 from decimal import Decimal
@@ -90,18 +89,18 @@ def all_subclasses(cls) -> Set:
 ca_path = certifi.where()
 
 
-base_units = {'BTC':8, 'mBTC':5, 'bits':2, 'sat':0}
+base_units = {'405':8, 'm405':5, 'bits':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
-base_units_list = ['BTC', 'mBTC', 'bits', 'sat']  # list(dict) does not guarantee order
+base_units_list = ['405', 'm405', 'bits', 'sat']                                       
 
-DECIMAL_POINT_DEFAULT = 5  # mBTC
+DECIMAL_POINT_DEFAULT = 8       
 
 
 class UnknownBaseUnit(Exception): pass
 
 
 def decimal_point_to_base_unit_name(dp: int) -> str:
-    # e.g. 8 -> "BTC"
+                     
     try:
         return base_units_inverse[dp]
     except KeyError:
@@ -110,7 +109,7 @@ def decimal_point_to_base_unit_name(dp: int) -> str:
 
 def base_unit_name_to_decimal_point(unit_name: str) -> int:
     """Returns the max number of digits allowed after the decimal point."""
-    # e.g. "BTC" -> 8
+                     
     try:
         return base_units[unit_name]
     except KeyError:
@@ -221,19 +220,19 @@ class NetworkOfflineException(UserFacingException):
         return _("You are offline.")
 
 
-# Throw this exception to unwind the stack like when an error occurs.
-# However unlike other exceptions the user won't be informed.
+                                                                     
+                                                             
 class UserCancelled(Exception):
     '''An exception that is suppressed from the user'''
     pass
 
 
 def to_decimal(x: Union[str, float, int, Decimal]) -> Decimal:
-    # helper function mainly for float->Decimal conversion, i.e.:
-    #   >>> Decimal(41754.681)
-    #   Decimal('41754.680999999996856786310672760009765625')
-    #   >>> Decimal("41754.681")
-    #   Decimal('41754.681')
+                                                                 
+                              
+                                                             
+                                
+                            
     if isinstance(x, Decimal):
         return x
     if isinstance(x, int):
@@ -241,13 +240,13 @@ def to_decimal(x: Union[str, float, int, Decimal]) -> Decimal:
     return Decimal(str(x))
 
 
-# note: this is not a NamedTuple as then its json encoding cannot be customized
+                                                                               
 class Satoshis(object):
     __slots__ = ('value',)
 
     def __new__(cls, value):
         self = super(Satoshis, cls).__new__(cls)
-        # note: 'value' sometimes has msat precision
+                                                    
         assert isinstance(value, (int, Decimal)), f"unexpected type for {value=!r}"
         self.value = value
         return self
@@ -256,7 +255,7 @@ class Satoshis(object):
         return f'Satoshis({self.value})'
 
     def __str__(self):
-        # note: precision is truncated to satoshis here
+                                                       
         return format_satoshis(self.value)
 
     def __eq__(self, other):
@@ -269,7 +268,7 @@ class Satoshis(object):
         return Satoshis(self.value + other.value)
 
 
-# note: this is not a NamedTuple as then its json encoding cannot be customized
+                                                                               
 class Fiat(object):
     __slots__ = ('value', 'ccy')
 
@@ -301,7 +300,7 @@ class Fiat(object):
             return False
         if self.ccy != other.ccy:
             return False
-        if isinstance(self.value, Decimal) and isinstance(other.value, Decimal) \
+        if isinstance(self.value, Decimal) and isinstance(other.value, Decimal)\
                 and self.value.is_nan() and other.value.is_nan():
             return True
         return self.value == other.value
@@ -316,7 +315,7 @@ class Fiat(object):
 
 class MyEncoder(json.JSONEncoder):
     def default(self, obj):
-        # note: this does not get called for namedtuples :(  https://bugs.python.org/issue30343
+                                                                                               
         from .transaction import Transaction, TxOutput
         if isinstance(obj, Transaction):
             return obj.serialize()
@@ -329,11 +328,11 @@ class MyEncoder(json.JSONEncoder):
         if isinstance(obj, Decimal):
             return str(obj)
         if isinstance(obj, datetime):
-            # note: if there is a timezone specified, this will include the offset
+                                                                                  
             return obj.isoformat(' ', timespec="minutes")
         if isinstance(obj, set):
             return list(obj)
-        if isinstance(obj, bytes): # for nametuples in lnchannel
+        if isinstance(obj, bytes):                              
             return obj.hex()
         if hasattr(obj, 'to_json') and callable(obj.to_json):
             return obj.to_json()
@@ -393,18 +392,18 @@ class DaemonThread(threading.Thread, Logger):
         self.running_lock = threading.Lock()
         self.job_lock = threading.Lock()
         self.jobs = []
-        self.stopped_event = threading.Event()        # set when fully stopped
-        self.stopped_event_async = asyncio.Event()    # set when fully stopped
-        self.wake_up_event = threading.Event()  # for perf optimisation of polling in run()
+        self.stopped_event = threading.Event()                                
+        self.stopped_event_async = asyncio.Event()                            
+        self.wake_up_event = threading.Event()                                             
 
     def add_jobs(self, jobs):
         with self.job_lock:
             self.jobs.extend(jobs)
 
     def run_jobs(self):
-        # Don't let a throwing job disrupt the thread, future runs of
-        # itself, or other jobs.  This is useful protection against
-        # malformed or malicious server responses
+                                                                     
+                                                                   
+                                                 
         with self.job_lock:
             for job in self.jobs:
                 try:
@@ -450,7 +449,7 @@ def print_stderr(*args):
 
 
 def print_msg(*args):
-    # Stringify args
+                    
     args = [str(item) for item in args]
     sys.stdout.write(" ".join(args) + "\n")
     sys.stdout.flush()
@@ -472,14 +471,14 @@ def json_decode(x):
 
 
 def json_normalize(x):
-    # note: The return value of commands, when going through the JSON-RPC interface,
-    #       is json-encoded. The encoder used there cannot handle some types, e.g. electrum.util.Satoshis.
-    # note: We should not simply do "json_encode(x)" here, as then later x would get doubly json-encoded.
-    # see #5868
+                                                                                    
+                                                                                                          
+                                                                                                         
+               
     return json_decode(json_encode(x))
 
 
-# taken from Django Source Code
+                               
 def constant_time_compare(val1, val2):
     """Return True if the two strings are equal, False otherwise."""
     return hmac.compare_digest(to_bytes(val1, 'utf8'), to_bytes(val2, 'utf8'))
@@ -493,9 +492,9 @@ def profiler(func=None, *, min_threshold: Union[int, float, None] = None):
 
     min_threshold: if set, only log if time taken is higher than threshold
     """
-    if func is None:  # to make "@profiler(...)" work. (in addition to bare "@profiler")
+    if func is None:                                                                    
         return partial(profiler, min_threshold=min_threshold)
-    t0 = None  # type: Optional[float]
+    t0 = None                         
 
     def timer_start():
         nonlocal t0
@@ -536,7 +535,7 @@ class AsyncHangDetector:
         self.logger = logger or _logger
 
     async def _monitor(self):
-        # note: this assumes that the event loop itself is not blocked
+                                                                      
         t0 = time.monotonic()
         while True:
             await asyncio.sleep(self.period_sec)
@@ -570,8 +569,8 @@ def android_data_dir():
 
 
 def ensure_sparse_file(filename):
-    # On modern Linux, no need to do anything.
-    # On Windows, need to explicitly mark file.
+                                              
+                                               
     if os.name == "nt":
         try:
             os.system('fsutil sparse setflag "{}" 1'.format(filename))
@@ -604,8 +603,8 @@ def assert_file_in_datadir_available(path, config_path):
 
 
 def standardize_path(path):
-    # note: os.path.realpath() is not used, as on Windows it can return non-working paths (see #8495).
-    #       This means that we don't resolve symlinks!
+                                                                                                      
+                                                      
     return os.path.normcase(
                 os.path.abspath(
                     os.path.expanduser(
@@ -617,9 +616,10 @@ def get_new_wallet_name(wallet_folder: str) -> str:
     """Returns a file basename for a new wallet to be used.
     Can raise OSError.
     """
+    os.makedirs(wallet_folder, exist_ok=True)
     i = 1
     while True:
-        filename = "wallet_%d" % i
+        filename = f"wallet_{i}.405"
         if filename in os.listdir(wallet_folder):
             i += 1
         else:
@@ -705,13 +705,13 @@ def user_dir():
     elif 'ANDROID_DATA' in os.environ:
         return android_data_dir()
     elif os.name == 'posix':
-        return os.path.join(os.environ["HOME"], ".electrum")
+        return os.path.join(os.environ["HOME"], ".405-lite-wallet")
     elif "APPDATA" in os.environ:
-        return os.path.join(os.environ["APPDATA"], "Electrum")
+        return os.path.join(os.environ["APPDATA"], "405 Lite Wallet")
     elif "LOCALAPPDATA" in os.environ:
-        return os.path.join(os.environ["LOCALAPPDATA"], "Electrum")
+        return os.path.join(os.environ["LOCALAPPDATA"], "405 Lite Wallet")
     else:
-        #raise Exception("No home directory found in environment variables.")
+                                                                             
         return
 
 
@@ -719,7 +719,7 @@ def resource_path(*parts):
     return os.path.join(pkg_dir, *parts)
 
 
-# absolute path to python package folder of electrum ("lib")
+                                                            
 pkg_dir = os.path.split(os.path.realpath(__file__))[0]
 
 
@@ -735,15 +735,15 @@ def is_valid_websocket_url(url: str) -> bool:
     Note: this is not perfect, urls and their parsing can get very complex (see recent django code).
     however its sufficient for catching weird user input in the gui dialog
     """
-    # stores the compiled regex in the function object itself to avoid recompiling it every call
+                                                                                                
     if not hasattr(is_valid_websocket_url, "regex"):
         is_valid_websocket_url.regex = re.compile(
-            r'^(?:ws|wss)://'  # ws:// or wss://
-            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-            r'localhost|'  # localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
-            r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
-            r'(?::\d+)?'  # optional port
+            r'^(?:ws|wss)://'                   
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'             
+            r'localhost|'                
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'              
+            r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'              
+            r'(?::\d+)?'                 
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
     try:
         return re.match(is_valid_websocket_url.regex, url) is not None
@@ -763,7 +763,7 @@ def is_hex_str(text: Any) -> bool:
         b = bytes.fromhex(text)
     except Exception:
         return False
-    # forbid whitespaces in text:
+                                 
     if len(text) != 2 * len(b):
         return False
     return True
@@ -798,9 +798,9 @@ def chunks(items, size: int):
 
 
 def format_satoshis_plain(
-        x: Union[int, float, Decimal, str],  # amount in satoshis,
+        x: Union[int, float, Decimal, str],                       
         *,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->BTC)
+        decimal_point: int = 8,                                                               
         is_max_allowed: bool = True,
 ) -> str:
     """Display a satoshi amount scaled.  Always uses a '.' as a decimal
@@ -808,20 +808,20 @@ def format_satoshis_plain(
     if is_max_allowed and parse_max_spend(x):
         return f'max({x})'
     assert isinstance(x, (int, float, Decimal)), f"{x!r} should be a number"
-    # TODO(ghost43) just hard-fail if x is a float. do we even use floats for money anywhere?
+                                                                                             
     x = to_decimal(x)
     scale_factor = pow(10, decimal_point)
     return "{:.8f}".format(x / scale_factor).rstrip('0').rstrip('.')
 
 
-# Check that Decimal precision is sufficient.
-# We need at the very least ~20, as we deal with msat amounts, and
-# log10(21_000_000 * 10**8 * 1000) ~= 18.3
-# decimal.DefaultContext.prec == 28 by default, but it is mutable.
-# We enforce that we have at least that available.
+                                             
+                                                                  
+                                          
+                                                                  
+                                                  
 assert decimal.getcontext().prec >= 28, f"PyDecimal precision too low: {decimal.getcontext().prec}"
 
-# DECIMAL_POINT = locale.localeconv()['decimal_point']  # type: str
+                                                                   
 DECIMAL_POINT = "."
 THOUSANDS_SEP = " "
 assert len(DECIMAL_POINT) == 1, f"DECIMAL_POINT has unexpected len. {DECIMAL_POINT!r}"
@@ -829,39 +829,39 @@ assert len(THOUSANDS_SEP) == 1, f"THOUSANDS_SEP has unexpected len. {THOUSANDS_S
 
 
 def format_satoshis(
-        x: Union[int, float, Decimal, str, None],  # amount in satoshis
+        x: Union[int, float, Decimal, str, None],                      
         *,
         num_zeros: int = 0,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->BTC)
-        precision: int = 0,  # extra digits after satoshi precision
-        is_diff: bool = False,  # if True, enforce a leading sign (+/-)
-        whitespaces: bool = False,  # if True, add whitespaces, to align numbers in a column
-        add_thousands_sep: bool = False,  # if True, add whitespaces, for better readability of the numbers
+        decimal_point: int = 8,                                                               
+        precision: int = 0,                                        
+        is_diff: bool = False,                                         
+        whitespaces: bool = False,                                                          
+        add_thousands_sep: bool = False,                                                                   
 ) -> str:
     if x is None:
         return 'unknown'
     if parse_max_spend(x):
         return f'max({x})'
     assert isinstance(x, (int, float, Decimal)), f"{x!r} should be a number"
-    # TODO(ghost43) just hard-fail if x is a float. do we even use floats for money anywhere?
+                                                                                             
     x = to_decimal(x)
-    # lose redundant precision
+                              
     x = x.quantize(Decimal(10) ** (-precision))
-    # format string
-    overall_precision = decimal_point + precision  # max digits after final decimal point
+                   
+    overall_precision = decimal_point + precision                                        
     decimal_format = "." + str(overall_precision) if overall_precision > 0 else ""
     if is_diff:
         decimal_format = '+' + decimal_format
-    # initial result
+                    
     scale_factor = pow(10, decimal_point)
     result = ("{:" + decimal_format + "f}").format(x / scale_factor)
     if "." not in result: result += "."
     result = result.rstrip('0')
-    # add extra decimal places (zeros)
+                                      
     integer_part, fract_part = result.split(".")
     if len(fract_part) < num_zeros:
         fract_part += "0" * (num_zeros - len(fract_part))
-    # add whitespaces as thousands' separator for better readability of numbers
+                                                                               
     if add_thousands_sep:
         sign = integer_part[0] if integer_part[0] in ("+", "-") else ""
         if sign == "-":
@@ -870,22 +870,22 @@ def format_satoshis(
         integer_part = sign + integer_part
         fract_part = THOUSANDS_SEP.join(fract_part[i:i+3] for i in range(0, len(fract_part), 3))
     result = integer_part + DECIMAL_POINT + fract_part
-    # add leading/trailing whitespaces so that numbers can be aligned in a column
+                                                                                 
     if whitespaces:
         target_fract_len = overall_precision
-        target_integer_len = 14 - decimal_point  # should be enough for up to unsigned 999999 BTC
+        target_integer_len = 14 - decimal_point                                                  
         if add_thousands_sep:
             target_fract_len += max(0, (target_fract_len - 1) // 3)
             target_integer_len += max(0, (target_integer_len - 1) // 3)
-        # add trailing whitespaces
+                                  
         result += " " * (target_fract_len - len(fract_part))
-        # add leading whitespaces
+                                 
         target_total_len = target_integer_len + 1 + target_fract_len
         result = " " * (target_total_len - len(result)) + result
     return result
 
 
-FEERATE_PRECISION = 1  # num fractional decimal places for sat/byte fee rates
+FEERATE_PRECISION = 1                                                        
 _feerate_quanta = Decimal(10) ** (-FEERATE_PRECISION)
 UI_UNIT_NAME_FEERATE_SAT_PER_VBYTE = "sat/vbyte"
 UI_UNIT_NAME_FEERATE_SAT_PER_VB = "sat/vB"
@@ -896,7 +896,7 @@ UI_UNIT_NAME_MEMPOOL_MB = "vMB"
 def format_fee_satoshis(fee, *, num_zeros=0, precision=None):
     if precision is None:
         precision = FEERATE_PRECISION
-    num_zeros = min(num_zeros, FEERATE_PRECISION)  # no more zeroes than available prec
+    num_zeros = min(num_zeros, FEERATE_PRECISION)                                      
     return format_satoshis(fee, num_zeros=num_zeros, decimal_point=0, precision=precision)
 
 
@@ -907,7 +907,7 @@ def quantize_feerate(fee) -> Union[None, Decimal, int]:
     return Decimal(fee).quantize(_feerate_quanta, rounding=decimal.ROUND_HALF_DOWN)
 
 
-DEFAULT_TIMEZONE = None  # type: timezone | None  # None means local OS timezone
+DEFAULT_TIMEZONE = None                                                         
 def timestamp_to_datetime(timestamp: Union[int, float, None], *, utc: bool = False) -> Optional[datetime]:
     if timestamp is None:
         return None
@@ -923,7 +923,7 @@ def format_time(timestamp: Union[int, float, None]) -> str:
 
 
 def age(
-    from_date: Union[int, float, None],  # POSIX timestamp
+    from_date: Union[int, float, None],                   
     *,
     since_date: datetime = None,
     target_tz=None,
@@ -1082,7 +1082,7 @@ def block_explorer_tuple(config: 'SimpleConfig') -> Optional[Tuple[str, dict]]:
                         f"expected a str or a pair but got {custom_be!r}")
         return None
     else:
-        # using one of the hardcoded block explorers
+                                                    
         return block_explorer_info().get(block_explorer(config))
 
 
@@ -1100,9 +1100,9 @@ def block_explorer_URL(config: 'SimpleConfig', kind: str, item: str) -> Optional
     return ''.join(url_parts)
 
 
-# Python bug (http://bugs.python.org/issue1927) causes raw_input
-# to be redirected improperly between stdin/stderr on Unix systems
-#TODO: py3
+                                                                
+                                                                  
+          
 def raw_input(prompt=None):
     if prompt:
         sys.stdout.write(prompt)
@@ -1114,7 +1114,7 @@ builtins.input = raw_input
 
 
 def parse_json(message):
-    # TODO: check \r\n pattern
+                              
     n = message.find(b'\n')
     if n == -1:
         return None, message
@@ -1204,8 +1204,8 @@ def make_dir(path, *, allow_symlink=True):
         try:
             os.mkdir(path)
         except FileExistsError:
-            # this can happen in a multiprocess race, e.g. when an electrum daemon
-            # and an electrum cli command are launched in rapid fire
+                                                                                  
+                                                                    
             pass
         os_chmod(path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
         assert os.path.exists(path)
@@ -1267,12 +1267,12 @@ def with_lock(func):
 
 @dataclass(frozen=True, kw_only=True)
 class TxMinedInfo:
-    _height: int                       # height of block that mined tx
-    conf: Optional[int] = None         # number of confirmations, SPV verified. >=0, or None (None means unknown)
-    timestamp: Optional[int] = None    # timestamp of block that mined tx
-    txpos: Optional[int] = None        # position of tx in serialized block
-    header_hash: Optional[str] = None  # hash of block that mined tx
-    wanted_height: Optional[int] = None  # in case of timelock, min abs block height
+    _height: int                                                      
+    conf: Optional[int] = None                                                                                   
+    timestamp: Optional[int] = None                                      
+    txpos: Optional[int] = None                                            
+    header_hash: Optional[str] = None                               
+    wanted_height: Optional[int] = None                                             
 
     def height(self) -> int:
         """Treat unverified heights as unconfirmed."""
@@ -1280,8 +1280,8 @@ class TxMinedInfo:
         if h > 0:
             if self.conf is not None and self.conf >= 1:
                 return h
-            return 0  # treat it as unconfirmed until SPV-ed
-        else:  # h <= 0
+            return 0                                        
+        else:          
             return h
 
     def short_id(self) -> Optional[str]:
@@ -1354,8 +1354,8 @@ class ShortID(bytes):
 def format_short_id(short_channel_id: Optional[bytes]):
     if not short_channel_id:
         return _('Not yet available')
-    return str(int.from_bytes(short_channel_id[:3], 'big')) \
-        + 'x' + str(int.from_bytes(short_channel_id[3:6], 'big')) \
+    return str(int.from_bytes(short_channel_id[:3], 'big'))\
+        + 'x' + str(int.from_bytes(short_channel_id[3:6], 'big'))\
         + 'x' + str(int.from_bytes(short_channel_id[6:], 'big'))
 
 
@@ -1366,7 +1366,7 @@ def make_aiohttp_proxy_connector(proxy: 'ProxySettings', ssl_context: Optional[s
         port=int(proxy.port),
         username=proxy.user,
         password=proxy.password,
-        rdns=True,  # needed to prevent DNS leaks over proxy
+        rdns=True,                                          
         ssl=ssl_context,
     )
 
@@ -1375,8 +1375,8 @@ def make_aiohttp_session(proxy: Optional['ProxySettings'], headers=None, timeout
     if headers is None:
         headers = {'User-Agent': 'Electrum'}
     if timeout is None:
-        # The default timeout is high intentionally.
-        # DNS on some systems can be really slow, see e.g. #5337
+                                                    
+                                                                
         timeout = aiohttp.ClientTimeout(total=45)
     elif isinstance(timeout, (int, float)):
         timeout = aiohttp.ClientTimeout(total=timeout)
@@ -1419,7 +1419,7 @@ class OldTaskGroup(aiorpcx.TaskGroup):
                 async for task in self:
                     if not task.cancelled():
                         task.result()
-            except BaseException:  # including asyncio.CancelledError
+            except BaseException:                                    
                 exc = True
                 raise
             finally:
@@ -1432,23 +1432,23 @@ class OldTaskGroup(aiorpcx.TaskGroup):
                 self.completed.result()
 
 
-# We monkey-patch aiorpcx TimeoutAfter (used by timeout_after and ignore_after API),
-# to fix a timing issue present in asyncio as a whole re timing out tasks.
-# To see the issue we are trying to fix, consider example:
-#     async def outer_task():
-#         async with timeout_after(0.1):
-#             await inner_task()
-# When the 0.1 sec timeout expires, inner_task will get cancelled by timeout_after (=internal cancellation).
-# If around the same time (in terms of event loop iterations) another coroutine
-# cancels outer_task (=external cancellation), there will be a race.
-# Both cancellations work by propagating a CancelledError out to timeout_after, which then
-# needs to decide (in TimeoutAfter.__aexit__) whether it's due to an internal or external cancellation.
-# AFAICT asyncio provides no reliable way of distinguishing between the two.
-# This patch tries to always give priority to external cancellations.
-# see https://github.com/kyuupichan/aiorpcX/issues/44
-# see https://github.com/aio-libs/async-timeout/issues/229
-# see https://bugs.python.org/issue42130 and https://bugs.python.org/issue45098
-# TODO see if we can migrate to asyncio.timeout, introduced in python 3.11, and use stdlib instead of aiorpcx.curio...
+                                                                                    
+                                                                          
+                                                          
+                             
+                                        
+                                
+                                                                                                            
+                                                                               
+                                                                    
+                                                                                          
+                                                                                                       
+                                                                            
+                                                                     
+                                                     
+                                                          
+                                                                               
+                                                                                                                      
 def _aiorpcx_monkeypatched_set_new_deadline(task, deadline):
     def timeout_task():
         task._orig_cancel()
@@ -1498,7 +1498,7 @@ async def wait_for2(fut: Awaitable, timeout: Union[int, float, None]):
             return await asyncio.ensure_future(fut, loop=get_running_loop())
 
 
-if hasattr(asyncio, 'timeout'):  # python 3.11+
+if hasattr(asyncio, 'timeout'):                
     async_timeout = asyncio.timeout
 else:
     class TimeoutAfterAsynciolike(aiorpcx.curio.TimeoutAfter):
@@ -1524,16 +1524,16 @@ class NetworkJobOnDefaultServer(Logger, ABC):
     def __init__(self, network: 'Network'):
         Logger.__init__(self)
         self.network = network
-        self.interface = None  # type: Interface
+        self.interface = None                   
         self._restart_lock = asyncio.Lock()
-        # Ensure fairness between NetworkJobs. e.g. if multiple wallets
-        # are open, a large wallet's Synchronizer should not starve the small wallets:
+                                                                       
+                                                                                      
         self._network_request_semaphore = asyncio.Semaphore(100)
 
         self._reset()
-        # every time the main interface changes, restart:
+                                                         
         register_callback(self._restart, ['default_server_changed'])
-        # also schedule a one-off restart now, as there might already be a main interface:
+                                                                                          
         asyncio.run_coroutine_threadsafe(self._restart(), network.asyncio_loop)
 
     def _reset(self):
@@ -1565,8 +1565,8 @@ class NetworkJobOnDefaultServer(Logger, ABC):
         """Start tasks in taskgroup. Called every time the underlying
         server connection changes.
         """
-        # If self.taskgroup changed, don't start tasks. This can happen if we have
-        # been restarted *just now*, i.e. after the _run_tasks coroutine object was created.
+                                                                                  
+                                                                                            
         if taskgroup != self.taskgroup:
             raise asyncio.CancelledError()
 
@@ -1580,7 +1580,7 @@ class NetworkJobOnDefaultServer(Logger, ABC):
     async def _restart(self, *args):
         interface = self.network.interface
         if interface is None:
-            return  # we should get called again soon
+            return                                   
 
         async with self._restart_lock:
             await self.stop(full_shutdown=False)
@@ -1602,7 +1602,7 @@ class NetworkJobOnDefaultServer(Logger, ABC):
 
 
 async def detect_tor_socks_proxy() -> Optional[Tuple[str, int]]:
-    # Probable ports for Tor to listen at
+                                         
     candidates = [
         ("127.0.0.1", 9050),
         ("127.0.0.1", 9051),
@@ -1613,7 +1613,7 @@ async def detect_tor_socks_proxy() -> Optional[Tuple[str, int]]:
 
     async def test_net_addr(net_addr):
         is_tor = await is_tor_socks_port(*net_addr)
-        # set result, and cancel remaining probes
+                                                 
         if is_tor:
             nonlocal proxy_addr
             proxy_addr = net_addr
@@ -1627,11 +1627,11 @@ async def detect_tor_socks_proxy() -> Optional[Tuple[str, int]]:
 
 @log_exceptions
 async def is_tor_socks_port(host: str, port: int) -> bool:
-    # mimic "tor-resolve 0.0.0.0".
-    # see https://github.com/spesmilo/electrum/issues/7317#issuecomment-1369281075
-    # > this is a socks5 handshake, followed by a socks RESOLVE request as defined in
-    # > [tor's socks extension spec](https://github.com/torproject/torspec/blob/7116c9cdaba248aae07a3f1d0e15d9dd102f62c5/socks-extensions.txt#L63),
-    # > resolving 0.0.0.0, which being an IP, tor resolves itself without needing to ask a relay.
+                                  
+                                                                                  
+                                                                                     
+                                                                                                                                                   
+                                                                                                 
     writer = None
     try:
         async with async_timeout(10):
@@ -1649,9 +1649,9 @@ async def is_tor_socks_port(host: str, port: int) -> bool:
             writer.close()
 
 
-AS_LIB_USER_I_WANT_TO_MANAGE_MY_OWN_ASYNCIO_LOOP = False  # used by unit tests
+AS_LIB_USER_I_WANT_TO_MANAGE_MY_OWN_ASYNCIO_LOOP = False                      
 
-_asyncio_event_loop = None  # type: Optional[asyncio.AbstractEventLoop]
+_asyncio_event_loop = None                                             
 
 
 def get_asyncio_loop() -> asyncio.AbstractEventLoop:
@@ -1671,20 +1671,20 @@ def create_and_start_event_loop() -> Tuple[asyncio.AbstractEventLoop,
     if _asyncio_event_loop is not None:
         raise Exception("there is already a running event loop")
 
-    # asyncio.get_event_loop() became deprecated in python3.10. (see https://github.com/python/cpython/issues/83710)
-    # We set a custom event loop policy purely to be compatible with code that
-    # relies on asyncio.get_event_loop().
-    # - in python 3.8-3.9, asyncio.Event.__init__, asyncio.Lock.__init__,
-    #   and similar, calls get_event_loop. see https://github.com/python/cpython/pull/23420
+                                                                                                                    
+                                                                              
+                                         
+                                                                         
+                                                                                           
     class MyEventLoopPolicy(asyncio.DefaultEventLoopPolicy):
         def get_event_loop(self):
-            # In case electrum is being used as a library, there might be other
-            # event loops in use besides ours. To minimise interfering with those,
-            # if there is a loop running in the current thread, return that:
+                                                                               
+                                                                                  
+                                                                            
             running_loop = get_running_loop()
             if running_loop is not None:
                 return running_loop
-            # Otherwise, return our global loop:
+                                                
             return get_asyncio_loop()
     asyncio.set_event_loop_policy(MyEventLoopPolicy())
 
@@ -1704,7 +1704,7 @@ def create_and_start_event_loop() -> Tuple[asyncio.AbstractEventLoop,
         try:
             loop.run_until_complete(stopping_fut)
         finally:
-            # clean-up
+                      
             try:
                 pending_tasks = asyncio.gather(*asyncio.all_tasks(loop), return_exceptions=True)
                 pending_tasks.cancel()
@@ -1722,16 +1722,16 @@ def create_and_start_event_loop() -> Tuple[asyncio.AbstractEventLoop,
 
     loop.set_exception_handler(on_exception)
     _set_custom_task_factory(loop)
-    # loop.set_debug(True)
+                          
     stopping_fut = loop.create_future()
     loop_thread = threading.Thread(
         target=run_event_loop,
         name='EventLoop',
     )
     loop_thread.start()
-    # Wait until the loop actually starts.
-    # On a slow PC, or with a debugger attached, this can take a few dozens of ms,
-    # and if we returned without a running loop, weird things can happen...
+                                          
+                                                                                  
+                                                                           
     t0 = time.monotonic()
     while not loop.is_running():
         time.sleep(0.01)
@@ -1740,7 +1740,7 @@ def create_and_start_event_loop() -> Tuple[asyncio.AbstractEventLoop,
     return loop, stopping_fut, loop_thread
 
 
-_running_asyncio_tasks = set()  # type: Set[asyncio.Future]
+_running_asyncio_tasks = set()                             
 
 
 def _set_custom_task_factory(loop: asyncio.AbstractEventLoop):
@@ -1788,16 +1788,16 @@ def run_sync_function_on_asyncio_thread(func: Callable[[], Any], *, block: bool)
     """
     assert not inspect.iscoroutinefunction(func), "func must be a non-async function"
     asyncio_loop = get_asyncio_loop()
-    if get_running_loop() == asyncio_loop:  # we are running on the asyncio thread
+    if get_running_loop() == asyncio_loop:                                        
         func()
-    else:  # non-asyncio thread
+    else:                      
         async def wrapper():
             return func()
         fut = asyncio.run_coroutine_threadsafe(wrapper(), loop=asyncio_loop)
         if block:
             fut.result()
         else:
-            # add explicit logging of exceptions, otherwise they might get lost
+                                                                               
             tb1 = traceback.format_stack()[:-1]
             tb1_str = "".join(tb1)
 
@@ -1806,8 +1806,8 @@ def run_sync_function_on_asyncio_thread(func: Callable[[], Any], *, block: bool)
                 if fut_.cancelled():
                     _logger.debug(f"func cancelled. {func=}.")
                 elif exc := fut_.exception():
-                    # note: We explicitly log the first part of the traceback, tb1_str.
-                    #       The second part gets logged by setting "exc_info".
+                                                                                       
+                                                                              
                     _logger.error(
                         f"func errored. {func=}. {exc=}"
                         f"\n{tb1_str}", exc_info=exc)
@@ -1876,21 +1876,6 @@ class OrderedDictWithIndex(OrderedDict):
         return ret
 
 
-def make_object_immutable(obj):
-    """Makes the passed object immutable recursively."""
-    allowed_types = (
-        dict, MappingProxyType, list, tuple, set, frozenset, str, int, float, bool, bytes, type(None)
-    )
-    assert isinstance(obj, allowed_types), f"{type(obj)=} cannot be made immutable"
-    if isinstance(obj, (dict, MappingProxyType)):
-        return MappingProxyType({k: make_object_immutable(v) for k, v in obj.items()})
-    elif isinstance(obj, (list, tuple)):
-        return tuple(make_object_immutable(item) for item in obj)
-    elif isinstance(obj, (set, frozenset)):
-        return frozenset(make_object_immutable(item) for item in obj)
-    return obj
-
-
 def multisig_type(wallet_type):
     """If wallet_type is mofn multi-sig, return [m, n],
     otherwise return None."""
@@ -1915,26 +1900,26 @@ def is_ip_address(x: Union[str, bytes]) -> bool:
 def is_localhost(host: str) -> bool:
     if str(host) in ('localhost', 'localhost.',):
         return True
-    if host[0] == '[' and host[-1] == ']':  # IPv6
+    if host[0] == '[' and host[-1] == ']':        
         host = host[1:-1]
     try:
-        ip_addr = ipaddress.ip_address(host)  # type: Union[IPv4Address, IPv6Address]
+        ip_addr = ipaddress.ip_address(host)                                         
         return ip_addr.is_loopback
     except ValueError:
-        pass  # not an IP
+        pass             
     return False
 
 
 def is_private_netaddress(host: str) -> bool:
     if is_localhost(host):
         return True
-    if host[0] == '[' and host[-1] == ']':  # IPv6
+    if host[0] == '[' and host[-1] == ']':        
         host = host[1:-1]
     try:
-        ip_addr = ipaddress.ip_address(host)  # type: Union[IPv4Address, IPv6Address]
+        ip_addr = ipaddress.ip_address(host)                                         
         return ip_addr.is_private
     except ValueError:
-        pass  # not an IP
+        pass             
     return False
 
 
@@ -1946,10 +1931,10 @@ def list_enabled_bits(x: int) -> Sequence[int]:
 
 
 async def resolve_dns_srv(host: str):
-    # FIXME this method is not using the network proxy. (although the proxy might not support UDP?)
+                                                                                                   
     srv_records = await dns.asyncresolver.resolve(host, 'SRV')
-    # priority: prefer lower
-    # weight: tie breaker; prefer higher
+                            
+                                        
     srv_records = sorted(srv_records, key=lambda x: (x.priority, -x.weight))
 
     def dict_from_srv_record(srv):
@@ -1965,23 +1950,23 @@ def randrange(bound: int) -> int:
     distributed across that range.
     This is guaranteed to be cryptographically strong.
     """
-    # secrets.randbelow(bound) returns a random int: 0 <= r < bound,
-    # hence transformations:
+                                                                    
+                            
     return secrets.randbelow(bound - 1) + 1
 
 
 class CallbackManager(Logger):
-    # callbacks set by the GUI or any thread
-    # guarantee: the callbacks will always get triggered from the asyncio thread.
+                                            
+                                                                                 
 
-    # FIXME: There should be a way to prevent circular callbacks.
-    # At the very least, we need a distinction between callbacks that
-    # are for the GUI and callbacks between wallet components
+                                                                 
+                                                                     
+                                                             
 
     def __init__(self):
         Logger.__init__(self)
         self.callback_lock = threading.Lock()
-        self.callbacks = defaultdict(list)  # type: Dict[str, List[Callable]]  # note: needs self.callback_lock
+        self.callbacks = defaultdict(list)                                                                     
 
     def register_callback(self, func: Callable, events: Sequence[str]) -> None:
         with self.callback_lock:
@@ -2008,7 +1993,7 @@ class CallbackManager(Logger):
         with self.callback_lock:
             callbacks = self.callbacks[event][:]
         for callback in callbacks:
-            if inspect.iscoroutinefunction(callback):  # async cb
+            if inspect.iscoroutinefunction(callback):            
                 fut = asyncio.run_coroutine_threadsafe(callback(*args), loop)
 
                 def on_done(fut_: concurrent.futures.Future):
@@ -2018,7 +2003,7 @@ class CallbackManager(Logger):
                     elif exc := fut_.exception():
                         self.logger.error(f"cb errored. {event=}. {exc=}", exc_info=exc)
                 fut.add_done_callback(on_done)
-            else:  # non-async cb
+            else:                
                 run_sync_function_on_asyncio_thread(partial(callback, *args), block=False)
 
 
@@ -2026,7 +2011,7 @@ callback_mgr = CallbackManager()
 trigger_callback = callback_mgr.trigger_callback
 register_callback = callback_mgr.register_callback
 unregister_callback = callback_mgr.unregister_callback
-_event_listeners = defaultdict(set)  # type: Dict[str, Set[str]]
+_event_listeners = defaultdict(set)                             
 
 
 class EventListener:
@@ -2047,12 +2032,12 @@ class EventListener:
 
     def register_callbacks(self):
         for name, method in self._list_callbacks():
-            #_logger.debug(f'registering callback {method}')
+                                                            
             register_callback(method, [name])
 
     def unregister_callbacks(self):
         for name, method in self._list_callbacks():
-            #_logger.debug(f'unregistering callback {method}')
+                                                              
             unregister_callback(method)
 
 
@@ -2066,8 +2051,8 @@ def event_listener(func):
 
 
 _NetAddrType = TypeVar("_NetAddrType")
-# requirements for _NetAddrType:
-# - reasonable __hash__() implementation (e.g. based on host/port of remote endpoint)
+                                
+                                                                                     
 
 
 class NetworkRetryManager(Generic[_NetAddrType]):
@@ -2080,9 +2065,9 @@ class NetworkRetryManager(Generic[_NetAddrType]):
             max_retry_delay_urgent: float = None,
             init_retry_delay_urgent: float = None,
     ):
-        self._last_tried_addr = {}  # type: Dict[_NetAddrType, Tuple[float, int]]  # (unix ts, num_attempts)
+        self._last_tried_addr = {}                                                                          
 
-        # note: these all use "seconds" as unit
+                                               
         if max_retry_delay_urgent is None:
             max_retry_delay_urgent = max_retry_delay_normal
         if init_retry_delay_urgent is None:
@@ -2094,8 +2079,8 @@ class NetworkRetryManager(Generic[_NetAddrType]):
 
     def _trying_addr_now(self, addr: _NetAddrType) -> None:
         last_time, num_attempts = self._last_tried_addr.get(addr, (0, 0))
-        # we add up to 1 second of noise to the time, so that clients are less likely
-        # to get synchronised and bombard the remote in connection waves:
+                                                                                     
+                                                                         
         cur_time = time.time() + random.random()
         self._last_tried_addr[addr] = cur_time, num_attempts + 1
 
@@ -2132,8 +2117,8 @@ class NetworkRetryManager(Generic[_NetAddrType]):
 
 
 class ESocksProxy(aiorpcx.SOCKSProxy):
-    # note: proxy will not leak DNS as create_connection()
-    # sets (local DNS) resolve=False by default
+                                                          
+                                               
 
     async def open_connection(self, host=None, port=None, **kwargs):
         loop = asyncio.get_running_loop()
@@ -2151,7 +2136,7 @@ class ESocksProxy(aiorpcx.SOCKSProxy):
         proxy = network.proxy
         username, pw = proxy.user, proxy.password
         if not username or not pw:
-            # is_proxy_tor is tri-state; None indicates it is still probing the proxy to test for TOR
+                                                                                                     
             if network.is_proxy_tor:
                 auth = aiorpcx.socks.SOCKSRandomAuth()
             else:
@@ -2164,14 +2149,14 @@ class ESocksProxy(aiorpcx.SOCKSProxy):
         elif proxy.mode == "socks5":
             ret = cls(addr, aiorpcx.socks.SOCKS5, auth)
         else:
-            raise NotImplementedError  # http proxy not available with aiorpcx
+            raise NotImplementedError                                         
         return ret
 
 
 class JsonRPCError(Exception):
 
     class Codes(enum.IntEnum):
-        # application-specific error codes
+                                          
         USERFACING = 1
         INTERNAL = 2
 
@@ -2221,22 +2206,22 @@ T = TypeVar('T')
 
 def random_shuffled_copy(x: Iterable[T]) -> List[T]:
     """Returns a shuffled copy of the input."""
-    x_copy = list(x)  # copy
-    random.shuffle(x_copy)  # shuffle in-place
+    x_copy = list(x)        
+    random.shuffle(x_copy)                    
     return x_copy
 
 
 def test_read_write_permissions(path) -> None:
-    # note: There might already be a file at 'path'.
-    #       Make sure we do NOT overwrite/corrupt that!
+                                                    
+                                                       
     temp_path = "%s.tmptest.%s" % (path, os.getpid())
     echo = "fs r/w test"
     try:
-        # test READ permissions for actual path
+                                               
         if os.path.exists(path):
             with open(path, "rb") as f:
-                f.read(1)  # read 1 byte
-        # test R/W sanity for "similar" path
+                f.read(1)               
+                                            
         with open(temp_path, "w", encoding='utf-8') as f:
             f.write(echo)
         with open(temp_path, "r", encoding='utf-8') as f:
@@ -2308,9 +2293,9 @@ def error_text_bytes_to_safe_str(err: bytes, *, max_len: Optional[int] = 500) ->
     >>> print(s)
     malicious_stuffblabla
     """
-    # convert to ascii, to get rid of unicode stuff
+                                                   
     ascii_text = err.decode("ascii", errors='backslashreplace')
-    # do repr to handle ascii special chars (especially when printing/logging the str)
+                                                                                      
     text = repr(ascii_text)
     return truncate_text(text, max_len=max_len)
 
@@ -2326,8 +2311,8 @@ def nostr_pow_worker(nonce, nostr_pubk, target_bits, hash_function, hash_len_bit
     """Function to generate PoW for Nostr, to be spawned in a ProcessPoolExecutor."""
     hash_preimage = b'electrum-' + nostr_pubk
     while True:
-        # we cannot check is_set on each iteration as it has a lot of overhead, this way we can check
-        # it with low overhead (just the additional range counter)
+                                                                                                     
+                                                                  
         for i in range(1000000):
             digest = hash_function(hash_preimage + nonce.to_bytes(32, 'big')).digest()
             if int.from_bytes(digest, 'big') < (1 << (hash_len_bits - target_bits)):
@@ -2340,13 +2325,13 @@ def nostr_pow_worker(nonce, nostr_pubk, target_bits, hash_function, hash_len_bit
 
 async def gen_nostr_ann_pow(nostr_pubk: bytes, target_bits: int) -> Tuple[int, int]:
     """Generate a PoW for a Nostr announcement. The PoW is hash[b'electrum-'+pubk+nonce]"""
-    import multiprocessing  # not available on Android, so we import it here
+    import multiprocessing                                                  
     hash_function = hashlib.sha256
     hash_len_bits = 256
-    max_nonce: int = (1 << (32 * 8)) - 1  # 32-byte nonce
+    max_nonce: int = (1 << (32 * 8)) - 1                 
     start_nonce = 0
 
-    max_workers = max(multiprocessing.cpu_count() - 1, 1)  # use all but one CPU
+    max_workers = max(multiprocessing.cpu_count() - 1, 1)                       
     manager = multiprocessing.Manager()
     shutdown = manager.Event()
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -2364,8 +2349,8 @@ async def gen_nostr_ann_pow(nostr_pubk: bytes, target_bits: int) -> Tuple[int, i
                 shutdown
             )
             tasks.append(task)
-            start_nonce += max_nonce // max_workers  # split the nonce range between the processes
-            if start_nonce > max_nonce:  # make sure we don't go over the max_nonce
+            start_nonce += max_nonce // max_workers                                               
+            if start_nonce > max_nonce:                                            
                 start_nonce = random.randint(0, int(max_nonce * 0.75))
 
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
@@ -2447,5 +2432,5 @@ class LightningHistoryItem(NamedTuple):
 @dataclass(kw_only=True, slots=True)
 class ChoiceItem:
     key: Any
-    label: str  # user facing string
+    label: str                      
     extra_data: Any = None

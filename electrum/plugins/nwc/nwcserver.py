@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import json
 import time
@@ -37,8 +37,8 @@ from electrum_aionostr.key import PrivateKey
 from electrum.lnworker import PaymentDirection
 from electrum.plugin import BasePlugin, hook
 from electrum.logging import Logger
-from electrum.util import log_exceptions, ca_path, OldTaskGroup, get_asyncio_loop, InvoiceError, \
-    LightningHistoryItem, event_listener, EventListener, make_aiohttp_proxy_connector, \
+from electrum.util import log_exceptions, ca_path, OldTaskGroup, get_asyncio_loop, InvoiceError,\
+    LightningHistoryItem, event_listener, EventListener, make_aiohttp_proxy_connector,\
     get_running_loop
 from electrum.invoices import Invoice, Request, PR_UNKNOWN, PR_PAID, BaseInvoice, PR_INFLIGHT
 from electrum import constants
@@ -56,11 +56,11 @@ class NWCServerPlugin(BasePlugin):
     def __init__(self, parent, config: 'SimpleConfig', name):
         BasePlugin.__init__(self, parent, config, name)
         self.config = config
-        self.connections = None  # type: Optional[dict[str, dict]]  # pubkey_hex -> connection data
-        self.nwc_server = None   # type: Optional[NWCServer]
+        self.connections = None                                                                    
+        self.nwc_server = None                              
         self.taskgroup = OldTaskGroup()
         self.initialized = False
-        if not self.config.NWC_RELAY:  # type: ignore  # defined in __init__
+        if not self.config.NWC_RELAY:                                       
             self.config.NWC_RELAY = self.config.NOSTR_RELAYS.split(',')[0]
         self.logger.debug(f"NWCServerPlugin created, waiting for wallet to load...")
 
@@ -68,7 +68,7 @@ class NWCServerPlugin(BasePlugin):
         if not wallet.has_lightning():
             return
         if self.initialized:
-            # this might be called for several wallets. only use one.
+                                                                     
             return
         storage = self.get_storage(wallet)
         self.connections = storage.setdefault('connections', {})
@@ -158,15 +158,15 @@ class NWCServerPlugin(BasePlugin):
     def serialize_connection_uri(self, client_secret_hex: str, our_pubkey_hex: str) -> str:
         base_uri = f"{self.URI_SCHEME}{our_pubkey_hex}"
 
-        # the NWC_RELAY is added first as this is the first relay parsed by clients
-        query_params = [f"relay={urllib.parse.quote(self.config.NWC_RELAY)}"]  # type: ignore
+                                                                                   
+        query_params = [f"relay={urllib.parse.quote(self.config.NWC_RELAY)}"]                
         for relay in self.config.NOSTR_RELAYS.split(",")[:5]:
-            if relay != self.config.NWC_RELAY:  # type: ignore
+            if relay != self.config.NWC_RELAY:                
                 query_params.append(f"relay={urllib.parse.quote(relay)}")
 
         query_params.append(f"secret={client_secret_hex}")
 
-        # Construct the final URI
+                                 
         query_string = "&".join(query_params)
         uri = f"{base_uri}?{query_string}"
 
@@ -191,16 +191,16 @@ class NWCServer(Logger, EventListener):
         connection_storage: dict,
     ):
         Logger.__init__(self)
-        self.config = config  # type: 'SimpleConfig'
-        self.wallet = wallet  # type: 'Abstract_Wallet'
-        self.connections = connection_storage  # type: dict[str, dict]  # client hex pubkey -> connection data
-        self.relays = config.NOSTR_RELAYS.split(",") or []  # type: List[str]
+        self.config = config                        
+        self.wallet = wallet                           
+        self.connections = connection_storage                                                                 
+        self.relays = config.NOSTR_RELAYS.split(",") or []                   
         self.do_stop = False
-        self.taskgroup = taskgroup  # type: 'OldTaskGroup'
+        self.taskgroup = taskgroup                        
         self.ssl_context = ssl.create_default_context(purpose=ssl.Purpose.SERVER_AUTH, cafile=ca_path)
-        self.manager = None  # type: Optional[aionostr.Manager]
-        # the task is stored so it can be cancelled when the connections change
-        self.event_handler_task = None  # type: Optional[asyncio.Task]
+        self.manager = None                                    
+                                                                               
+        self.event_handler_task = None                                
         self.register_callbacks()
 
     def get_relay_manager(self) -> aionostr.Manager:
@@ -213,9 +213,9 @@ class NWCServer(Logger, EventListener):
         else:
             proxy: Optional['ProxyConnector'] = None
         return aionostr.Manager(
-            # ensure that we also connect to NWC_RELAY, even if it's not in the NOSTR_RELAYS
-            relays=set(self.config.NOSTR_RELAYS.split(",")) | {self.config.NWC_RELAY},  # type: ignore
-            private_key=PrivateKey().hex(),  # use random private key
+                                                                                            
+            relays=set(self.config.NOSTR_RELAYS.split(",")) | {self.config.NWC_RELAY},                
+            private_key=PrivateKey().hex(),                          
             log=nostr_logger,
             ssl_context=self.ssl_context,
             proxy=proxy
@@ -224,7 +224,7 @@ class NWCServer(Logger, EventListener):
     @log_exceptions
     async def run(self) -> None:
         while True:
-            # wait until connections have been set up and network is available
+                                                                              
             while (not self.connections
                         or not self.relays
                         or not self.wallet.network
@@ -246,7 +246,7 @@ class NWCServer(Logger, EventListener):
                 self.logger.debug("Restarting nwc event handler")
             except Exception as e:
                 self.logger.exception(f"Restarting nwc event handler after exception: {e}")
-                if self.manager:  # close the manager so refresh_manager() will recreate it
+                if self.manager:                                                           
                     await self.manager.close()
                     self.manager = None
                 await asyncio.sleep(60)
@@ -254,21 +254,21 @@ class NWCServer(Logger, EventListener):
     async def refresh_manager(self) -> bool:
         """Checks if manager is still connected to relays, if not recreates it and reconnects"""
         if self.manager is None:
-            # on startup and proxy change
+                                         
             self.manager = self.get_relay_manager()
 
         if len(self.manager.relays) <= 0 < len(self.relays):
-            # manager lost all connections (relays)
-            # setup new manager so relays are populated again
+                                                   
+                                                             
             await self.manager.close()
             self.manager = self.get_relay_manager()
 
         if not self.manager.connected:
-            # not set in new manager instances
+                                              
             await self.manager.connect()
 
         if len(self.manager.relays) <= 0:
-            # manager should still have relays after connecting
+                                                               
             self.logger.warning(f"Could not connect to any relays!")
             return False
 
@@ -292,16 +292,16 @@ class NWCServer(Logger, EventListener):
 
     async def handle_requests(self) -> None:
         query = {
-            "authors": list(self.connections.keys()),  # the pubkeys of the client connections
+            "authors": list(self.connections.keys()),                                         
             "kinds": [self.REQUEST_EVENT_KIND],
-            "limit": 0,  # requests only new events after creating this subscription
+            "limit": 0,                                                             
             "since": int(time.time())
         }
         async for event in self.manager.get_events(query, single_event=False, only_stored=False):
             if event.pubkey not in self.connections.keys():
                 continue
 
-            # check if the connection is expired, if so we delete it and send an error
+                                                                                      
             valid_until: Optional[int] = self.connections[event.pubkey].get('valid_until')
             if valid_until and valid_until <= int(time.time()):
                 await self.send_error(event, "UNAUTHORIZED", "Connection expired")
@@ -315,9 +315,9 @@ class NWCServer(Logger, EventListener):
                 await self.send_error(event, "NOT_IMPLEMENTED")
                 continue
 
-            # if the request has an explicitly set expiration tag, ignore it if it is expired
-            # otherwise ignore requests older than 30 sec to not handle requests the user may
-            # already expect to have timed out
+                                                                                             
+                                                                                             
+                                              
             if event.expires_at() is not None:
                 if event.is_expired():
                     self.logger.debug(f"expired nwc request event: {event.content}")
@@ -327,7 +327,7 @@ class NWCServer(Logger, EventListener):
                 await self.send_error(event, "OTHER", f"not handling too old request")
                 continue
 
-            # decrypt the requests content
+                                          
             our_secret: str = self.connections[event.pubkey]['our_secret']
             our_connection_secret = PrivateKey(raw_secret=bytes.fromhex(our_secret))
             try:
@@ -343,7 +343,7 @@ class NWCServer(Logger, EventListener):
                 self.logger.debug(f"Invalid request event content: {event.content}", exc_info=True)
                 continue
 
-            # run the according method
+                                      
             method: str = content.get('method')
             self.logger.debug(f"got request: {method=}, {params=}")
             task: Optional[Awaitable] = None
@@ -382,7 +382,7 @@ class NWCServer(Logger, EventListener):
         to_pubkey_hex = causing_event.pubkey
         response_to_id = causing_event.id
         res_type = None
-        if isinstance(causing_event.content, dict):  # we have replaced the content with the decrypted content
+        if isinstance(causing_event.content, dict):                                                           
             if 'method' in causing_event.content:
                 res_type = causing_event.content['method']
         content = self.get_error_response(error_type, error_msg, res_type)
@@ -419,7 +419,7 @@ class NWCServer(Logger, EventListener):
             kind=self.RESPONSE_EVENT_KIND,
             tags=tags,
             content=self.encrypt_to_pubkey(content, to_pubkey_hex),
-            # use the private key we generated for this specific client
+                                                                       
             private_key=our_secret
             )
         )
@@ -449,7 +449,7 @@ class NWCServer(Logger, EventListener):
             inv_id: Optional[str] = invoice_req.get('id')
             response = await self.pay_invoice(invoice, amount_msat, request_event.pubkey)
             if not inv_id:
-                # if we have no id we need the payment hash
+                                                           
                 try:
                     inv_id = Invoice.from_bech32(invoice).rhash
                 except InvoiceError:
@@ -469,10 +469,10 @@ class NWCServer(Logger, EventListener):
         Handler for make_invoice method.
         https://github.com/nostr-protocol/nips/blob/75f246ed987c23c99d77bfa6aeeb1afb669e23f7/47.md#make_invoice
         """
-        amount_msat = params.get('amount', 0)  # type: Optional[int]
-        description = params.get('description', params.get('description_hash', ""))  # type: str
-        expiry = params.get('expiry', 3600)  # type: int
-        # create payment request
+        amount_msat = params.get('amount', 0)                       
+        description = params.get('description', params.get('description_hash', ""))             
+        expiry = params.get('expiry', 3600)             
+                                
         key: str = self.wallet.create_request(
             amount_sat=amount_msat // 1000,
             message=description,
@@ -502,7 +502,7 @@ class NWCServer(Logger, EventListener):
                 "created_at": lnaddr.date,
                 "expires_at": req.get_expiration_date(),
                 "metadata": {},
-                "fees_paid": 0  # the spec wants this??
+                "fees_paid": 0                         
             }
         }
         self.logger.debug(f"make_invoice response: {response}")
@@ -556,7 +556,7 @@ class NWCServer(Logger, EventListener):
                 "metadata": {}
             }
         }
-        if payment_hash:  # if client requested by payment hash we add the invoice
+        if payment_hash:                                                          
             response['result']['invoice'] = b11
 
         info = self.get_payment_info(invoice.rhash)
@@ -628,7 +628,7 @@ class NWCServer(Logger, EventListener):
         limit: Optional[int] = params.get('limit')
         offset: Optional[int] = params.get('offset')
         include_unpaid_reqs = bool(params.get('unpaid', False))
-        # this is not in spec but alby go requests it
+                                                     
         include_unpaid_outgoing = bool(params.get('unpaid_outgoing', False))
         req_type = params.get('type', "undefined")
 
@@ -649,8 +649,8 @@ class NWCServer(Logger, EventListener):
                 if not req.is_lightning() or not (from_ts <= req.time <= until_ts):
                     continue
                 lightning_history.append(
-                    # append the payment request as LightingHistoryItem so they can be filtered
-                    # together with the real lightning history items
+                                                                                               
+                                                                    
                     LightningHistoryItem(
                         type='unpaid',
                         payment_hash=req.rhash,
@@ -688,7 +688,7 @@ class NWCServer(Logger, EventListener):
                 )
 
         if from_ts > 0 or until_ts < time.time() - 50:
-            # filter out transactions that are not in the time range
+                                                                    
             lightning_history = [tx for tx in lightning_history if from_ts <= tx.timestamp <= until_ts]
 
         lightning_history = sorted(lightning_history, key=lambda tx: tx.timestamp, reverse=True)
@@ -721,8 +721,8 @@ class NWCServer(Logger, EventListener):
                 tx['expires_at'] = payment.get_expiration_date()
                 tx['created_at'] = payment.time
             else:
-                # don't include txs with semi complete information as this will cause some clients
-                # to fail displaying any transaction at all
+                                                                                                  
+                                                           
                 continue
             if (not include_unpaid_reqs and not include_unpaid_outgoing) or history_tx.type == 'payment':
                 tx['settled_at'] = history_tx.timestamp
@@ -860,7 +860,7 @@ class NWCServer(Logger, EventListener):
         """
         if 'budget_spends' not in self.connections[client_pub]:
             self.connections[client_pub]['budget_spends'] = []
-        # tuples don't work because jsondb converts them to lists on reload
+                                                                           
         self.connections[client_pub]['budget_spends'].append([amount_sat, int(time.time())])
 
     def get_used_budget(self, client_pub: str) -> int:
@@ -875,18 +875,18 @@ class NWCServer(Logger, EventListener):
             if timestamp > int(time.time()) - 24 * 3600:
                 used_budget += amount
             elif timestamp < int(time.time()) - 24 * 3600:
-                # remove old expense
+                                    
                 try:
                     budget_spends.remove([amount, timestamp])
                 except ValueError:
                     self.logger.debug("", exc_info=True)
-                    continue  # could happen if there is a race
+                    continue                                   
         return used_budget
 
     def budget_allows_spend(self, client_pub: str, sats_to_spend: int) -> bool:
         client_budget_sat: Optional[int] = self.connections[client_pub].get('daily_limit_sat')
         if client_budget_sat is None:
-            return True  # unlimited budget
+            return True                    
         used_budget: int = self.get_used_budget(client_pub)
         if used_budget + sats_to_spend > client_budget_sat:
             return False
@@ -910,7 +910,7 @@ class NWCServer(Logger, EventListener):
             event_id = await aionostr._add_event(
                 self.manager,
                 kind=self.INFO_EVENT_KIND,
-                tags=tags,  # only needed if we support notification events
+                tags=tags,                                                 
                 content=content,
                 private_key=connection['our_secret']
             )
@@ -941,7 +941,7 @@ class NWCServer(Logger, EventListener):
         encrypted_content: str = our_secret_key.encrypt_message(msg, pubkey)
         return encrypted_content
 
-    def get_payment_info(self, payment_hash: str) \
+    def get_payment_info(self, payment_hash: str)\
         -> Optional[Tuple[PaymentDirection, int, Optional[int], int]]:
         payment_hash: bytes = bytes.fromhex(payment_hash)
         payments = self.wallet.lnworker.get_payments(status='settled')

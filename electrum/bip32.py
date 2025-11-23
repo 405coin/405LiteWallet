@@ -1,6 +1,6 @@
-# Copyright (C) 2018 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+                                            
+                                                                  
+                                                                    
 
 import binascii
 import hashlib
@@ -20,7 +20,7 @@ _logger = get_logger(__name__)
 BIP32_PRIME = 0x80000000
 UINT32_MAX = (1 << 32) - 1
 
-BIP32_HARDENED_CHAR = "h"  # default "hardened" char we put in str paths
+BIP32_HARDENED_CHAR = "h"                                               
 
 
 def protect_against_invalid_ecpoint(func):
@@ -89,8 +89,8 @@ def CKD_pub(parent_pubkey: bytes, parent_chaincode: bytes, child_index: int) -> 
                     child_index=int.to_bytes(child_index, length=4, byteorder="big", signed=False))
 
 
-# helper function, callable with arbitrary 'child_index' byte-string.
-# i.e.: 'child_index' does not need to fit into 32 bits here! (c.f. trustedcoin billing)
+                                                                     
+                                                                                        
 def _CKD_pub(parent_pubkey: bytes, parent_chaincode: bytes, child_index: bytes) -> Tuple[bytes, bytes]:
     I = hmac_oneshot(parent_chaincode, parent_pubkey + child_index, hashlib.sha512)
     pubkey = ecc.ECPrivkey(I[0:32]) + ecc.ECPubkey(parent_pubkey)
@@ -121,7 +121,7 @@ class BIP32Node(NamedTuple):
     eckey: Union[ecc.ECPubkey, ecc.ECPrivkey]
     chaincode: bytes
     depth: int = 0
-    fingerprint: bytes = b'\x00'*4  # as in serialized format, this is the *parent's* fingerprint
+    fingerprint: bytes = b'\x00'*4                                                               
     child_number: bytes = b'\x00'*4
 
     @classmethod
@@ -130,7 +130,7 @@ class BIP32Node(NamedTuple):
         xkey: str,
         *,
         net=None,
-        allow_custom_headers: bool = True,  # to also accept ypub/zpub
+        allow_custom_headers: bool = True,                            
     ) -> 'BIP32Node':
         if net is None:
             net = constants.net
@@ -286,7 +286,7 @@ class BIP32Node(NamedTuple):
         """Returns the fingerprint of this node.
         Note that self.fingerprint is of the *parent*.
         """
-        # TODO cache this
+                         
         return hash_160(self.eckey.get_public_key_bytes(compressed=True))[0:4]
 
 
@@ -326,17 +326,17 @@ def convert_bip32_strpath_to_intpath(n: str) -> List[int]:
     if n.endswith("/"):
         n = n[:-1]
     n = n.split('/')
-    # cut leading "m" if present, but do not require it
+                                                       
     if n[0] == "m":
         n = n[1:]
     path = []
     for x in n:
         if x == '':
-            # gracefully allow repeating "/" chars in path.
-            # makes concatenating paths easier
+                                                           
+                                              
             continue
         prime = 0
-        if x.endswith("'") or x.endswith("h"):  # note: some implementations also accept "H", "p", "P"
+        if x.endswith("'") or x.endswith("h"):                                                        
             x = x[:-1]
             prime = BIP32_PRIME
         if x.startswith('-'):
@@ -368,7 +368,7 @@ def convert_bip32_intpath_to_strpath(path: Sequence[int], *, hardened_char=BIP32
             prime = hardened_char
             child_index = child_index ^ BIP32_PRIME
         s += str(child_index) + prime + '/'
-    # cut trailing "/"
+                      
     s = s[:-1]
     return s
 
@@ -485,7 +485,7 @@ class KeyOriginInfo:
         strpath = self.get_derivation_path()
         if len(strpath) >= 2:
             assert strpath.startswith("m/")
-        return strpath[1:]  # cut leading "m"
+        return strpath[1:]                   
 
     def to_string(self) -> str:
         """

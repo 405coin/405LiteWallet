@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import threading
 
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
@@ -145,11 +145,11 @@ class Plugin(LabelsPlugin):
         self.logger.debug(f'init_qml hook called, gui={str(type(app))}')
         self.logger.debug(f'app={self._app!r}, so={self.so!r}')
         self._app = app
-        # important: QSignalObject needs to be parented, as keeping a ref
-        # in the plugin is not enough to avoid gc
+                                                                         
+                                                 
         self.so = Plugin.QSignalObject(self, self._app)
 
-        # If the user just enabled the plugin, the 'load_wallet' hook would not
-        # get called for already loaded wallets, hence we call it manually for those:
+                                                                               
+                                                                                     
         for wallet_name, wallet in app.daemon.daemon._wallets.items():
             self.load_wallet(wallet)

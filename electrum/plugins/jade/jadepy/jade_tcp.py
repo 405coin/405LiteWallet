@@ -5,19 +5,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-#
-# Low-level Serial-via-TCP backend interface to Jade
-# Calls to send and receive bytes over the interface.
-# Intended for use via JadeInterface wrapper.
-#
-# Either:
-#  a) use via JadeInterface.create_serial() (see JadeInterface)
-# (recommended)
-# or:
-#  b) use JadeTCPImpl() directly, and call connect() before
-#     using, and disconnect() when finished,
-# (caveat cranium)
-#
+ 
+                                                    
+                                                     
+                                             
+ 
+         
+                                                               
+               
+     
+                                                           
+                                            
+                  
+ 
 class JadeTCPImpl:
     PROTOCOL_PREFIX = 'tcp:'
 
@@ -50,7 +50,7 @@ class JadeTCPImpl:
         assert self.tcp_sock is not None
         self.tcp_sock.__exit__()
 
-        # Reset state
+                     
         self.tcp_sock = None
 
     def write(self, bytes_):

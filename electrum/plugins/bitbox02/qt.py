@@ -41,8 +41,8 @@ class Plugin(BitBox02Plugin, QtPluginBase):
     @only_hook_if_libraries_available
     @hook
     def show_xpub_button(self, mpk_text: ButtonsTextEdit, keystore):
-        # user is about to see the "Wallet Information" dialog
-        # - add a button to show the xpub on the BitBox02 device
+                                                              
+                                                                
         if type(keystore) != self.keystore_class:
             return
 
@@ -54,7 +54,7 @@ class Plugin(BitBox02Plugin, QtPluginBase):
         device_name = "{} ({})".format(self.device, keystore.label)
         mpk_text.addButton(read_QIcon("eye1.png"), on_button_click, _("Show on {}").format(device_name))
 
-    # insert bitbox02 pages in new wallet wizard
+                                                
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {

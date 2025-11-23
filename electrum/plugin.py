@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015-2024 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                         
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import json
 import os
@@ -64,7 +64,7 @@ _logger = get_logger(__name__)
 plugin_loaders = {}
 hook_names = set()
 hooks = {}
-_exec_module_failure = {}  # type: Dict[str, Exception]
+_exec_module_failure = {}                              
 
 PLUGIN_PASSWORD_VERSION = 1
 
@@ -72,27 +72,27 @@ PLUGIN_PASSWORD_VERSION = 1
 class Plugins(DaemonThread):
 
     pkgpath = os.path.dirname(plugins.__file__)
-    # TODO: use XDG Base Directory Specification instead of hardcoding /etc
+                                                                           
     keyfile_posix = '/etc/electrum/plugins_key'
     keyfile_windows = r'HKEY_LOCAL_MACHINE\SOFTWARE\Electrum\PluginsKey'
 
     @profiler
     def __init__(self, config: SimpleConfig, gui_name: str = None, cmd_only: bool = False):
         self.config = config
-        self.cmd_only = cmd_only  # type: bool
+        self.cmd_only = cmd_only              
         self.internal_plugin_metadata = {}
         self.external_plugin_metadata = {}
         if cmd_only:
-            # only import the command modules of plugins
+                                                        
             Logger.__init__(self)
             self.find_plugins()
             self.load_plugins()
             return
         DaemonThread.__init__(self)
         self.device_manager = DeviceMgr(config)
-        self.name = 'Plugins'  # set name of thread
+        self.name = 'Plugins'                      
         self._hw_wallets = {}
-        self.plugins = {}  # type: Dict[str, BasePlugin]
+        self.plugins = {}                               
         self.gui_name = gui_name
         self.find_plugins()
         self.load_plugins()
@@ -107,9 +107,9 @@ class Plugins(DaemonThread):
         """Finds plugins in directory form from the given pkg_path and populates the metadata dicts"""
         iter_modules = list(pkgutil.iter_modules([pkg_path]))
         for loader, name, ispkg in iter_modules:
-            # FIXME pyinstaller binaries are packaging each built-in plugin twice:
-            #       once as data and once as code. To honor the "no duplicates" rule below,
-            #       we exclude the ones packaged as *code*, here:
+                                                                                  
+                                                                                           
+                                                                 
             if loader.__class__.__qualname__ == "PyiFrozenImporter":
                 continue
             module_path = os.path.join(pkg_path, name)
@@ -149,15 +149,15 @@ class Plugins(DaemonThread):
             raise Exception(f"exec_module already failed once before, with: {prev_fail!r}")
         try:
             module = importlib.util.module_from_spec(spec)
-            # sys.modules needs to be modified for relative imports to work
-            # see https://stackoverflow.com/a/50395128
+                                                                           
+                                                      
             sys.modules[path] = module
             spec.loader.exec_module(module)
         except Exception as e:
-            # We can't undo all side-effects, but we at least rm the module from sys.modules,
-            # so the import system knows it failed. If called again for the same plugin, we do not
-            # retry due to potential interactions with not-undone side-effects (e.g. plugin
-            # might have defined commands).
+                                                                                             
+                                                                                                  
+                                                                                           
+                                           
             _exec_module_failure[path] = e
             if path in sys.modules:
                 sys.modules.pop(path, None)
@@ -178,7 +178,7 @@ class Plugins(DaemonThread):
         for name, d in chain(self.internal_plugin_metadata.items(), self.external_plugin_metadata.items()):
             if not d.get('requires_wallet_type') and self.config.get(f'plugins.{name}.enabled'):
                 try:
-                    if self.cmd_only:  # only load init method to register commands
+                    if self.cmd_only:                                              
                         self.maybe_load_plugin_init_method(name)
                     else:
                         self.load_plugin_by_name(name)
@@ -195,7 +195,7 @@ class Plugins(DaemonThread):
         elif 'ANDROID_DATA' in os.environ:
             raise Exception('platform not supported')
         else:
-            # treat unknown platforms and macOS as linux-like
+                                                             
             keyfile_path = self.keyfile_posix
             keyfile_help = "" if not key_hex else "".join([
                                          _('The file must have root permissions'),
@@ -214,7 +214,7 @@ class Plugins(DaemonThread):
                 self._write_key_to_regedit_windows(pubkey_hex)
             elif 'ANDROID_DATA' in os.environ:
                 raise Exception('platform not supported')
-            elif sys.platform.startswith('darwin'):  # macOS
+            elif sys.platform.startswith('darwin'):         
                 self._write_key_to_root_file_macos(pubkey_hex)
             else:
                 self._write_key_to_root_file_linux(pubkey_hex)
@@ -229,7 +229,7 @@ class Plugins(DaemonThread):
                 self._delete_plugin_key_from_windows_registry()
             elif 'ANDROID_DATA' in os.environ:
                 raise Exception('platform not supported')
-            elif sys.platform.startswith('darwin'):  # macOS
+            elif sys.platform.startswith('darwin'):         
                 self._delete_macos_plugin_keyfile()
             else:
                 self._delete_linux_plugin_keyfile()
@@ -242,10 +242,10 @@ class Plugins(DaemonThread):
         """creates the dir (dir_path), writes the key in file, and sets permissions to 644"""
         dir_path: str = os.path.dirname(self.keyfile_posix)
         sh_command = (
-                     f"mkdir -p {dir_path} "  # create the /etc/electrum dir
-                     f"&& printf '%s' '{pubkey_hex}' > {self.keyfile_posix} "  # write the key to the file
-                     f"&& chmod 644 {self.keyfile_posix} "  # set read permissions for the file
-                     f"&& chmod 755 {dir_path}"  # set read permissions for the dir
+                     f"mkdir -p {dir_path} "                                
+                     f"&& printf '%s' '{pubkey_hex}' > {self.keyfile_posix} "                             
+                     f"&& chmod 644 {self.keyfile_posix} "                                     
+                     f"&& chmod 755 {dir_path}"                                    
         )
         return sh_command
 
@@ -286,12 +286,12 @@ class Plugins(DaemonThread):
         """
         Runs reg.exe reg_exe_command and requests admin privileges through UAC prompt.
         """
-        # has to use ShellExecuteEx as ShellExecuteW (the simpler api) doesn't allow to wait
-        # for the result of the process (returns no process handle)
+                                                                                            
+                                                                   
         from ctypes import byref, sizeof, windll, Structure, c_ulong
         from ctypes.wintypes import HANDLE, DWORD, HWND, HINSTANCE, HKEY, LPCWSTR
 
-        # https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ns-shellapi-shellexecuteinfoa
+                                                                                                    
         class SHELLEXECUTEINFO(Structure):
             _fields_ = [
                 ('cbSize', DWORD),
@@ -313,23 +313,23 @@ class Plugins(DaemonThread):
 
         info = SHELLEXECUTEINFO()
         info.cbSize = sizeof(SHELLEXECUTEINFO)
-        info.fMask = 0x00000040 # SEE_MASK_NOCLOSEPROCESS (so we can check the result of the process)
+        info.fMask = 0x00000040                                                                      
         info.hwnd = None
-        info.lpVerb = 'runas'  # run as administrator
-        info.lpFile = 'reg.exe'  # the executable to run
-        info.lpParameters = reg_exe_command  # the registry edit command
+        info.lpVerb = 'runas'                        
+        info.lpFile = 'reg.exe'                         
+        info.lpParameters = reg_exe_command                             
         info.lpDirectory = None
         info.nShow = 1
 
-        # Execute and wait
+                          
         if not windll.shell32.ShellExecuteExW(byref(info)):
             error = windll.kernel32.GetLastError()
             raise Exception(f'Error executing registry command: {error}')
 
-        # block until the process is done or 5 sec timeout
+                                                          
         windll.kernel32.WaitForSingleObject(info.hProcess, 0x1338)
 
-        # Close handle
+                      
         windll.kernel32.CloseHandle(info.hProcess)
 
     @staticmethod
@@ -360,7 +360,7 @@ class Plugins(DaemonThread):
         commands = ['pkexec', 'sh', '-c', sh_command]
         self._execute_commands_in_subprocess(commands)
 
-        # check if the key was written correctly
+                                                
         with open(self.keyfile_posix, 'r') as f:
             assert f.read() == key_hex, f'file content mismatch: {f.read()} != {key_hex}'
         self.logger.debug(f'file saved successfully to {self.keyfile_posix}')
@@ -376,7 +376,7 @@ class Plugins(DaemonThread):
             os.unlink(self.keyfile_posix)
             return
 
-        # use pkexec to delete the file as root user
+                                                    
         commands = ['pkexec', 'rm', self.keyfile_posix]
         self._execute_commands_in_subprocess(commands)
         assert not os.path.exists(self.keyfile_posix), f'file {self.keyfile_posix} still exists'
@@ -399,7 +399,7 @@ class Plugins(DaemonThread):
         if not self._has_root_permissions(self.keyfile_posix):
             os.unlink(self.keyfile_posix)
             return
-        # use osascript to delete the file as root user
+                                                       
         macos_commands = self._get_macos_osascript_command(["rm", self.keyfile_posix])
         self._execute_commands_in_subprocess(macos_commands)
         assert not os.path.exists(self.keyfile_posix), f'file {self.keyfile_posix} still exists'
@@ -415,7 +415,7 @@ class Plugins(DaemonThread):
 
         self._run_win_regedit_as_admin(command)
 
-        # check if the key was written correctly
+                                                
         with ConnectRegistry(None, HKEY_LOCAL_MACHINE) as hkey:
             with OpenKey(hkey, r'SOFTWARE\Electrum') as key:
                 assert key_hex == QueryValue(key, 'PluginsKey'), "incorrect registry key value"
@@ -431,7 +431,7 @@ class Plugins(DaemonThread):
         self._run_win_regedit_as_admin(command)
 
         try:
-            # do a sanity check to see if the key has been deleted
+                                                                  
             with ConnectRegistry(None, HKEY_LOCAL_MACHINE) as hkey:
                 with OpenKey(hkey, r'SOFTWARE\Electrum\PluginsKey'):
                     raise Exception(f'Key {self.keyfile_windows} still exists, deletion failed')
@@ -462,7 +462,7 @@ class Plugins(DaemonThread):
         elif 'ANDROID_DATA' in os.environ:
             return None, None
         else:
-            # treat unknown platforms as linux-like
+                                                   
             if not os.path.exists(self.keyfile_posix):
                 return None, None
             if not self._has_root_permissions(self.keyfile_posix):
@@ -478,7 +478,7 @@ class Plugins(DaemonThread):
         if version != PLUGIN_PASSWORD_VERSION:
             self.logger.info(f'unknown plugin password version: {version}')
             return None, None
-        # all good
+                  
         salt = key[1:1+32]
         pubkey = key[1+32:]
         return pubkey, salt
@@ -514,8 +514,8 @@ class Plugins(DaemonThread):
                 raise Exception('could not find manifest.json in zip archive')
             with file.open(filename, 'r') as f:
                 manifest = json.load(f)
-                manifest['path'] = path  # external, path of the zipfile
-                manifest['dirname'] = os.path.dirname(filename)  # internal
+                manifest['path'] = path                                 
+                manifest['dirname'] = os.path.dirname(filename)            
                 manifest['is_zip'] = True
                 manifest['zip_hash_sha256'] = get_file_hash256(path).hex()
                 return manifest
@@ -592,10 +592,10 @@ class Plugins(DaemonThread):
         if base_name not in sys.modules:
             metadata = self.get_metadata(name)
             is_zip = metadata.get('is_zip', False)
-            # if the plugin was not enabled on startup the init module hasn't been loaded yet
+                                                                                             
             if not is_zip:
                 if self.is_external(name):
-                    # this branch is deprecated: external plugins are always zip files
+                                                                                      
                     path = os.path.join(metadata['path'], '__init__.py')
                     init_spec = importlib.util.spec_from_file_location(base_name, path)
                 else:
@@ -610,7 +610,7 @@ class Plugins(DaemonThread):
     def load_plugin_by_name(self, name: str) -> 'BasePlugin':
         if name in self.plugins:
             return self.plugins[name]
-        # if the plugin was not enabled on startup the init module hasn't been loaded yet
+                                                                                         
         self.maybe_load_plugin_init_method(name)
         is_external = self.is_external(name)
         if is_external and not self.is_authorized(name):
@@ -784,7 +784,7 @@ class Plugins(DaemonThread):
 
     def run(self):
         while self.is_running():
-            self.wake_up_event.wait(0.1)  # time.sleep(0.1) OR event
+            self.wake_up_event.wait(0.1)                            
             self.run_jobs()
         self.on_stop()
 
@@ -801,7 +801,7 @@ class Plugins(DaemonThread):
             with open(path, 'rb') as myfile:
                 return myfile.read()
         else:
-            # no icon
+                     
             return None
 
 
@@ -837,11 +837,11 @@ def run_hook(name, *args):
 class BasePlugin(Logger):
 
     def __init__(self, parent, config: 'SimpleConfig', name):
-        self.parent = parent  # type: Plugins  # The plugins object
+        self.parent = parent                                       
         self.name = name
         self.config = config
         Logger.__init__(self)
-        # add self to hooks
+                           
         for k in dir(self):
             if k in hook_names:
                 l = hooks.get(k, [])
@@ -852,15 +852,15 @@ class BasePlugin(Logger):
         return self.name
 
     def close(self):
-        # remove self from hooks
+                                
         for attr_name in dir(self):
             if attr_name in hook_names:
-                # found attribute in self that is also the name of a hook
+                                                                         
                 l = hooks.get(attr_name, [])
                 try:
                     l.remove((self, getattr(self, attr_name)))
                 except ValueError:
-                    # maybe attr name just collided with hook name and was not hook
+                                                                                   
                     continue
                 hooks[attr_name] = l
         self.parent.close_plugin(self)
@@ -912,7 +912,7 @@ class Device(NamedTuple):
     path: Union[str, bytes]
     interface_number: int
     id_: str
-    product_key: Any   # when using hid, often Tuple[int, int]
+    product_key: Any                                          
     usage_page: int
     transport_ui_string: str
 
@@ -922,9 +922,9 @@ class DeviceInfo(NamedTuple):
     label: Optional[str] = None
     initialized: Optional[bool] = None
     exception: Optional[Exception] = None
-    plugin_name: Optional[str] = None  # manufacturer, e.g. "trezor"
-    soft_device_id: Optional[str] = None  # if available, used to distinguish same-type hw devices
-    model_name: Optional[str] = None  # e.g. "Ledger Nano S"
+    plugin_name: Optional[str] = None                               
+    soft_device_id: Optional[str] = None                                                          
+    model_name: Optional[str] = None                        
 
     def label_for_device_select(self) -> str:
         return (
@@ -948,24 +948,24 @@ class HardwarePluginToScan(NamedTuple):
 PLACEHOLDER_HW_CLIENT_LABELS = {None, "", " "}
 
 
-# hidapi is not thread-safe
-# see https://github.com/signal11/hidapi/issues/205#issuecomment-527654560
-#     https://github.com/libusb/hidapi/issues/45
-#     https://github.com/signal11/hidapi/issues/45#issuecomment-4434598
-#     https://github.com/signal11/hidapi/pull/414#issuecomment-445164238
-# It is not entirely clear to me, exactly what is safe and what isn't, when
-# using multiple threads...
-# Hence, we use a single thread for all device communications, including
-# enumeration. Everything that uses hidapi, libusb, etc, MUST run on
-# the following thread:
+                           
+                                                                          
+                                                
+                                                                       
+                                                                        
+                                                                           
+                           
+                                                                        
+                                                                    
+                       
 _hwd_comms_executor = concurrent.futures.ThreadPoolExecutor(
     max_workers=1,
     thread_name_prefix='hwd_comms_thread'
 )
 
-# hidapi needs to be imported from the main thread. Otherwise, at least on macOS,
-# segfaults will follow. (see https://github.com/trezor/cython-hidapi/pull/150#issuecomment-1542391087)
-# To keep it simple, let's just import it now, as we are likely in the main thread here.
+                                                                                 
+                                                                                                       
+                                                                                        
 if threading.current_thread() is not threading.main_thread():
     _logger.warning("expected to be in main thread... hidapi will not be safe to use now!")
 try:
@@ -983,7 +983,7 @@ def run_in_hwd_thread(func: Callable[[], T]) -> T:
     else:
         fut = _hwd_comms_executor.submit(func)
         return fut.result()
-        #except (concurrent.futures.CancelledError, concurrent.futures.TimeoutError) as e:
+                                                                                          
 
 
 def runs_in_hwd_thread(func):
@@ -1031,22 +1031,22 @@ class DeviceMgr(ThreadJob):
 
     def __init__(self, config: SimpleConfig):
         ThreadJob.__init__(self)
-        # A pairing_code->id_ map. Item only present if we have active pairing. Needs self.lock.
-        self.pairing_code_to_id = {}  # type: Dict[str, str]
-        # A client->id_ map. Needs self.lock.
-        self.clients = {}  # type: Dict[HardwareClientBase, str]
-        # What we recognise.  (vendor_id, product_id) -> Plugin
-        self._recognised_hardware = {}  # type: Dict[Tuple[int, int], HW_PluginBase]
-        self._recognised_vendor = {}  # type: Dict[int, HW_PluginBase]  # vendor_id -> Plugin
-        # Custom enumerate functions for devices we don't know about.
-        self._enumerate_func = set()  # Needs self.lock.
+                                                                                                
+        self.pairing_code_to_id = {}                        
+                                             
+        self.clients = {}                                       
+                                                               
+        self._recognised_hardware = {}                                              
+        self._recognised_vendor = {}                                                         
+                                                                     
+        self._enumerate_func = set()                    
 
         self.lock = threading.RLock()
 
         self.config = config
 
     def thread_jobs(self):
-        # Thread job to handle device timeouts
+                                              
         return [self]
 
     def run(self):
@@ -1073,7 +1073,7 @@ class DeviceMgr(ThreadJob):
     @runs_in_hwd_thread
     def create_client(self, device: 'Device', handler: Optional['HardwareHandlerBase'],
                       plugin: 'HW_PluginBase') -> Optional['HardwareClientBase']:
-        # Get from cache first
+                              
         client = self._client_by_id(device.id_)
         if client:
             return client
@@ -1143,10 +1143,10 @@ class DeviceMgr(ThreadJob):
         handler.update_status(False)
         pcode = keystore.pairing_code()
         client = None
-        # search existing clients first (fast-path)
+                                                   
         if not devices:
             client = self.client_by_pairing_code(plugin=plugin, pairing_code=pcode, handler=handler, devices=[])
-        # search clients again, now allowing a (slow) scan
+                                                          
         if client is None:
             if devices is None:
                 devices = self.scan_devices()
@@ -1161,7 +1161,7 @@ class DeviceMgr(ThreadJob):
                 client = self.force_pair_keystore(plugin=plugin, handler=handler, info=info, keystore=keystore)
         if client:
             handler.update_status(True)
-            # note: if select_device was called, we might also update label etc here:
+                                                                                     
             keystore.opportunistically_fill_in_missing_info_from_device(client)
         self.logger.info("end client for keystore")
         return client
@@ -1175,8 +1175,8 @@ class DeviceMgr(ThreadJob):
         if client:
             if type(client.plugin) != type(plugin):
                 return
-            # An unpaired client might have another wallet's handler
-            # from a prior scan.  Replace to fix dialog parenting.
+                                                                    
+                                                                  
             client.handler = handler
             return client
 
@@ -1198,13 +1198,13 @@ class DeviceMgr(ThreadJob):
         xtype = bip32.xpub_type(xpub)
         client = self._client_by_id(info.device.id_)
         if client and client.is_pairable() and type(client.plugin) == type(plugin):
-            # See comment above for same code
+                                             
             client.handler = handler
-            # This will trigger a PIN/passphrase entry request
+                                                              
             try:
                 client_xpub = client.get_xpub(derivation, xtype)
             except (UserCancelled, RuntimeError):
-                # Bad / cancelled PIN / passphrase
+                                                  
                 client_xpub = None
             if client_xpub == xpub:
                 keystore.opportunistically_fill_in_missing_info_from_device(client)
@@ -1212,8 +1212,8 @@ class DeviceMgr(ThreadJob):
                     self.pairing_code_to_id[keystore.pairing_code()] = info.device.id_
                 return client
 
-        # The user input has wrong PIN or passphrase, or cancelled input,
-        # or it is not pairable
+                                                                         
+                               
         raise DeviceUnpairableError(
             _('Electrum cannot pair with your {}.\n\n'
               'Before you request bitcoins to be sent to addresses in this '
@@ -1267,8 +1267,8 @@ class DeviceMgr(ThreadJob):
                       keystore: 'Hardware_KeyStore', devices: Sequence['Device'] = None,
                       *, allow_user_interaction: bool = True) -> 'DeviceInfo':
         """Select the device to use for keystore."""
-        # ideally this should not be called from the GUI thread...
-        # assert handler.get_gui_thread() != threading.current_thread(), 'must not be called from GUI thread'
+                                                                  
+                                                                                                             
         while True:
             infos = self.list_pairable_device_infos(handler=handler, plugin=plugin, devices=devices)
             if infos:
@@ -1289,15 +1289,15 @@ class DeviceMgr(ThreadJob):
                 raise UserCancelled()
             devices = None
 
-        # select device automatically. (but only if we have reasonable expectation it is the correct one)
-        # method 1: select device by id
+                                                                                                         
+                                       
         if keystore.soft_device_id:
             for info in infos:
                 if info.soft_device_id == keystore.soft_device_id:
                     self.logger.debug(f"select_device. auto-selected(1) {plugin.device}: soft_device_id matched")
                     return info
-        # method 2: select device by label
-        #           but only if not a placeholder label and only if there is no collision
+                                          
+                                                                                         
         device_labels = [info.label for info in infos]
         if (keystore.label not in PLACEHOLDER_HW_CLIENT_LABELS
                 and device_labels.count(keystore.label) == 1):
@@ -1305,8 +1305,8 @@ class DeviceMgr(ThreadJob):
                 if info.label == keystore.label:
                     self.logger.debug(f"select_device. auto-selected(2) {plugin.device}: label recognised")
                     return info
-        # method 3: if there is only one device connected, and we don't have useful label/soft_device_id
-        #           saved for keystore anyway, select it
+                                                                                                        
+                                                        
         if (len(infos) == 1
                 and keystore.label in PLACEHOLDER_HW_CLIENT_LABELS
                 and keystore.soft_device_id is None):
@@ -1316,7 +1316,7 @@ class DeviceMgr(ThreadJob):
         self.logger.debug(f"select_device. auto-select failed for {plugin.device}. {allow_user_interaction=}")
         if not allow_user_interaction:
             raise CannotAutoSelectDevice()
-        # ask user to select device manually
+                                            
         msg = (
                 _("Could not automatically pair with device for given keystore.") + "\n"
                 + f"(keystore label: {keystore.label!r}, "
@@ -1332,13 +1332,13 @@ class DeviceMgr(ThreadJob):
             raise UserCancelled()
         info = infos[c]
         self.logger.debug(f"select_device. user manually selected {plugin.device}. device info: {info}")
-        # note: updated label/soft_device_id will be saved after pairing succeeds
+                                                                                 
         return info
 
     @runs_in_hwd_thread
     def _scan_devices_with_hid(self) -> List['Device']:
         try:
-            import hid  # noqa: F811
+            import hid              
         except ImportError:
             return []
 
@@ -1362,10 +1362,10 @@ class DeviceMgr(ThreadJob):
     def scan_devices(self) -> Sequence['Device']:
         self.logger.info("scanning devices...")
 
-        # First see what's connected that we know about
+                                                       
         devices = self._scan_devices_with_hid()
 
-        # Let plugin handlers enumerate devices we don't know about
+                                                                   
         with self.lock:
             enumerate_funcs = list(self._enumerate_func)
         for f in enumerate_funcs:
@@ -1376,7 +1376,7 @@ class DeviceMgr(ThreadJob):
             else:
                 devices.extend(new_devices)
 
-        # find out what was disconnected
+                                        
         client_ids = [dev.id_ for dev in devices]
         disconnected_clients = []
         with self.lock:
@@ -1388,7 +1388,7 @@ class DeviceMgr(ThreadJob):
                     disconnected_clients.append((client, id_))
             self.clients = connected
 
-        # Unpair disconnected devices
+                                     
         for client, id_ in disconnected_clients:
             self.unpair_id(id_)
             if client.handler:
@@ -1399,7 +1399,7 @@ class DeviceMgr(ThreadJob):
     @classmethod
     def version_info(cls) -> Mapping[str, Optional[str]]:
         ret = {}
-        # add libusb
+                    
         try:
             import usb1
         except Exception as e:
@@ -1410,10 +1410,10 @@ class DeviceMgr(ThreadJob):
                 ret["libusb.path"] = usb1.libusb1.libusb._name
             except AttributeError:
                 ret["libusb.path"] = None
-        # add hidapi
+                    
         try:
-            import hid  # noqa: F811
-            ret["hidapi.version"] = hid.__version__  # available starting with 0.12.0.post2
+            import hid              
+            ret["hidapi.version"] = hid.__version__                                        
         except Exception as e:
             from importlib.metadata import version
             try:
@@ -1450,7 +1450,7 @@ class DeviceMgr(ThreadJob):
             return
         if devices is None:
             devices = self.scan_devices()
-        # first pair with all devices that can be auto-selected
+                                                               
         for ks in keystores:
             try:
                 ks.get_client(
@@ -1461,7 +1461,7 @@ class DeviceMgr(ThreadJob):
             except UserCancelled:
                 pass
         if allow_user_interaction:
-            # now do manual selections
+                                      
             for ks in keystores:
                 try:
                     ks.get_client(

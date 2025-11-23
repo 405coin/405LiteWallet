@@ -22,7 +22,7 @@ Rectangle {
         spacing: 0
 
         Item {
-            // spacer
+            
             visible: iconSource
             Layout.preferredWidth: constants.paddingSmall
             Layout.preferredHeight: 1
@@ -36,7 +36,7 @@ Rectangle {
         }
 
         Item {
-            // spacer
+            
             visible: iconSource
             Layout.preferredWidth: constants.paddingXXSmall
             Layout.preferredHeight: 1

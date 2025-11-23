@@ -26,7 +26,7 @@ class PartialTxInputWithFixedNsequence(PartialTxInput):
 
     @nsequence.setter
     def nsequence(self, value: int):
-        pass # ignore override attempts
+        pass                           
 
 class TimelockRecoveryContext:
     wallet: 'Abstract_Wallet'
@@ -98,7 +98,7 @@ class TimelockRecoveryContext:
             if tx_output.address == self.get_alert_address() and tx_output.value != self.ANCHOR_OUTPUT_AMOUNT_SATS
         ]
         if len(tx_outputs) != 1:
-            # Safety check - not expected to happen
+                                                   
             raise ValueError(f"Expected 1 output from the Alert transaction to the Alert Address, but got {len(tx_outputs)}.")
         return tx_outputs[0]
 
@@ -109,9 +109,9 @@ class TimelockRecoveryContext:
         prevout_index, prevout = self._alert_tx_output()
         nsequence: int = round(self.timelock_days * 24 * 60 * 60 / 512)
         if nsequence > 0xFFFF:
-            # Safety check - not expected to happen
+                                                   
             raise ValueError("Sequence number is too large")
-        nsequence += 0x00400000 # time based lock instead of block-height based lock
+        nsequence += 0x00400000                                                     
         recovery_tx_input = PartialTxInputWithFixedNsequence(
             prevout=self._alert_tx_outpoint(prevout_index),
             nsequence=nsequence,

@@ -34,14 +34,14 @@ Item {
     }
 
     function openSendDialog() {
-        // Qt based send dialog if not on android
+        
         if (!AppController.isAndroid()) {
             _sendDialog = qtSendDialog.createObject(mainView, {invoiceParser: invoiceParser, piResolver: piResolver})
             _sendDialog.open()
             return
         }
 
-        // Android based send dialog if on android
+        
         var scanner = app.scanDialog.createObject(mainView, {
             hint: Daemon.currentWallet.isLightning
                 ? qsTr('Scan an Invoice, an Address, an LNURL, a PSBT or a Channel Backup')
@@ -63,7 +63,7 @@ Item {
             } else {
                 piResolver.recipient = data
             }
-            //scanner.destroy()  // TODO
+            
         })
         scanner.open()
     }
@@ -123,7 +123,7 @@ Item {
                     dialog.finalizer.sign()
                 }
             } else {
-                // store txid in invoicedialog so the dialog can detect broadcast success
+                
                 invoicedialog.broadcastTxid = dialog.finalizer.finalizedTxid
                 dialog.finalizer.signAndSend()
             }
@@ -259,7 +259,7 @@ Item {
             currentIndex = -1
         }
 
-        // determine widest element and store in implicitChildrenWidth
+        
         function updateImplicitWidth() {
             for (let i = 0; i < menu.count; i++) {
                 var item = menu.itemAt(i)
@@ -321,7 +321,7 @@ Item {
                             var newww = app.newWalletWizard.createObject(app)
                             newww.walletCreated.connect(function() {
                                 Daemon.availableWallets.reload()
-                                // and load the new wallet
+                                
                                 Daemon.loadWallet(newww.path, newww.wizard_data['password'])
                             })
                             newww.open()
@@ -343,7 +343,7 @@ Item {
                 visible: Daemon.currentWallet
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                icon.source: '../../icons/tab_receive.png'
+                icon.source: '../../icons/tab_receive.svg'
                 text: qsTr('Receive')
                 onClicked: {
                     var dialog = receiveDetailsDialog.createObject(mainView)
@@ -360,7 +360,7 @@ Item {
                 visible: Daemon.currentWallet
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                icon.source: '../../icons/tab_send.png'
+                icon.source: '../../icons/tab_send.svg'
                 text: qsTr('Send')
                 enabled: !invoiceParser.busy && !piResolver.busy && !requestDetails.busy
                 onClicked: openSendDialog()
@@ -443,8 +443,8 @@ Item {
                     restartSendDialog()
                 })
                 dialog.open()
-                // TODO: ask user to open a channel, if funds allow
-                // and maybe store invoice if expiry allows
+                
+                
             }
         }
         onValidationSuccess: {
@@ -504,7 +504,7 @@ Item {
     Connections {
         target: Daemon
         function onWalletLoaded() {
-            infobanner.hide() // start hidden when switching wallets
+            infobanner.hide() 
             if (_intentUri) {
                 piResolver.recipient = _intentUri
                 _intentUri = ''
@@ -556,7 +556,7 @@ Item {
             dialog.open()
         }
         function onBalanceChanged() {
-            // ln low reserve warning
+            
             if (Daemon.currentWallet.isLowReserve) {
                 var message = [
                     qsTr('You do not have enough on-chain funds to protect your Lightning channels.'),
@@ -589,7 +589,7 @@ Item {
             onDoPay: {
                 var lninvoiceButPayOnchain = false
                 if (invoice.invoiceType == Invoice.LightningInvoice && invoice.address) {
-                    // ln invoice with fallback
+                    
                     var amountToSend = invoice.amountOverride.isEmpty
                         ? invoice.amount.satsInt
                         : invoice.amountOverride.satsInt
@@ -725,7 +725,7 @@ Item {
                     if (!complete) {
                         var msg
                         if (wallet.isWatchOnly) {
-                            // tx created in watchonly wallet. Show QR for signer(s)
+                            
                             if (wallet.isMultisig) {
                                 msg = qsTr('Transaction created. Present this QR code to one of the co-cigners or signing devices')
                             } else {
@@ -752,10 +752,10 @@ Item {
                 }
             }
 
-            // TODO: lingering confirmPaymentDialogs can raise exceptions in
-            // the child finalizer when currentWallet disappears, but we need
-            // it long enough for the finalizer to finish..
-            // onClosed: destroy()
+            
+            
+            
+            
         }
     }
 
@@ -820,4 +820,3 @@ Item {
     }
 
 }
-

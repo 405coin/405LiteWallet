@@ -79,7 +79,7 @@ ElDialog {
         FlatButton {
             id: unlockButton
             Layout.fillWidth: true
-            icon.source: '../../icons/unlock.png'
+            icon.source: '../../icons/unlock.svg'
             text: qsTr("Unlock")
             onClicked: {
                 unlock()

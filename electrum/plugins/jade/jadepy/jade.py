@@ -10,19 +10,19 @@ import random
 import socket
 import sys
 
-# JadeError
+           
 from .jade_error import JadeError
 
-# Low-level comms backends
+                          
 from .jade_serial import JadeSerialImpl
 from .jade_tcp import JadeTCPImpl
 
-# 'jade' logger
+               
 logger = logging.getLogger(__name__)
 device_logger = logging.getLogger(f'{__name__}-device')
 
-# BLE comms backend is optional
-# It relies on the BLE dependencies being available
+                               
+                                                   
 try:
     from .jade_ble import JadeBleImpl
 except (ImportError, FileNotFoundError) as e:
@@ -30,11 +30,11 @@ except (ImportError, FileNotFoundError) as e:
     logger.warning('BLE scanning/connectivity will not be available')
 
 
-# Default serial connection
+                           
 DEFAULT_BAUD_RATE = 115200
 DEFAULT_SERIAL_TIMEOUT = 120
 
-# Default BLE connection
+                        
 DEFAULT_BLE_DEVICE_NAME = 'Jade'
 DEFAULT_BLE_SERIAL_NUMBER = None
 DEFAULT_BLE_SCAN_TIMEOUT = 60
@@ -64,65 +64,65 @@ def _hexlify(data):
     else:
         return data
 
-# NOTE: Removed entirely for electrum - so it is not used silently as a fallback.
-# (hard error preferred in that case)
-# Jade repo api will be improved to make enabling this function more explicit
-# try:
-#     import requests
-#
-#     def _http_request(params):
-#         """
-#         Simple http request function which can be used when a Jade response
-#         requires an external http call.
-#         The default implementation used in JadeAPI._jadeRpc() below.
-#         NOTE: Only available if the 'requests' dependency is available.
-#
-#         Callers can supply their own implementation of this call where it is required.
-#
-#         Parameters
-#         ----------
-#         data : dict
-#             A dictionary structure describing the http call to make
-#
-#         Returns
-#         -------
-#         dict
-#             with single key 'body', whose value is the json returned from the call
-#
-#         """
-#         logger.debug('_http_request: {}'.format(params))
-#
-#         # Use the first non-onion url
-#         url = [url for url in params['urls'] if not url.endswith('.onion')][0]
-#
-#         if params['method'] == 'GET':
-#             assert 'data' not in params, 'Cannot pass body to requests.get'
-#             def http_call_fn(): return requests.get(url)
-#         elif params['method'] == 'POST':
-#             data = json.dumps(params['data'])
-#             def http_call_fn(): return requests.post(url, data)
-#         else:
-#             raise JadeError(1, "Only GET and POST methods supported", params['method'])
-#
-#         try:
-#             f = http_call_fn()
-#             logger.debug("http_request received reply: {}".format(f.text))
-#
-#             if f.status_code != 200:
-#                 logger.error("http error {} : {}".format(f.status_code, f.text))
-#                 raise ValueError(f.status_code)
-#
-#             assert params['accept'] == 'json'
-#             f = f.json()
-#         except Exception as e:
-#             logging.error(e)
-#             f = None
-#
-#         return {'body': f}
-#
-# except ImportError as e:
-#     logger.info(e)
-#     logger.info('Default _http_requests() function will not be available')
+                                                                                 
+                                     
+                                                                             
+      
+                     
+ 
+                                
+             
+                                                                             
+                                         
+                                                                      
+                                                                         
+ 
+                                                                                        
+ 
+                    
+                    
+                     
+                                                                     
+ 
+                 
+                 
+              
+                                                                                    
+ 
+             
+                                                          
+ 
+                                       
+                                                                                
+ 
+                                       
+                                                                             
+                                                          
+                                          
+                                               
+                                                                 
+               
+                                                                                         
+ 
+              
+                                
+                                                                            
+ 
+                                      
+                                                                                  
+                                                 
+ 
+                                               
+                          
+                                
+                              
+                      
+ 
+                            
+ 
+                          
+                    
+                                                                            
 
 def generate_dump():
     while True:
@@ -352,12 +352,12 @@ class JadeAPI:
         reply = self.jade.make_rpc_call(request, long_timeout)
         result = self._get_result_or_raise_error(reply)
 
-        # The Jade can respond with a request for interaction with a remote
-        # http server. This is used for interaction with the pinserver but the
-        # code below acts as a dumb proxy and simply makes the http request and
-        # forwards the response back to the Jade.
-        # Note: the function called to make the http-request can be passed in,
-        # or it can default to the simple _http_request() function above, if available.
+                                                                           
+                                                                              
+                                                                               
+                                                 
+                                                                              
+                                                                                       
         if isinstance(result, collections.abc.Mapping) and 'http_request' in result:
             this_module = sys.modules[__name__]
             make_http_request = http_request_fn or getattr(this_module, '_http_request', None)
@@ -500,13 +500,13 @@ class JadeAPI:
             new firmware.
         """
 
-        # Compute the sha256 hash of the compressed file being uploaded
+                                                                       
         cmphasher = hashlib.sha256()
         cmphasher.update(fwcmp)
         cmphash = cmphasher.digest()
         cmplen = len(fwcmp)
 
-        # Initiate OTA
+                      
         ota_method = 'ota'
         params = {'fwsize': fwlen,
                   'cmpsize': cmplen,
@@ -522,7 +522,7 @@ class JadeAPI:
         result = self._jadeRpc(ota_method, params)
         assert result is True
 
-        # Write binary chunks
+                             
         written = 0
         while written < cmplen:
             remaining = cmplen - written
@@ -538,7 +538,7 @@ class JadeAPI:
         if gcov_dump:
             self.run_remote_gcov_dump()
 
-        # All binary data uploaded
+                                  
         return self._jadeRpc('ota_complete')
 
     def run_remote_selfcheck(self):
@@ -1175,17 +1175,17 @@ class JadeAPI:
             signer-commitment, base64-encoded signature
         """
         if use_ae_signatures:
-            # Anti-exfil protocol:
-            # We send the signing request and receive the signer-commitment in
-            # reply once the user confirms.
-            # We can then request the actual signature passing the ae-entropy.
+                                  
+                                                                              
+                                           
+                                                                              
             params = {'path': path, 'message': message, 'ae_host_commitment': ae_host_commitment}
             signer_commitment = self._jadeRpc('sign_message', params)
             params = {'ae_host_entropy': ae_host_entropy}
             signature = self._jadeRpc('get_signature', params)
             return signer_commitment, signature
         else:
-            # Standard EC signature, simple case
+                                                
             params = {'path': path, 'message': message}
             return self._jadeRpc('sign_message', params)
 
@@ -1530,18 +1530,18 @@ class JadeAPI:
             (None, None) placeholder elements are used for inputs not requiring a signature.
         """
         if use_ae_signatures:
-            # Anti-exfil protocol:
-            # We send one message per input (which includes host-commitment *but
-            # not* the host entropy) and receive the signer-commitment in reply.
-            # Once all n input messages are sent, we can request the actual signatures
-            # (as the user has a chance to confirm/cancel at this point).
-            # We request the signatures passing the ae-entropy for each one.
-            # Send inputs one at a time, receiving 'signer-commitment' in reply
+                                  
+                                                                                
+                                                                                
+                                                                                      
+                                                                         
+                                                                            
+                                                                               
             signer_commitments = []
             host_ae_entropy_values = []
             for txinput in inputs:
-                # ae-protocol - do not send the host entropy immediately
-                txinput = txinput.copy() if txinput else {}  # shallow copy
+                                                                        
+                txinput = txinput.copy() if txinput else {}                
                 host_ae_entropy_values.append(txinput.pop('ae_host_entropy', None))
 
                 base_id += 1
@@ -1549,7 +1549,7 @@ class JadeAPI:
                 reply = self._jadeRpc('tx_input', txinput, input_id)
                 signer_commitments.append(reply)
 
-            # Request the signatures one at a time, sending the entropy
+                                                                       
             signatures = []
             for (i, host_ae_entropy) in enumerate(host_ae_entropy_values, 1):
                 base_id += 1
@@ -1561,16 +1561,16 @@ class JadeAPI:
             assert len(signatures) == len(inputs)
             return list(zip(signer_commitments, signatures))
         else:
-            # Legacy protocol:
-            # We send one message per input - without expecting replies.
-            # Once all n input messages are sent, the hw then sends all n replies
-            # (as the user has a chance to confirm/cancel at this point).
-            # Then receive all n replies for the n signatures.
-            # NOTE: *NOT* a sequence of n blocking rpc calls.
-            # NOTE: at some point this flow should be removed in favour of the one
-            # above, albeit without passing anti-exfil entropy or commitment data.
+                              
+                                                                        
+                                                                                 
+                                                                         
+                                                              
+                                                             
+                                                                                  
+                                                                                  
 
-            # Send all n inputs
+                               
             requests = []
             for txinput in inputs:
                 if txinput is None:
@@ -1583,7 +1583,7 @@ class JadeAPI:
                 requests.append(request)
                 time.sleep(0.1)
 
-            # Receive all n signatures
+                                      
             signatures = []
             for request in requests:
                 reply = self.jade.read_response()
@@ -1686,8 +1686,8 @@ class JadeAPI:
             The signatures are in DER format with the sighash appended.
             (None, None) placeholder elements are used for inputs not requiring a signature.
         """
-        # 1st message contains txn and number of inputs we are going to send.
-        # Reply ok if that corresponds to the expected number of inputs (n).
+                                                                             
+                                                                            
         base_id = 100 * random.randint(1000, 9999)
         params = {'network': network,
                   'txn': txn,
@@ -1701,7 +1701,7 @@ class JadeAPI:
         reply = self._jadeRpc('sign_liquid_tx', params, str(base_id))
         assert reply
 
-        # Send inputs and receive signatures
+                                            
         return self._send_tx_inputs(base_id, inputs, use_ae_signatures)
 
     def sign_tx(self, network, txn, inputs, change, use_ae_signatures=False):
@@ -1761,8 +1761,8 @@ class JadeAPI:
             The signatures are in DER format with the sighash appended.
             (None, None) placeholder elements are used for inputs not requiring a signature.
         """
-        # 1st message contains txn and number of inputs we are going to send.
-        # Reply ok if that corresponds to the expected number of inputs (n).
+                                                                             
+                                                                            
         base_id = 100 * random.randint(1000, 9999)
         params = {'network': network,
                   'txn': txn,
@@ -1773,7 +1773,7 @@ class JadeAPI:
         reply = self._jadeRpc('sign_tx', params, str(base_id))
         assert reply
 
-        # Send inputs and receive signatures
+                                            
         return self._send_tx_inputs(base_id, inputs, use_ae_signatures)
 
     def sign_psbt(self, network, psbt):
@@ -1793,14 +1793,14 @@ class JadeAPI:
         bytes
             The psbt, updated with any signatures required from the hw signer
         """
-        # Send PSBT message
+                           
         params = {'network': network, 'psbt': psbt}
         msgid = str(random.randint(100000, 999999))
         request = self.jade.build_request(msgid, 'sign_psbt', params)
         self.jade.write_request(request)
 
-        # Read replies until we have them all, collate data and return.
-        # NOTE: we send 'get_extended_data' messages to request more 'chunks' of the reply data.
+                                                                       
+                                                                                                
         psbt_out = bytearray()
         while True:
             reply = self.jade.read_response()
@@ -1981,14 +1981,14 @@ class JadeInterface:
                 try:
                     device_logger.warning(drained.decode('utf-8'))
                 except Exception as e:
-                    # Dump the bytes raw and as hex if decoding as utf-8 failed
+                                                                               
                     device_logger.warning("Raw:")
                     device_logger.warning(drained)
                     device_logger.warning("----")
                     device_logger.warning("Hex dump:")
                     device_logger.warning(drained.hex())
 
-                # Clear and loop to continue collecting
+                                                       
                 drained.clear()
 
     @staticmethod
@@ -2102,17 +2102,17 @@ class JadeInterface:
             The message received, as a dict
         """
         while True:
-            # 'self' is sufficiently 'file-like' to act as a load source.
-            # Throws EOFError on end of stream/timeout/lost-connection etc.
+                                                                         
+                                                                           
             message = cbor.load(self)
 
             if isinstance(message, collections.abc.Mapping):
-                # A message response (to a prior request)
+                                                         
                 if 'id' in message:
                     logger.info("Received msg: {}".format(_hexlify(message)))
                     return message
 
-                # A log message - handle as normal
+                                                  
                 if 'log' in message:
                     response = message['log']
                     log_method = device_logger.error
@@ -2133,7 +2133,7 @@ class JadeInterface:
                     log_method('>> {}'.format(response))
                     continue
 
-            # Unknown/unhandled/unexpected message
+                                                  
             logger.error("Unhandled message received")
             device_logger.error(message)
 
@@ -2170,7 +2170,7 @@ class JadeInterface:
         """
         assert isinstance(reply, dict) and 'id' in reply
         assert ('result' in reply) != ('error' in reply)
-        assert reply['id'] == request['id'] or \
+        assert reply['id'] == request['id'] or\
             reply['id'] == '00' and 'error' in reply
 
     def make_rpc_call(self, request, long_timeout=False):
@@ -2191,14 +2191,14 @@ class JadeInterface:
         dict
             The (minimally validated) response message received, as a dict
         """
-        # Write outgoing request message
+                                        
         assert isinstance(request, dict)
         assert 'id' in request and len(request['id']) > 0
         assert 'method' in request and len(request['method']) > 0
         assert len(request['id']) < 16 and len(request['method']) < 32
         self.write_request(request)
 
-        # Read and validate incoming message
+                                            
         reply = self.read_response(long_timeout)
         self.validate_reply(request, reply)
 

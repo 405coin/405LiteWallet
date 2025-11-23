@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2023 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import enum
 from decimal import Decimal
@@ -33,15 +33,13 @@ from PyQt6.QtGui import (QStandardItem, QStandardItemModel,
 from PyQt6.QtCore import (Qt, QPersistentModelIndex, QModelIndex, QItemSelectionModel,
                           QSortFilterProxyModel, QSize, QAbstractItemModel, QEvent, QPoint)
 from PyQt6.QtWidgets import (QLabel, QHBoxLayout, QAbstractItemView, QLineEdit,
-                             QWidget, QToolButton, QTreeView, QHeaderView, QStyledItemDelegate,
+                             QWidget, QTreeView, QHeaderView, QStyledItemDelegate,
                              QMenu, QStyleOptionViewItem)
 
 from electrum.i18n import _
 from electrum.simple_config import ConfigVarWithConfig
 
 from electrum.gui import messages
-
-from .util import read_QIcon
 
 if TYPE_CHECKING:
     from electrum import SimpleConfig
@@ -75,7 +73,7 @@ class QMenuWithConfig(QMenu):
         configvar: 'ConfigVarWithConfig',
         *,
         callback: Optional[Callable[[], None]] = None,
-        checked: Optional[bool] = None,  # to override initial state of checkbox
+        checked: Optional[bool] = None,
         short_desc: Optional[str] = None,
     ) -> QAction:
         assert isinstance(configvar, ConfigVarWithConfig), configvar
@@ -102,24 +100,43 @@ class QMenuWithConfig(QMenu):
     ):
         b = configvar.get()
         configvar.set(not b)
-        # call cb after configvar state is updated:
+
         if callback:
             callback()
 
 
+class ToolbarMenuLabel(QLabel):
+
+    def __init__(self, title: str, menu: QMenuWithConfig):
+        super().__init__(title)
+        self.menu = menu
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setToolTip(_('Click for more options'))
+        self.setMinimumHeight(22)
+        self.setTextInteractionFlags(Qt.TextInteractionFlag.NoTextInteraction)
+
+    def _open_menu(self, global_pos=None):
+        pos = global_pos or self.mapToGlobal(self.rect().bottomRight())
+        self.menu.exec(pos)
+
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        if event.button() == Qt.MouseButton.LeftButton:
+            self._open_menu(self.mapToGlobal(event.position().toPoint()))
+            event.accept()
+            return
+        super().mouseReleaseEvent(event)
+
+    def contextMenuEvent(self, event) -> None:
+        self._open_menu(event.globalPos())
+        event.accept()
+
+
 def create_toolbar_with_menu(config: 'SimpleConfig', title):
     menu = QMenuWithConfig(config)
-    toolbar_button = QToolButton()
-    toolbar_button.setText(_('Tools'))
-    toolbar_button.setIcon(read_QIcon("preferences.png"))
-    toolbar_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    toolbar_button.setMenu(menu)
-    toolbar_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-    toolbar_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+    toolbar_label = ToolbarMenuLabel(title, menu)
     toolbar = QHBoxLayout()
-    toolbar.addWidget(QLabel(title))
+    toolbar.addWidget(toolbar_label)
     toolbar.addStretch()
-    toolbar.addWidget(toolbar_button)
     return toolbar, menu
 
 
@@ -129,7 +146,7 @@ class MySortModel(QSortFilterProxyModel):
         self._sort_role = sort_role
 
     def lessThan(self, source_left: QModelIndex, source_right: QModelIndex):
-        parent_model = self.sourceModel()  # type: QStandardItemModel
+        parent_model = self.sourceModel()
         item1 = parent_model.itemFromIndex(source_left)
         item2 = parent_model.itemFromIndex(source_right)
         data1 = item1.data(self._sort_role)
@@ -177,9 +194,9 @@ class ElectrumItemDelegate(QStyledItemDelegate):
         if custom_data is None:
             return super().paint(painter, option, idx)
         else:
-            # let's call the default paint method first; to paint the background (e.g. selection)
+
             super().paint(painter, option, idx)
-            # and now paint on top of that
+
             custom_data.paint(painter, option.rect)
 
     def helpEvent(self, evt: QHelpEvent, view: QAbstractItemView, option: QStyleOptionViewItem, idx: QModelIndex) -> bool:
@@ -213,7 +230,7 @@ class MyTreeView(QTreeView):
     class BaseColumnsEnum(enum.IntEnum):
         @staticmethod
         def _generate_next_value_(name: str, start: int, count: int, last_values):
-            # this is overridden to get a 0-based counter
+
             return count
 
     Columns: Type[BaseColumnsEnum]
@@ -235,7 +252,7 @@ class MyTreeView(QTreeView):
         self.customContextMenuRequested.connect(self.create_menu)
         self.setUniformRowHeights(True)
 
-        # Control which columns are editable
+
         if editable_columns is None:
             editable_columns = []
         self.editable_columns = set(editable_columns)
@@ -243,24 +260,29 @@ class MyTreeView(QTreeView):
         self.current_filter = ""
         self.is_editor_open = False
 
-        self.setRootIsDecorated(False)  # remove left margin
+        self.setRootIsDecorated(False)
         self.toolbar_shown = False
 
-        # When figuring out the size of columns, Qt by default looks at
-        # the first 1000 rows (at least if resize mode is QHeaderView.ResizeToContents).
-        # This would be REALLY SLOW, and it's not perfect anyway.
-        # So to speed the UI up considerably, set it to
-        # only look at as many rows as currently visible.
+
+
+
+
+
         self.header().setResizeContentsPrecision(0)
 
         self._pending_update = False
         self._forced_update = False
 
         self._default_bg_brush = QStandardItem().background()
-        self.proxy = None # history, and address tabs use a proxy
+        self.proxy = None
 
     def create_menu(self, position: QPoint) -> None:
         pass
+
+    def event(self, event):
+        if event.type() == QEvent.Type.ToolTip:
+            return True
+        return super().event(event)
 
     def set_editability(self, items):
         for idx, i in enumerate(items):
@@ -299,8 +321,8 @@ class MyTreeView(QTreeView):
             self.selectionModel().select(QModelIndex(set_current), QItemSelectionModel.SelectionFlag.SelectCurrent)
 
     def update_headers(self, headers: Union[List[str], Dict[int, str]]):
-        # headers is either a list of column names, or a dict: (col_idx->col_name)
-        if not isinstance(headers, dict):  # convert to dict
+
+        if not isinstance(headers, dict):
             headers = dict(enumerate(headers))
         col_names = [headers[col_idx] for col_idx in sorted(headers.keys())]
         self.original_model().setHorizontalHeaderLabels(col_names)
@@ -322,7 +344,7 @@ class MyTreeView(QTreeView):
         if self.proxy:
             idx = self.proxy.mapToSource(idx)
         if not idx.isValid():
-            # can happen e.g. before list is populated for the first time
+
             return
         self.on_double_click(idx)
 
@@ -330,27 +352,20 @@ class MyTreeView(QTreeView):
         pass
 
     def on_activated(self, idx):
-        # on 'enter' we show the menu
+
         pt = self.visualRect(idx).bottomLeft()
         pt.setX(50)
         self.customContextMenuRequested.emit(pt)
 
     def edit(self, idx, trigger=QAbstractItemView.EditTrigger.AllEditTriggers, event=None):
-        """
-        this is to prevent:
-           edit: editing failed
-        from inside qt
-        """
+
         return super().edit(idx, trigger, event)
 
     def on_edited(self, idx: QModelIndex, edit_key, *, text: str) -> None:
         raise NotImplementedError()
 
     def should_hide(self, row):
-        """
-        row_num is for self.model(). So if there is a proxy, it is the row number
-        in that!
-        """
+
         return False
 
     def get_text_from_coordinate(self, row, col) -> str:
@@ -365,7 +380,7 @@ class MyTreeView(QTreeView):
         return role_data
 
     def get_edit_key_from_coordinate(self, row, col) -> Any:
-        # overriding this might allow avoiding storing duplicate data
+
         return self.get_role_data_from_coordinate(row, col, role=self.ROLE_EDIT_KEY)
 
     def get_filter_data_from_coordinate(self, row, col) -> str:
@@ -377,23 +392,20 @@ class MyTreeView(QTreeView):
         return txt
 
     def hide_row(self, row_num):
-        """
-        row_num is for self.model(). So if there is a proxy, it is the row number
-        in that!
-        """
+
         should_hide = self.should_hide(row_num)
         if not self.current_filter and should_hide is None:
-            # no filters at all, neither date nor search
+
             self.setRowHidden(row_num, QModelIndex(), False)
             return
         for column in self.filter_columns:
             filter_data = self.get_filter_data_from_coordinate(row_num, column)
             if self.current_filter in filter_data:
-                # the filter matched, but the date filter might apply
+
                 self.setRowHidden(row_num, QModelIndex(), bool(should_hide))
                 break
         else:
-            # we did not find the filter in any columns, hide the item
+
             self.setRowHidden(row_num, QModelIndex(), True)
 
     def filter(self, p=None):
@@ -421,10 +433,10 @@ class MyTreeView(QTreeView):
     def create_toolbar_with_menu(self, title):
         return create_toolbar_with_menu(self.config, title)
 
-    configvar_show_toolbar = None  # type: Optional[ConfigVarWithConfig]
-    _toolbar_checkbox = None  # type: Optional[QAction]
+    configvar_show_toolbar = None
+    _toolbar_checkbox = None
     def show_toolbar(self, state: bool = None):
-        if state is None:  # get value from config
+        if state is None:
             if self.configvar_show_toolbar:
                 state = self.configvar_show_toolbar.get()
             else:
@@ -438,7 +450,7 @@ class MyTreeView(QTreeView):
         if not state:
             self.on_hide_toolbar()
         if self._toolbar_checkbox is not None:
-            # update the cb state now, in case the checkbox was not what triggered us
+
             self._toolbar_checkbox.setChecked(state)
 
     def on_hide_toolbar(self):
@@ -478,10 +490,10 @@ class MyTreeView(QTreeView):
             self._forced_update = False
 
     def maybe_defer_update(self) -> bool:
-        """Returns whether we should defer an update/refresh."""
+
         defer = (not self._forced_update
                  and (not self.isVisible() or self.is_editor_open))
-        # side-effect: if we decide to defer update, the state will become stale:
+
         self._pending_update = defer
         return defer
 
@@ -512,5 +524,3 @@ class MyTreeView(QTreeView):
         if row is not None:
             self.std_model.takeRow(row)
         self.hide_if_empty()
-
-

@@ -1,8 +1,7 @@
 import os
 import csv
 import io
-from typing import Callable, Tuple, Any, Dict, List, Sequence, Union, Optional, Mapping
-from types import MappingProxyType
+from typing import Callable, Tuple, Any, Dict, List, Sequence, Union, Optional
 from collections import OrderedDict
 
 from .lnutil import OnionFailureCodeMetaFlag
@@ -34,8 +33,8 @@ def _num_remaining_bytes_to_read(fd: io.BytesIO) -> int:
 
 
 def _assert_can_read_at_least_n_bytes(fd: io.BytesIO, n: int) -> None:
-    # note: it's faster to read n bytes and then check if we read n, than
-    #       to assert we can read at least n and then read n bytes.
+                                                                         
+                                                                   
     nremaining = _num_remaining_bytes_to_read(fd)
     if nremaining < n:
         raise UnexpectedEndOfStream(f"wants to read {n} bytes but only {nremaining} bytes left")
@@ -57,7 +56,7 @@ def read_bigsize_int(fd: io.BytesIO) -> Optional[int]:
     try:
         first = fd.read(1)[0]
     except IndexError:
-        return None  # end of file
+        return None               
     if first < 0xfd:
         return first
     elif first == 0xfd:
@@ -87,8 +86,8 @@ def read_bigsize_int(fd: io.BytesIO) -> Optional[int]:
     raise Exception()
 
 
-# TODO: maybe if field_type is not "byte", we could return a list of type_len sized chunks?
-#       if field_type is a numeric, we could return a list of ints?
+                                                                                           
+                                                                   
 def _read_primitive_field(
         *,
         fd: io.BytesIO,
@@ -168,7 +167,7 @@ def _read_primitive_field(
         return buf
 
     if count == "...":
-        total_len = -1  # read all
+        total_len = -1            
     else:
         if type_len is None:
             raise UnknownMsgFieldType(f"unknown field type: {field_type!r}")
@@ -180,7 +179,7 @@ def _read_primitive_field(
     return buf
 
 
-# TODO: maybe for "value" we could accept a list with len "count" of appropriate items
+                                                                                      
 def _write_primitive_field(
         *,
         fd: io.BytesIO,
@@ -253,9 +252,9 @@ def _write_primitive_field(
     elif field_type == 'sciddir_or_pubkey':
         assert isinstance(value, bytes)
         if value[0] in [0, 1]:
-            type_len = 9  # short_channel_id
+            type_len = 9                    
         elif value[0] in [2, 3]:
-            type_len = 33  # point
+            type_len = 33         
         else:
             raise Exception(f"invalid sciddir_or_pubkey, prefix byte not in range 0-3")
     total_len = -1
@@ -290,7 +289,7 @@ def _write_tlv_record(*, fd: io.BytesIO, tlv_type: int, tlv_val: bytes) -> None:
     _write_primitive_field(fd=fd, field_type="byte", count=tlv_len, value=tlv_val)
 
 
-def _resolve_field_count(field_count_str: str, *, vars_dict: Mapping, allow_any=False) -> Union[int, str]:
+def _resolve_field_count(field_count_str: str, *, vars_dict: dict, allow_any=False) -> Union[int, str]:
     """Returns an evaluated field count, typically an int.
     If allow_any is True, the return value can be a str with value=="...".
     """
@@ -324,15 +323,15 @@ def _parse_msgtype_intvalue_for_onion_wire(value: str) -> int:
 class LNSerializer:
 
     def __init__(self, *, for_onion_wire: bool = False):
-        # TODO msg_type could be 'int' everywhere...
-        self.msg_scheme_from_type = {}  # type: Dict[bytes, List[Sequence[str]]]
-        self.msg_type_from_name = {}  # type: Dict[str, bytes]
+                                                    
+        self.msg_scheme_from_type = {}                                          
+        self.msg_type_from_name = {}                          
 
-        self.in_tlv_stream_get_tlv_record_scheme_from_type = {}  # type: Dict[str, Dict[int, List[Sequence[str]]]]
-        self.in_tlv_stream_get_record_type_from_name = {}  # type: Dict[str, Dict[str, int]]
-        self.in_tlv_stream_get_record_name_from_type = {}  # type: Dict[str, Dict[int, str]]
+        self.in_tlv_stream_get_tlv_record_scheme_from_type = {}                                                   
+        self.in_tlv_stream_get_record_type_from_name = {}                                   
+        self.in_tlv_stream_get_record_name_from_type = {}                                   
 
-        self.subtypes = {}  # type: Dict[str, Dict[str, Sequence[str]]]
+        self.subtypes = {}                                             
 
         if for_onion_wire:
             path = os.path.join(os.path.dirname(__file__), "lnwire", "onion_wire.csv")
@@ -341,9 +340,9 @@ class LNSerializer:
         with open(path, newline='') as f:
             csvreader = csv.reader(f)
             for row in csvreader:
-                #print(f">>> {row!r}")
+                                      
                 if row[0] == "msgtype":
-                    # msgtype,<msgname>,<value>[,<option>]
+                                                          
                     msg_type_name = row[1]
                     if for_onion_wire:
                         msg_type_int = _parse_msgtype_intvalue_for_onion_wire(str(row[2]))
@@ -356,11 +355,11 @@ class LNSerializer:
                     self.msg_scheme_from_type[msg_type_bytes] = [tuple(row)]
                     self.msg_type_from_name[msg_type_name] = msg_type_bytes
                 elif row[0] == "msgdata":
-                    # msgdata,<msgname>,<fieldname>,<typename>,[<count>][,<option>]
+                                                                                   
                     assert msg_type_name == row[1]
                     self.msg_scheme_from_type[msg_type_bytes].append(tuple(row))
                 elif row[0] == "tlvtype":
-                    # tlvtype,<tlvstreamname>,<tlvname>,<value>[,<option>]
+                                                                          
                     tlv_stream_name = row[1]
                     tlv_record_name = row[2]
                     tlv_record_type = int(row[3])
@@ -379,24 +378,24 @@ class LNSerializer:
                         raise Exception(f"tlv record types must be listed in monotonically increasing order for stream. "
                                         f"stream={tlv_stream_name}")
                 elif row[0] == "tlvdata":
-                    # tlvdata,<tlvstreamname>,<tlvname>,<fieldname>,<typename>,[<count>][,<option>]
+                                                                                                   
                     assert tlv_stream_name == row[1]
                     assert tlv_record_name == row[2]
                     self.in_tlv_stream_get_tlv_record_scheme_from_type[tlv_stream_name][tlv_record_type].append(tuple(row))
                 elif row[0] == "subtype":
-                    # subtype,<subtypename>
+                                           
                     subtypename = row[1]
                     assert subtypename not in self.subtypes, f"duplicate declaration of subtype {subtypename}"
                     self.subtypes[subtypename] = {}
                 elif row[0] == "subtypedata":
-                    # subtypedata,<subtypename>,<fieldname>,<typename>,[<count>]
+                                                                                
                     subtypename = row[1]
                     fieldname = row[2]
                     assert subtypename in self.subtypes, f"subtypedata definition for subtype {subtypename} declared before subtype"
                     assert fieldname not in self.subtypes[subtypename], f"duplicate field definition for {fieldname} for subtype {subtypename}"
                     self.subtypes[subtypename][fieldname] = tuple(row)
                 else:
-                    pass  # TODO
+                    pass        
 
     def write_field(
             self,
@@ -404,7 +403,7 @@ class LNSerializer:
             fd: io.BytesIO,
             field_type: str,
             count: Union[int, str],
-            value: Union[Sequence[Mapping[str, Any]], Mapping[str, Any]],
+            value: Union[List[Dict[str, Any]], Dict[str, Any]]
     ) -> None:
         assert fd
 
@@ -422,10 +421,10 @@ class LNSerializer:
             return
 
         if count == 1:
-            assert isinstance(value, (MappingProxyType, dict)) or isinstance(value, (list, tuple)), type(value)
-            values = [value] if isinstance(value, (MappingProxyType, dict)) else value
+            assert isinstance(value, dict) or isinstance(value, list)
+            values = [value] if isinstance(value, dict) else value
         else:
-            assert isinstance(value, (tuple, list)), f'{field_type=}, expected value of type list/tuple for {count=}'
+            assert isinstance(value, list), f'{field_type=}, expected value of type list for {count=}'
             values = value
 
         if count == '...':
@@ -437,7 +436,7 @@ class LNSerializer:
 
         for record in values:
             for subtypename, row in self.subtypes[field_type].items():
-                # subtypedata,<subtypename>,<fieldname>,<typename>,[<count>]
+                                                                            
                 subtype_field_name = row[2]
                 subtype_field_type = row[3]
                 subtype_field_count_str = row[4]
@@ -482,7 +481,7 @@ class LNSerializer:
         while _num_remaining_bytes_to_read(fd):
             parsed = {}
             for subtypename, row in self.subtypes[field_type].items():
-                # subtypedata,<subtypename>,<fieldname>,<typename>,[<count>]
+                                                                            
                 subtype_field_name = row[2]
                 subtype_field_type = row[3]
                 subtype_field_count_str = row[4]
@@ -502,7 +501,7 @@ class LNSerializer:
 
     def write_tlv_stream(self, *, fd: io.BytesIO, tlv_stream_name: str, **kwargs) -> None:
         scheme_map = self.in_tlv_stream_get_tlv_record_scheme_from_type[tlv_stream_name]
-        for tlv_record_type, scheme in scheme_map.items():  # note: tlv_record_type is monotonically increasing
+        for tlv_record_type, scheme in scheme_map.items():                                                     
             tlv_record_name = self.in_tlv_stream_get_record_name_from_type[tlv_stream_name][tlv_record_type]
             if tlv_record_name not in kwargs:
                 continue
@@ -511,7 +510,7 @@ class LNSerializer:
                     if row[0] == "tlvtype":
                         pass
                     elif row[0] == "tlvdata":
-                        # tlvdata,<tlvstreamname>,<tlvname>,<fieldname>,<typename>,[<count>][,<option>]
+                                                                                                       
                         assert tlv_stream_name == row[1]
                         assert tlv_record_name == row[2]
                         field_name = row[3]
@@ -531,9 +530,9 @@ class LNSerializer:
                 _write_tlv_record(fd=fd, tlv_type=tlv_record_type, tlv_val=tlv_record_fd.getvalue())
 
     def read_tlv_stream(self, *, fd: io.BytesIO, tlv_stream_name: str) -> Dict[str, Dict[str, Any]]:
-        parsed = {}  # type: Dict[str, Dict[str, Any]]
+        parsed = {}                                   
         scheme_map = self.in_tlv_stream_get_tlv_record_scheme_from_type[tlv_stream_name]
-        last_seen_tlv_record_type = -1  # type: int
+        last_seen_tlv_record_type = -1             
         while _num_remaining_bytes_to_read(fd) > 0:
             tlv_record_type, tlv_record_val = _read_tlv_record(fd=fd)
             if not (tlv_record_type > last_seen_tlv_record_type):
@@ -544,20 +543,20 @@ class LNSerializer:
                 scheme = scheme_map[tlv_record_type]
             except KeyError:
                 if tlv_record_type % 2 == 0:
-                    # unknown "even" type: hard fail
+                                                    
                     raise UnknownMandatoryTLVRecordType(f"{tlv_stream_name}/{tlv_record_type}") from None
                 else:
-                    # unknown "odd" type: skip it
+                                                 
                     continue
             tlv_record_name = self.in_tlv_stream_get_record_name_from_type[tlv_stream_name][tlv_record_type]
             parsed[tlv_record_name] = {}
             with io.BytesIO(tlv_record_val) as tlv_record_fd:
                 for row in scheme:
-                    #print(f"row: {row!r}")
+                                           
                     if row[0] == "tlvtype":
                         pass
                     elif row[0] == "tlvdata":
-                        # tlvdata,<tlvstreamname>,<tlvname>,<fieldname>,<typename>,[<count>][,<option>]
+                                                                                                       
                         assert tlv_stream_name == row[1]
                         assert tlv_record_name == row[2]
                         field_name = row[3]
@@ -567,7 +566,7 @@ class LNSerializer:
                             field_count_str,
                             vars_dict=parsed[tlv_record_name],
                             allow_any=True)
-                        #print(f">> count={field_count}. parsed={parsed}")
+                                                                          
                         parsed[tlv_record_name][field_name] = self.read_field(
                             fd=tlv_record_fd,
                             field_type=field_type,
@@ -583,7 +582,7 @@ class LNSerializer:
         Encode kwargs into a Lightning message (bytes)
         of the type given in the msg_type string
         """
-        #print(f">>> encode_msg. msg_type={msg_type}, payload={kwargs!r}")
+                                                                          
         msg_type_bytes = self.msg_type_from_name[msg_type]
         scheme = self.msg_scheme_from_type[msg_type_bytes]
         with io.BytesIO() as fd:
@@ -592,11 +591,11 @@ class LNSerializer:
                 if row[0] == "msgtype":
                     pass
                 elif row[0] == "msgdata":
-                    # msgdata,<msgname>,<fieldname>,<typename>,[<count>][,<option>]
+                                                                                   
                     field_name = row[2]
                     field_type = row[3]
                     field_count_str = row[4]
-                    #print(f">>> encode_msg. msgdata. field_name={field_name!r}. field_type={field_type!r}. field_count_str={field_count_str!r}")
+                                                                                                                                                 
                     field_count = _resolve_field_count(field_count_str, vars_dict=kwargs)
                     if field_name == "tlvs":
                         tlv_stream_name = field_type
@@ -606,10 +605,10 @@ class LNSerializer:
                     try:
                         field_value = kwargs[field_name]
                     except KeyError:
-                        field_value = 0  # default mandatory fields to zero
-                    #print(f">>> encode_msg. writing field: {field_name}. value={field_value!r}. field_type={field_type!r}. count={field_count!r}")
+                        field_value = 0                                    
+                                                                                                                                                   
                     _write_primitive_field(fd=fd, field_type=field_type, count=field_count, value=field_value)
-                    #print(f">>> encode_msg. so far: {fd.getvalue().hex()}")
+                                                                            
                 else:
                     raise Exception(f"unexpected row in scheme: {row!r}")
             return fd.getvalue()
@@ -622,16 +621,16 @@ class LNSerializer:
         Returns message type string and parsed message contents dict,
         or raises FailedToParseMsg.
         """
-        #print(f"decode_msg >>> {data.hex()}")
+                                              
         assert len(data) >= 2
         msg_type_bytes = data[:2]
         msg_type_int = int.from_bytes(msg_type_bytes, byteorder="big", signed=False)
         try:
             scheme = self.msg_scheme_from_type[msg_type_bytes]
         except KeyError:
-            if msg_type_int % 2 == 0:  # even types must be understood: "mandatory"
+            if msg_type_int % 2 == 0:                                              
                 raise UnknownMandatoryMsgType(f"msg_type={msg_type_int}")
-            else:  # odd types are ok not to understand: "optional"
+            else:                                                  
                 raise UnknownOptionalMsgType(f"msg_type={msg_type_int}")
         assert scheme[0][2] == msg_type_int
         msg_type_name = scheme[0][1]
@@ -639,7 +638,7 @@ class LNSerializer:
         try:
             with io.BytesIO(data[2:]) as fd:
                 for row in scheme:
-                    #print(f"row: {row!r}")
+                                           
                     if row[0] == "msgtype":
                         pass
                     elif row[0] == "msgdata":
@@ -652,7 +651,7 @@ class LNSerializer:
                             d = self.read_tlv_stream(fd=fd, tlv_stream_name=tlv_stream_name)
                             parsed[tlv_stream_name] = d
                             continue
-                        #print(f">> count={field_count}. parsed={parsed}")
+                                                                          
                         parsed[field_name] = _read_primitive_field(fd=fd, field_type=field_type, count=field_count)
                     else:
                         raise Exception(f"unexpected row in scheme: {row!r}")

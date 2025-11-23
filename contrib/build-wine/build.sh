@@ -1,8 +1,8 @@
 #!/bin/bash
-#
-# env vars:
-# - ELECBUILD_NOCACHE: if set, forces rebuild of docker image
-# - ELECBUILD_COMMIT: if set, do a fresh clone and git checkout
+
+
+
+
 
 set -e
 
@@ -24,7 +24,7 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
     DOCKER_BUILD_FLAGS="--pull --no-cache"
 fi
 
-if [ -z "$ELECBUILD_COMMIT" ] ; then  # local dev build
+if [ -z "$ELECBUILD_COMMIT" ] ; then
     DOCKER_BUILD_FLAGS="$DOCKER_BUILD_FLAGS --build-arg UID=$BUILD_UID"
 fi
 
@@ -34,7 +34,7 @@ docker build \
     -t electrum-wine-builder-img \
     "$CONTRIB_WINE"
 
-# maybe do fresh clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE="/tmp/electrum_build/windows/fresh_clone/electrum"
@@ -49,14 +49,16 @@ else
 fi
 
 DOCKER_RUN_FLAGS=""
-if sh -c ": >/dev/tty" >/dev/null 2>/dev/null; then
-    info "/dev/tty is available and usable"
+if [ -t 0 ] && [ -t 1 ]; then
+    info "interactive TTY detected; running docker with -it"
     DOCKER_RUN_FLAGS="-it"
+else
+    info "no interactive TTY detected; running docker without -it"
 fi
 
 info "building binary..."
-# check uid and maybe chown. see #8261
-if [ ! -z "$ELECBUILD_COMMIT" ] ; then  # fresh clone (reproducible build)
+
+if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     if [ $(id -u) != "1000" ] || [ $(id -g) != "1000" ] ; then
         info "need to chown -R FRESH_CLONE dir. prompting for sudo."
         sudo chown -R 1000:1000 "$FRESH_CLONE"
@@ -70,7 +72,7 @@ docker run $DOCKER_RUN_FLAGS \
     electrum-wine-builder-img \
     ./make_win.sh
 
-# make sure resulting binary location is independent of fresh_clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     mkdir --parents "$PROJECT_ROOT/contrib/build-wine/dist/"
     cp -f "$FRESH_CLONE/contrib/build-wine/dist"/*.exe "$PROJECT_ROOT/contrib/build-wine/dist/"

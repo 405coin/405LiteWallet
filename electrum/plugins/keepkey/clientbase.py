@@ -14,7 +14,7 @@ from electrum.hw_wallet.plugin import HardwareClientBase, HardwareHandlerBase
 
 
 class GuiMixin(object):
-    # Requires: self.proto, self.device
+                                       
     handler: Optional[HardwareHandlerBase]
 
     messages = {
@@ -30,11 +30,11 @@ class GuiMixin(object):
     }
 
     def callback_Failure(self, msg):
-        # BaseClient's unfortunate call() implementation forces us to
-        # raise exceptions on failure in order to unwind the stack.
-        # However, making the user acknowledge they cancelled
-        # gets old very quickly, so we suppress those.  The NotInitialized
-        # one is misnamed and indicates a passphrase request was cancelled.
+                                                                     
+                                                                   
+                                                             
+                                                                          
+                                                                           
         if msg.code in (self.types.Failure_PinCancelled,
                         self.types.Failure_ActionCancelled,
                         self.types.Failure_NotInitialized):
@@ -61,7 +61,7 @@ class GuiMixin(object):
         pin = self.handler.get_pin(msg.format(self.device), show_strength=show_strength)
         if len(pin) > 9:
             self.handler.show_error(_('The PIN cannot be longer than 9 characters.'))
-            pin = ''  # to cancel below
+            pin = ''                   
         if not pin:
             return self.proto.Cancel()
         return self.proto.PinMatrixAck(pin=pin)
@@ -91,7 +91,7 @@ class GuiMixin(object):
         msg = _("Step {}/24.  Enter seed word as explained on "
                 "your {}:").format(self.step, self.device)
         word = self.handler.get_word(msg)
-        # Unfortunately the device can't handle self.proto.Cancel()
+                                                                   
         return self.proto.WordAck(word=word)
 
     def callback_CharacterRequest(self, msg):
@@ -104,7 +104,7 @@ class GuiMixin(object):
 class KeepKeyClientBase(HardwareClientBase, GuiMixin, Logger):
 
     def __init__(self, handler, plugin, proto):
-        assert hasattr(self, 'tx_api')  # ProtocolMixin already constructed?
+        assert hasattr(self, 'tx_api')                                      
         HardwareClientBase.__init__(self, plugin=plugin)
         self.proto = proto
         self.device = plugin.device
@@ -164,7 +164,7 @@ class KeepKeyClientBase(HardwareClientBase, GuiMixin, Logger):
 
     def i4b(self, x):
         if x < 0:
-            # hack. workaround for https://github.com/spesmilo/electrum/issues/7779
+                                                                                   
             x += 2 ** 32
         return pack('>I', x)
 
@@ -218,7 +218,7 @@ class KeepKeyClientBase(HardwareClientBase, GuiMixin, Logger):
         try:
             super(KeepKeyClientBase, self).clear_session()
         except BaseException as e:
-            # If the device was removed it has the same effect...
+                                                                 
             self.logger.info(f"clear_session: ignoring error {e}")
 
     @runs_in_hwd_thread
@@ -231,7 +231,7 @@ class KeepKeyClientBase(HardwareClientBase, GuiMixin, Logger):
         '''Called when Our wallet was closed or the device removed.'''
         self.logger.info("closing client")
         self.clear_session()
-        # Release the device
+                            
         self.transport.close()
 
     def firmware_version(self):

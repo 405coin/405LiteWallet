@@ -1,8 +1,8 @@
 #!/bin/bash
-#
-# env vars:
-# - ELECBUILD_NOCACHE: if set, forces rebuild of docker image
-# - ELECBUILD_COMMIT: if set, do a fresh clone and git checkout
+
+
+
+
 
 set -e
 
@@ -22,7 +22,7 @@ if [ ! -z "$ELECBUILD_NOCACHE" ] ; then
     DOCKER_BUILD_FLAGS="--pull --no-cache"
 fi
 
-if [ -z "$ELECBUILD_COMMIT" ] ; then  # local dev build
+if [ -z "$ELECBUILD_COMMIT" ] ; then
     DOCKER_BUILD_FLAGS="$DOCKER_BUILD_FLAGS --build-arg UID=$BUILD_UID"
 fi
 
@@ -32,7 +32,7 @@ docker build \
     -t electrum-appimage-builder-img \
     "$CONTRIB_APPIMAGE"
 
-# maybe do fresh clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     info "ELECBUILD_COMMIT=$ELECBUILD_COMMIT. doing fresh clone and git checkout."
     FRESH_CLONE="/tmp/electrum_build/appimage/fresh_clone/electrum"
@@ -46,8 +46,8 @@ else
     info "not doing fresh clone."
 fi
 
-# build the type2-runtime binary, this build step uses a separate docker container
-# defined in the type2-runtime repo (patched with type2-runtime-reproducible-build.patch)
+
+
 "$CONTRIB_APPIMAGE/make_type2_runtime.sh" || fail "Error building type2-runtime."
 
 DOCKER_RUN_FLAGS=""
@@ -57,8 +57,8 @@ if sh -c ": >/dev/tty" >/dev/null 2>/dev/null; then
 fi
 
 info "building binary..."
-# check uid and maybe chown. see #8261
-if [ ! -z "$ELECBUILD_COMMIT" ] ; then  # fresh clone (reproducible build)
+
+if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     if [ $(id -u) != "1000" ] || [ $(id -g) != "1000" ] ; then
         info "need to chown -R FRESH_CLONE dir. prompting for sudo."
         sudo chown -R 1000:1000 "$FRESH_CLONE"
@@ -72,7 +72,7 @@ docker run $DOCKER_RUN_FLAGS \
     electrum-appimage-builder-img \
     ./make_appimage.sh
 
-# make sure resulting binary location is independent of fresh_clone
+
 if [ ! -z "$ELECBUILD_COMMIT" ] ; then
     mkdir --parents "$DISTDIR/"
     cp -f "$FRESH_CLONE/dist"/* "$DISTDIR/"

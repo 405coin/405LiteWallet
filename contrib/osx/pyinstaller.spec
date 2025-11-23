@@ -1,4 +1,4 @@
-# -*- mode: python -*-
+
 import sys
 import os
 from typing import TYPE_CHECKING
@@ -9,9 +9,9 @@ if TYPE_CHECKING:
     from PyInstaller.building.build_main import Analysis, PYZ, EXE, BUNDLE
 
 
-PACKAGE_NAME='Electrum.app'
+PACKAGE_NAME='405LiteWallet.app'
 PYPKG='electrum'
-MAIN_SCRIPT='run_electrum'
+MAIN_SCRIPT='run_405litewallet'
 PROJECT_ROOT = os.path.abspath(".")
 ICONS_FILE=f"{PROJECT_ROOT}/{PYPKG}/gui/icons/electrum.icns"
 
@@ -22,16 +22,16 @@ if not VERSION:
 
 block_cipher = None
 
-# see https://github.com/pyinstaller/pyinstaller/issues/2005
+
 hiddenimports = []
-hiddenimports += collect_submodules('pkg_resources')  # workaround for https://github.com/pypa/setuptools/issues/1963
+hiddenimports += collect_submodules('pkg_resources')
 hiddenimports += collect_submodules(f"{PYPKG}.plugins")
 
 
 binaries = []
-# Workaround for "Retro Look":
+
 binaries += [b for b in collect_dynamic_libs('PyQt6') if 'macstyle' in b[0]]
-# add libsecp256k1, libusb, etc:
+
 binaries += [(f"{PROJECT_ROOT}/{PYPKG}/*.dylib", ".")]
 
 
@@ -47,15 +47,15 @@ datas = [
     (f"{PROJECT_ROOT}/{PYPKG}/gui/fonts", f"{PYPKG}/gui/fonts"),
 ]
 datas += collect_data_files(f"{PYPKG}.plugins")
-datas += collect_data_files('trezorlib')  # TODO is this needed? and same question for other hww libs
+datas += collect_data_files('trezorlib')
 datas += collect_data_files('safetlib')
 datas += collect_data_files('ckcc')
 datas += collect_data_files('bitbox02')
 
-# some deps rely on importlib metadata
-datas += copy_metadata('slip10')  # from trezor->slip10
 
-# Exclude parts of Qt that we never use. Reduces binary size by tens of MBs. see #4815
+datas += copy_metadata('slip10')
+
+
 excludes = [
     "PyQt6.QtBluetooth",
     "PyQt6.QtDesigner",
@@ -75,10 +75,10 @@ excludes = [
     "PyQt6.QtWebChannel",
     "PyQt6.QtWebSockets",
     "PyQt6.QtXml",
-    # "PyQt6.QtNetwork",  # needed by QtMultimedia. kinda weird but ok.
+
 ]
 
-# We don't put these files in to actually include them in the script but to make the Analysis method scan them for imports
+
 a = Analysis([f"{PROJECT_ROOT}/{MAIN_SCRIPT}",
               f"{PROJECT_ROOT}/{PYPKG}/gui/qt/main_window.py",
               f"{PROJECT_ROOT}/{PYPKG}/gui/qt/qrreader/qtmultimedia/camera_dialog.py",
@@ -98,7 +98,7 @@ a = Analysis([f"{PROJECT_ROOT}/{MAIN_SCRIPT}",
              )
 
 
-# http://stackoverflow.com/questions/19055089/pyinstaller-onefile-warning-pyconfig-h-when-importing-scipy-or-scipy-signal
+
 for d in a.datas:
     if 'pyconfig' in d[0]:
         a.datas.remove(d)
@@ -117,7 +117,7 @@ exe = EXE(
     upx=True,
     icon=ICONS_FILE,
     console=False,
-    target_arch='x86_64',  # TODO investigate building 'universal2'
+    target_arch='x86_64',
 )
 
 app = BUNDLE(

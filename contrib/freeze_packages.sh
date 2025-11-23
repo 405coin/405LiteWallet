@@ -1,12 +1,12 @@
 #!/bin/bash
-# Run this after a new release to update dependencies
+
 
 set -e
 
 venv_dir=~/.electrum-venv
 contrib="$(dirname "$0")"
 
-# note: we should not use a higher version of python than what the binaries bundle
+
 if [[ ! "$SYSTEM_PYTHON" ]] ; then
     SYSTEM_PYTHON=$(which python3.10) || printf ""
 else
@@ -30,10 +30,10 @@ for suffix in '' '-hw' '-binaries' '-binaries-mac' '-build-wine' '-build-mac' '-
 
     echo "Installing dependencies... (${reqfile})"
 
-    # We pin all python packaging tools (pip and friends). Some of our dependencies might
-    # pull some of them in (e.g. protobuf->setuptools), and all transitive dependencies
-    # must be pinned, so we might as well pin all packaging tools. This however means
-    # that we should explicitly install them now, so that we pin latest versions if possible.
+
+
+
+
     python -m pip install --upgrade pip setuptools wheel
 
     python -m pip install -r "$contrib/requirements/${reqfile}" --upgrade
@@ -52,8 +52,8 @@ for suffix in '' '-hw' '-binaries' '-binaries-mac' '-build-wine' '-build-mac' '-
     rm -f "$contrib/deterministic-build/${reqfile}"
     touch "$contrib/deterministic-build/${reqfile}"
 
-    # restrict ourselves to source-only packages.
-    # TODO expand this to all reqfiles...
+
+
     HASHIN_FLAGS=""
     if [[
         "${suffix}" == "" ||

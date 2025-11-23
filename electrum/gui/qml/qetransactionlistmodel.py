@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class QETransactionListModel(QAbstractListModel, QtEventListener):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES=('txid', 'fee_sat', 'height', 'confirmations', 'timestamp', 'monotonic_timestamp',
                  'incoming', 'value', 'date', 'label', 'txpos_in_block', 'fee',
                  'inputs', 'outputs', 'section', 'type', 'lightning', 'payment_hash', 'key', 'complete')
@@ -66,9 +66,9 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
     def on_event_fee_histogram(self, histogram):
         self._logger.debug(f'fee histogram updated')
         for i, tx_item in enumerate(self.tx_history):
-            if 'height' not in tx_item:  # filter to on-chain
+            if 'height' not in tx_item:                      
                 continue
-            if tx_item['confirmations'] > 0:  # filter out already mined
+            if tx_item['confirmations'] > 0:                            
                 continue
             txid = tx_item['txid']
             tx = self.wallet.db.get_transaction(txid)
@@ -84,12 +84,12 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
     @qt_event_listener
     def on_event_labels_received(self, wallet, labels):
         if wallet == self.wallet:
-            self.initModel(True)  # TODO: be less dramatic
+            self.initModel(True)                          
 
     def rowCount(self, index):
         return len(self.tx_history)
 
-    # also expose rowCount as a property
+                                        
     countChanged = pyqtSignal()
     @pyqtProperty(int, notify=countChanged)
     def count(self):
@@ -124,10 +124,10 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
         self.endResetModel()
 
     def tx_to_model(self, tx_item):
-        #self._logger.debug(str(tx_item))
+                                         
         item = tx_item
 
-        item['key'] = item.get('txid') or item['payment_hash'] or item['group_id'] # fixme: this is fragile
+        item['key'] = item.get('txid') or item['payment_hash'] or item['group_id']                         
 
         if 'lightning' not in item:
             item['lightning'] = False
@@ -143,12 +143,12 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
             tx = self.wallet.db.get_transaction(item['txid'])
             if tx:
                 item['complete'] = tx.is_complete()
-            else:  # due to races, tx might have already been removed from history
+            else:                                                                 
                 item['complete'] = False
 
-        # newly arriving txs, or (partially/fully signed) local txs have no (block) timestamp
-        # FIXME just use wallet.get_tx_status, and change that as needed
-        if not item['timestamp']:  # onchain: local or mempool or unverified txs
+                                                                                             
+                                                                        
+        if not item['timestamp']:                                               
             if not item['lightning']:
                 txid = item['txid']
                 assert txid
@@ -156,7 +156,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
                 item['section'] = 'local' if tx_mined_info.is_local_like() else 'mempool'
                 status, status_str = self.wallet.get_tx_status(txid, tx_mined_info=tx_mined_info)
                 item['date'] = status_str
-        else:  # lightning or already mined (and SPV-ed) onchain txs
+        else:                                                       
             item['section'] = self.get_section_by_timestamp(item['timestamp'])
             item['date'] = self.format_date_by_section(item['section'], datetime.fromtimestamp(item['timestamp']))
 
@@ -180,7 +180,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
 
     @staticmethod
     def format_date_by_section(section: str, date: datetime):
-        # TODO: l10n
+                    
         dfmt = {
             'today': '%H:%M',
             'yesterday': '%H:%M',
@@ -194,7 +194,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
 
     @staticmethod
     def _tx_mined_info_from_tx_item(tx_item: Dict[str, Any]) -> TxMinedInfo:
-        # FIXME a bit hackish to have to reconstruct the TxMinedInfo... same thing in qt-gui
+                                                                                            
         tx_mined_info = TxMinedInfo(
             _height=tx_item['height'],
             conf=tx_item['confirmations'],
@@ -206,7 +206,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
     @pyqtSlot()
     @pyqtSlot(bool)
     def initModel(self, force: bool = False):
-        # only (re)construct if dirty or forced
+                                               
         if not self._dirty and not force:
             return
 
@@ -244,7 +244,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
 
     def _update_future_txitem(self, tx_item_idx: int):
         tx_item = self.tx_history[tx_item_idx]
-        # note: local txs can transition to future, as "future" state is not persisted
+                                                                                      
         if tx_item.get('height') not in (TX_HEIGHT_FUTURE, TX_HEIGHT_LOCAL):
             return
         txid = tx_item['txid']
@@ -254,7 +254,7 @@ class QETransactionListModel(QAbstractListModel, QtEventListener):
         txinfo = self.wallet.get_tx_info(tx)
         status, status_str = self.wallet.get_tx_status(txid, txinfo.tx_mined_status)
         tx_item['date'] = status_str
-        # note: if the height changes, that might affect the history order, but we won't re-sort now.
+                                                                                                     
         tx_item['height'] = self.wallet.adb.get_tx_height(txid).height()
         index = self.index(tx_item_idx, 0)
         roles = [self._ROLE_RMAP[x] for x in ['height', 'date']]

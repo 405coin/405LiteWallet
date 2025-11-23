@@ -12,7 +12,7 @@ class TestCoinChooser(ElectrumTestCase):
 
     @staticmethod
     def get_dummy_txin_1_284_474_sat() -> PartialTxInput:
-        # value of 1_284_474 sat
+                                
         prevout_txid = bytes.fromhex(
             "b3d9174cb5d3234764a089bb91fdbd1117b7958be4870d1a544136ab017a67dd"
         )
@@ -50,14 +50,14 @@ class TestCoinChooser(ElectrumTestCase):
         coin_chooser = CoinChooserPrivacy(enable_output_value_rounding=False)
         fee_estimator = partial(FeePolicy('eta:2').estimate_fee, allow_fallback_to_static_rates=True)
 
-        # dummy input with value of 330 sat
+                                           
         prevout_txid = bytes.fromhex("81d0b29f08c6256dcfbaf02ff1f1e756461cb1df550672e049af7429331c643f")
         single_txin = PartialTxInput(
             prevout=TxOutpoint(txid=prevout_txid, out_idx=0),
         )
         single_txin.utxo = Transaction("02000000000101956449bdc8059b680a20483e64e139ce63fe64333b92cd7811a1b116d6b967ad0000000000fdffffff024a01000000000000160014a21d1fbcf571153f57b40855e059c134405a89ecd682010000000000160014fd7debf75d6c410bf6ba1c8ba05f90f23ce4646a0247304402207f07ec0c2415b31743527dea2f7bff3868f494dc0a5d45adec5e05031725a0af02202aa0ac7d06dbcad8ac0b9808a829b6bdaa98bc831aef31a5ab4e5d1890f7552101210278a5d9b2796f2743ccf1b36b2bf47695d766d0841c17b00ce83943c8b37dde0ceea60300")
 
-        # dummy input to be used as potential additional input of higher value
+                                                                              
         coin = self.get_dummy_txin_1_284_474_sat()
 
         tx = coin_chooser.make_tx(
@@ -68,11 +68,11 @@ class TestCoinChooser(ElectrumTestCase):
             fee_estimator_vb=fee_estimator,
             dust_threshold=500,
         )
-        # make_tx should add one additional input and a change output
+                                                                     
         assert len(tx.outputs()) == 1, f"expected 1 output got {len(tx.outputs())}"
         assert len(tx.inputs()) == 2, f"expected 2 input got {len(tx.inputs())}"
 
-        # dummy input with value of 99030 sat
+                                             
         prevout_txid = bytes.fromhex("81d0b29f08c6256dcfbaf02ff1f1e756461cb1df550672e049af7429331c643f")
         single_txin = PartialTxInput(
             prevout=TxOutpoint(txid=prevout_txid, out_idx=1),
@@ -87,15 +87,15 @@ class TestCoinChooser(ElectrumTestCase):
             fee_estimator_vb=fee_estimator,
             dust_threshold=500,
         )
-        # make_tx should not add an additional input, as single_txin is large enough
+                                                                                    
         assert len(tx.outputs()) == 1, f"expected 1 output got {len(tx.outputs())}"
         assert len(tx.inputs()) == 1, f"expected 1 input got {len(tx.inputs())}"
 
     def test_doesnt_round_output_value_with_zerofee_estimator(self):
-        # output value rounding is enabled (as by default)
+                                                          
         coin_chooser = CoinChooserPrivacy(enable_output_value_rounding=True)
 
-        # fixed fee estimator always returns 0
+                                              
         fee_estimator = FixedFeePolicy(0).estimate_fee
 
         tx = coin_chooser.make_tx(

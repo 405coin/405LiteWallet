@@ -12,37 +12,37 @@ from .logging import Logger
 if TYPE_CHECKING:
     from .network import Network
 
-# 1008 = max conf target of core's estimatesmartfee, requesting more results in rpc error.
-# estimatesmartfee guarantees that the fee will get accepted into the mempool
+                                                                                          
+                                                                             
 FEE_ETA_TARGETS = [1008, 144, 25, 10, 5, 2, 1]
 FEE_DEPTH_TARGETS = [10_000_000, 5_000_000, 2_000_000, 1_000_000,
                      800_000, 600_000, 400_000, 250_000, 100_000]
 FEERATE_STATIC_VALUES = [1000, 2000, 5000, 10000, 20000, 30000,
                          50000, 70000, 100000, 150000, 200000, 300000]
 
-# satoshi per kbyte
+                   
 FEERATE_MAX_DYNAMIC = 1500000
 FEERATE_WARNING_HIGH_FEE = 600000
 FEERATE_FALLBACK_STATIC_FEE = 150000
-FEERATE_REGTEST_STATIC_FEE = FEERATE_FALLBACK_STATIC_FEE  # hardcoded fee used on regtest
+FEERATE_REGTEST_STATIC_FEE = FEERATE_FALLBACK_STATIC_FEE                                 
 FEERATE_MIN_RELAY = 100
-FEERATE_DEFAULT_RELAY = 1000  # conservative "min relay fee"
+FEERATE_DEFAULT_RELAY = 1000                                
 FEERATE_MAX_RELAY = 50000
 assert FEERATE_MIN_RELAY <= FEERATE_DEFAULT_RELAY <= FEERATE_MAX_RELAY
 
-# warn user if fee/amount for on-chain tx is higher than this
+                                                             
 FEE_RATIO_HIGH_WARNING = 0.05
 
-# note: make sure the network is asking for estimates for these targets
+                                                                       
 FEE_LN_ETA_TARGET = 2
 FEE_LN_LOW_ETA_TARGET = 25
 FEE_LN_MINIMUM_ETA_TARGET = 1008
 
 
-# The min feerate_per_kw that can be used in lightning so that
-# the resulting onchain tx pays the min relay fee.
-# This would be FEERATE_DEFAULT_RELAY / 4 if not for rounding errors,
-# see https://github.com/ElementsProject/lightning/commit/2e687b9b352c9092b5e8bd4a688916ac50b44af0
+                                                              
+                                                  
+                                                                     
+                                                                                                  
 FEERATE_PER_KW_MIN_RELAY_LIGHTNING = 253
 
 
@@ -52,15 +52,15 @@ def closest_index(value, array) -> int:
 
 
 class FeeMethod(IntEnum):
-    # note: careful changing these names! they appear in the config files.
-    FIXED = 0    # fixed absolute fee
-    FEERATE = 1  # fixed fee rate
-    ETA = 2      # dynamic, ETA based
-    MEMPOOL = 3  # dynamic, mempool based
+                                                                          
+    FIXED = 0                        
+    FEERATE = 1                  
+    ETA = 2                          
+    MEMPOOL = 3                          
 
     @classmethod
     def slider_values(cls):
-        return [FeeMethod.FEERATE, FeeMethod.ETA, FeeMethod.MEMPOOL]
+        return [FeeMethod.FEERATE]
 
     def name_for_GUI(self):
         names = {
@@ -75,23 +75,24 @@ class FeeMethod(IntEnum):
         try:
             i = FeeMethod.slider_values().index(method)
         except ValueError:
-            i = -1
+            i = 0
         return i
 
 
 class FeePolicy(Logger):
-    # object associated to a fee slider
+                                       
 
     def __init__(self, descriptor: str):
         Logger.__init__(self)
         try:
             name, value = descriptor.split(':')
             self.method = FeeMethod[name.upper()]
-            self.value = int(value)  # target (e.g. num blocks, nbytes from mempool tip, sat/kbyte)
+            self.value = int(value)                                                                
         except Exception:
             self.logger.warning(f"Could not parse fee policy descriptor '{descriptor}'. Falling back to 'eta:2'")
             self.method = FeeMethod.ETA
             self.value = 2
+        self._ensure_supported_method()
 
     def __repr__(self):
         return self.get_descriptor()
@@ -101,16 +102,18 @@ class FeePolicy(Logger):
 
     def set_method(self, method: FeeMethod):
         assert isinstance(method, FeeMethod)
-        self.method = method
-        # default values
-        if self.method == FeeMethod.MEMPOOL:
-            self.value = 1000000 # 1 mb from tip
-        elif self.method == FeeMethod.ETA:
-            self.value = 2 # 2 blocks
-        elif self.method == FeeMethod.FEERATE:
-            self.value = 5000 # sats per vkb
+        new_method = FeeMethod.FEERATE if method != FeeMethod.FEERATE else method
+        if new_method != method:
+            self.logger.info("Unsupported fee method '%s' requested; forcing 'feerate'.", method.name.lower())
+        if new_method == self.method:
+            return
+        self.method = new_method
+                        
+        if self.method == FeeMethod.FEERATE:
+            self.value = 5000               
         else:
-            self.value = 10 # sats
+            self.value = 10       
+        self._ensure_supported_method()
 
     def _get_array(self) -> Sequence[int]:
         if self.method == FeeMethod.MEMPOOL:
@@ -126,6 +129,12 @@ class FeePolicy(Logger):
         array = self._get_array()
         slider_pos = max(0, min(slider_pos, len(array)-1))
         self.value = array[slider_pos]
+
+    def _ensure_supported_method(self):
+        if self.method != FeeMethod.FEERATE:
+            self.logger.info("Unsupported fee method '%s'; forcing 'feerate'.", self.method.name.lower())
+            self.method = FeeMethod.FEERATE
+            self.value = 5000
 
     def get_slider_pos(self) -> int:
         array = self._get_array()
@@ -213,8 +222,8 @@ class FeePolicy(Logger):
 
     @classmethod
     def get_depth_mb_str(cls, depth: int) -> str:
-        # e.g. 500_000 -> "0.50 MB"
-        depth_mb = "{:.2f}".format(depth / 1_000_000)  # maybe .rstrip("0") ?
+                                   
+        depth_mb = "{:.2f}".format(depth / 1_000_000)                        
         return f"{depth_mb} {util.UI_UNIT_NAME_MEMPOOL_MB}"
 
     def fee_per_kb(self, network: 'Network') -> Optional[int]:
@@ -269,12 +278,12 @@ class FeePolicy(Logger):
         fee_per_kb: Union[int, float, Decimal],
         size: Union[int, float, Decimal],
     ) -> int:
-        # note: 'size' is in vbytes
+                                   
         size = Decimal(size)
         fee_per_kb = Decimal(fee_per_kb)
         fee_per_byte = fee_per_kb / 1000
-        # to be consistent with what is displayed in the GUI,
-        # the calculation needs to use the same precision:
+                                                             
+                                                          
         fee_per_byte = quantize_feerate(fee_per_byte)
         return math.ceil(fee_per_byte * size)
 
@@ -290,8 +299,8 @@ def impose_hard_limits_on_fee(func):
         if fee is None:
             return fee
         fee = min(FEERATE_MAX_DYNAMIC, fee)
-        # Clamp dynamic feerates with conservative min relay fee,
-        # to ensure txs propagate well:
+                                                                 
+                                       
         fee = max(FEERATE_DEFAULT_RELAY, fee)
         return fee
     return get_fee_within_limits
@@ -300,7 +309,7 @@ def impose_hard_limits_on_fee(func):
 class FeeHistogram:
 
     def __init__(self):
-        self._data = None # type: Optional[Sequence[Tuple[Union[float, int], int]]]
+        self._data = None                                                          
 
     def has_data(self) -> bool:
         return self._data is not None
@@ -336,13 +345,13 @@ class FeeHistogram:
                 break
         else:
             return 0
-        # add one sat/byte as currently that is the max precision of the histogram
-        # note: precision depends on server.
-        #       old ElectrumX <1.16 has 1 s/b prec, >=1.16 has 0.1 s/b prec.
-        #       electrs seems to use untruncated double-precision floating points.
-        #       # TODO decrease this to 0.1 s/b next time we bump the required protocol version
+                                                                                  
+                                            
+                                                                            
+                                                                                  
+                                                                                               
         fee += 1
-        # convert to sat/kbyte
+                              
         return int(fee * 1000)
 
     def depth_to_fee(self, slider_pos) -> Optional[int]:
@@ -353,7 +362,7 @@ class FeeHistogram:
     def get_capped_data(self):
         """ used by QML """
         data = self._data or [[FEERATE_DEFAULT_RELAY/1000, 1]]
-        # cap the histogram to a limited number of megabytes
+                                                            
         bytes_limit = 10*1000*1000
         bytes_current = 0
         capped_histogram = []
@@ -362,12 +371,12 @@ class FeeHistogram:
                 break
             slot = min(item[1], bytes_limit - bytes_current)
             bytes_current += slot
-            # round & limit precision
+                                     
             value = int(item[0] * 10**FEERATE_PRECISION) / 10**FEERATE_PRECISION
             capped_histogram.append([
-                max(FEERATE_MIN_RELAY/1000, value),  # clamped to [FEERATE_MIN_RELAY/1000, inf)
-                slot,  # width of bucket
-                bytes_current,  # cumulative depth at far end of bucket
+                max(FEERATE_MIN_RELAY/1000, value),                                            
+                slot,                   
+                bytes_current,                                         
             ])
         return capped_histogram, bytes_current
 
@@ -375,7 +384,7 @@ class FeeHistogram:
 class FeeTimeEstimates:
 
     def __init__(self):
-        self.data = {} # type: Dict[int, int]
+        self.data = {}                       
 
     def get_data(self):
         return self.data
@@ -387,7 +396,7 @@ class FeeTimeEstimates:
               estimation works for targets we have, even if some targets are missing.
         """
         targets = set(FEE_ETA_TARGETS)
-        targets.discard(1)  # rm "next block" target
+        targets.discard(1)                          
         return all(target in self.data for target in targets)
 
     def set_data(self, nblock_target: int, fee_per_kb: int):
@@ -435,7 +444,7 @@ class FeeTimeEstimates:
             fee = self.data.get(num_blocks)
             if fee is not None:
                 fee = int(fee)
-        # fallback for regtest
+                              
         if fee is None and constants.net is constants.BitcoinRegtest:
             return FEERATE_REGTEST_STATIC_FEE
         return fee

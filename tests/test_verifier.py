@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+                       
 
 from electrum.bitcoin import hash_encode
 from electrum.transaction import Transaction
@@ -20,8 +20,8 @@ assert len(VALID_64_BYTE_TX) == 128
 
 
 class VerifierTestCase(ElectrumTestCase):
-    # these tests are regarding the attack described in
-    # https://lists.linuxfoundation.org/pipermail/bitcoin-dev/2018-June/016105.html
+                                                       
+                                                                                   
     TESTNET = True
 
     def test_verify_ok_t_tx(self):
@@ -32,20 +32,20 @@ class VerifierTestCase(ElectrumTestCase):
 
     def test_verify_fail_f_tx_odd(self):
         """Raise if inner node of merkle branch is valid tx. ('odd' fake leaf position)"""
-        # first 32 bytes of T encoded as hash
+                                             
         fake_branch_node = hash_encode(bfh(VALID_64_BYTE_TX[:64]))
         fake_mbranch = [fake_branch_node] + MERKLE_BRANCH
-        # last 32 bytes of T encoded as hash
+                                            
         f_tx_hash = hash_encode(bfh(VALID_64_BYTE_TX[64:]))
         with self.assertRaises(InnerNodeOfSpvProofIsValidTx):
             SPV.hash_merkle_root(fake_mbranch, f_tx_hash, 7)
 
     def test_verify_fail_f_tx_even(self):
         """Raise if inner node of merkle branch is valid tx. ('even' fake leaf position)"""
-        # last 32 bytes of T encoded as hash
+                                            
         fake_branch_node = hash_encode(bfh(VALID_64_BYTE_TX[64:]))
         fake_mbranch = [fake_branch_node] + MERKLE_BRANCH
-        # first 32 bytes of T encoded as hash
+                                             
         f_tx_hash = hash_encode(bfh(VALID_64_BYTE_TX[:64]))
         with self.assertRaises(InnerNodeOfSpvProofIsValidTx):
             SPV.hash_merkle_root(fake_mbranch, f_tx_hash, 6)

@@ -35,8 +35,8 @@ WizardComponent {
             wizard_data['seed_type'] = _seedType
             wizard_data['seed_extend'] = _canPassphrase
 
-            // determine script type from electrum seed type
-            // (used to limit script type options for bip39 cosigners)
+            
+            
             if (wizard_data['wallet_type'] == 'multisig' && seed_variant_cb.currentValue == 'electrum') {
                 wizard_data['script_type'] = {
                     'standard': 'p2sh',
@@ -49,7 +49,7 @@ WizardComponent {
     function setSeedTypeHelpText() {
         var t = {
             'electrum': [
-                // not shown as electrum is the default seed type anyways and the name is self-explanatory
+                
                 qsTr('Electrum seeds are the default seed type.'),
                 qsTr('If you are restoring from a seed previously created by Electrum, choose this option')
             ].join(' '),
@@ -78,7 +78,7 @@ WizardComponent {
         if (!cosigner || !verifyResult.valid) {
             _seedValid = verifyResult.valid
         } else {
-            // bip39 validate after derivation path is known
+            
             if (seed_variant_cb.currentValue == 'electrum') {
                 apply()
                 if (wiz.hasDuplicateMasterKeys(wizard_data)) {
@@ -226,7 +226,7 @@ WizardComponent {
         repeat: false
         onTriggered: {
             checkValid()
-            // checkIsLast depends on 'seed_extend'(_canPassphrase) getting set in apply()
+            
             checkIsLast()
         }
     }

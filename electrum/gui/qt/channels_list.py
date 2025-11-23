@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 import traceback
 import enum
 from typing import Sequence, Optional, Dict, TYPE_CHECKING
@@ -60,7 +60,7 @@ class ChannelsList(MyTreeView):
         Columns.CHANNEL_STATUS,
     ]
 
-    _default_item_bg_brush = None  # type: Optional[QBrush]
+    _default_item_bg_brush = None
 
     def __init__(self, main_window: 'ElectrumWindow'):
         super().__init__(
@@ -77,7 +77,7 @@ class ChannelsList(MyTreeView):
         self.setSortingEnabled(True)
 
     @property
-    # property because lnworker might be initialized at runtime
+
     def lnworker(self):
         return self.wallet.lnworker
 
@@ -227,7 +227,7 @@ class ChannelsList(MyTreeView):
 
     def create_menu(self, position):
         menu = QMenu()
-        menu.setSeparatorsCollapsible(True)  # consecutive separators are merged together
+        menu.setSeparatorsCollapsible(True)
         selected = self.selected_in_column(self.Columns.NODE_ALIAS)
         if not selected:
             menu.exec(self.viewport().mapToGlobal(position))
@@ -328,12 +328,12 @@ class ChannelsList(MyTreeView):
             self._update_chan_frozen_bg(chan=chan, items=items)
             self.model().insertRow(0, items)
 
-        # FIXME sorting by SHORT_CHANID should treat values as tuple, not as string ( 50x1x1 > 8x1x1 )
+
         self.sortByColumn(self.Columns.SHORT_CHANID, Qt.SortOrder.DescendingOrder)
 
     def _update_chan_frozen_bg(self, *, chan: AbstractChannel, items: Sequence[QStandardItem]):
         assert self._default_item_bg_brush is not None
-        # frozen for sending
+
         item = items[self.Columns.LOCAL_BALANCE]
         if chan.is_frozen_for_sending():
             item.setBackground(ColorScheme.BLUE.as_color(True))
@@ -341,7 +341,7 @@ class ChannelsList(MyTreeView):
         else:
             item.setBackground(self._default_item_bg_brush)
             item.setToolTip("")
-        # frozen for receiving
+
         item = items[self.Columns.REMOTE_BALANCE]
         if chan.is_frozen_for_receiving():
             item.setBackground(ColorScheme.BLUE.as_color(True))
@@ -364,8 +364,8 @@ class ChannelsList(MyTreeView):
         menu.addAction(read_QIcon('update.png'), _('Submarine swap'), lambda: self.main_window.run_swap_dialog())
         menu.addSeparator()
         menu.addAction(_("Import channel backup"), lambda: self.main_window.do_process_from_text_channel_backup())
-        # only enable menu if has LN. Or we could selectively enable menu items?
-        #     and maybe add item "main_window.init_lightning_dialog()" when applicable
+
+
         menu.setEnabled(self.wallet.has_lightning())
         self.new_channel_button = EnterButton(_('New Channel'), self.main_window.new_channel_dialog)
         self.new_channel_button.setEnabled(self.wallet.can_have_lightning())
@@ -473,7 +473,7 @@ class ChannelFeatureIcons:
         for feat in self.features:
             icon_rect = QRect(cur_x, rect.y(), self.icon_size.width(), self.icon_size.height())
             feat.rect = icon_rect
-            if rect.contains(icon_rect):  # stay inside parent
+            if rect.contains(icon_rect):
                 painter.drawPixmap(icon_rect, feat.icon().pixmap(self.icon_size))
             cur_x += self.icon_size.width() + 1
         painter.restore()

@@ -105,7 +105,7 @@ Pane {
                             visible: Daemon.currentWallet.isHardware
                             font.pixelSize: constants.fontSizeSmall
                             font.bold: true
-                            iconSource: '../../../icons/seed.png'
+                            iconSource: '../../../icons/seed.svg'
                         }
                         Tag {
                             Layout.alignment: Qt.AlignHCenter
@@ -121,7 +121,7 @@ Pane {
                             visible: Daemon.currentWallet.hasSeed
                             font.pixelSize: constants.fontSizeSmall
                             font.bold: true
-                            iconSource: '../../../icons/seed.png'
+                            iconSource: '../../../icons/seed.svg'
                         }
                     }
 
@@ -438,7 +438,7 @@ Pane {
                 Layout.preferredWidth: 1
                 text: qsTr('Change Password')
                 onClicked: Daemon.startChangePassword()
-                icon.source: '../../icons/lock.png'
+                icon.source: '../../icons/lock.svg'
             }
             FlatButton {
                 Layout.fillWidth: true
@@ -467,7 +467,7 @@ Pane {
             Daemon.availableWallets.reload()
             app.stack.pop()
         }
-        function onRequestNewPassword() { // new unified password (all wallets)
+        function onRequestNewPassword() { 
             var dialog = app.passwordDialog.createObject(app, {
                 confirmPassword: true,
                 title: qsTr('Enter new password'),
@@ -520,7 +520,7 @@ Pane {
 
     Connections {
         target: Daemon.currentWallet
-        function onRequestNewPassword() { // new wallet password
+        function onRequestNewPassword() { 
             var dialog = app.passwordDialog.createObject(app, {
                 confirmPassword: true,
                 title: qsTr('Enter new password'),

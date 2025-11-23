@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import ast
 import errno
@@ -73,9 +73,9 @@ def get_rpcsock_defaultpath(config: SimpleConfig):
 def get_rpcsock_default_type(config: SimpleConfig):
     if config.RPC_PORT:
         return 'tcp'
-    # Use unix domain sockets when available,
-    # with the extra paranoia that in case windows "implements" them,
-    # we want to test it before making it the default there.
+                                             
+                                                                     
+                                                            
     if hasattr(socket, 'AF_UNIX') and sys.platform != 'win32':
         return 'unix'
     return 'tcp'
@@ -105,23 +105,23 @@ def get_file_descriptor(config: SimpleConfig):
             request(config, 'ping')
             return None
         except DaemonNotRunning:
-            # Couldn't connect; remove lockfile and try again.
+                                                              
             remove_lockfile(lockfile)
 
 
 def request(config: SimpleConfig, endpoint, args=(), timeout: Union[float, int] = 60):
     lockfile = get_lockfile(config)
     for attempt in range(5):
-        create_time = None  # type: Optional[float | int]
+        create_time = None                               
         path = None
         try:
             with open(lockfile) as f:
                 socktype, address, create_time = ast.literal_eval(f.read())
-                int(create_time)  # raise if not numeric
+                int(create_time)                        
                 if socktype == 'unix':
                     path = address
                     (host, port) = "127.0.0.1", 0
-                    # We still need a host and port for e.g. HTTP Host header
+                                                                             
                 elif socktype == 'tcp':
                     (host, port) = address
                 else:
@@ -139,7 +139,7 @@ def request(config: SimpleConfig, endpoint, args=(), timeout: Union[float, int] 
             if socktype == 'unix':
                 connector = aiohttp.UnixConnector(path=path)
             elif socktype == 'tcp':
-                connector = None # This will transform into TCP.
+                connector = None                                
             else:
                 raise Exception(f"impossible socktype ({socktype!r})")
             async with aiohttp.ClientSession(auth=auth, connector=connector) as session:
@@ -151,15 +151,15 @@ def request(config: SimpleConfig, endpoint, args=(), timeout: Union[float, int] 
             return fut.result(timeout=timeout)
         except aiohttp.client_exceptions.ClientConnectorError as e:
             _logger.info(f"failed to connect to JSON-RPC server {e}")
-            # We cannot communicate with the daemon.
-            # If daemon's creation time is very recent, it might still be starting up.
-            # In any other case, we raise: - too old create_time means daemon is likely dead,
-            #                              - create_time in future means our clock cannot be trusted.
+                                                    
+                                                                                      
+                                                                                             
+                                                                                                     
             if not (create_time <= time.time() <= create_time + 1.0):
                 raise DaemonNotRunning()
-        # Sleep a bit and try again; daemon might have just been started
+                                                                        
         time.sleep(1.0)
-    # how did we even get here?! the clock must be going haywire.
+                                                                 
     _logger.error(f"Failed to connect to JSON-RPC server. Exhausted all attempts.")
     raise DaemonNotRunning()
 
@@ -168,10 +168,10 @@ def wait_until_daemon_becomes_ready(*, config: SimpleConfig, timeout=5) -> bool:
     t0 = time.monotonic()
     while True:
         if time.monotonic() > t0 + timeout:
-            return False  # timeout
+            return False           
         try:
             request(config, 'ping')
-            return True  # success
+            return True           
         except DaemonNotRunning:
             time.sleep(0.05)
             continue
@@ -212,7 +212,7 @@ class AuthenticatedServer(Logger):
         self.rpc_user = rpc_user
         self.rpc_password = rpc_password
         self.auth_lock = asyncio.Lock()
-        self._methods = {}  # type: Dict[str, Callable]
+        self._methods = {}                             
 
     def register_method(self, name: str, f):
         assert name not in self._methods, f"name collision for {name}"
@@ -220,7 +220,7 @@ class AuthenticatedServer(Logger):
 
     async def authenticate(self, headers):
         if self.rpc_password == '':
-            # RPC authentication is disabled
+                                            
             return
         auth_string = headers.get('Authorization', None)
         if auth_string is None:
@@ -250,7 +250,7 @@ class AuthenticatedServer(Logger):
             request = json.loads(request)
             method = request['method']
             _id = request['id']
-            params = request.get('params', [])  # type: Union[Sequence, Mapping]
+            params = request.get('params', [])                                  
             if method not in self._methods:
                 raise Exception(f"attempting to use unregistered method: {method}")
             f = self._methods[method]
@@ -342,9 +342,9 @@ class CommandsServer(AuthenticatedServer):
         return True
 
     async def gui(self, config_options):
-        # note: "config_options" is coming from the short-lived CLI-invocation,
-        #        while self.config is the config of the long-lived daemon process.
-        #       "config_options" should have priority.
+                                                                               
+                                                                                  
+                                                      
         if self.daemon.gui_object:
             if hasattr(self.daemon.gui_object, 'new_window'):
                 if config_options.get(SimpleConfig.NETWORK_OFFLINE.key()) and not self.config.NETWORK_OFFLINE:
@@ -363,11 +363,11 @@ class CommandsServer(AuthenticatedServer):
         cmd = known_commands.get(cmdname)
         if not cmd:
             return f"unknown command: {cmdname}"
-        # arguments passed to function
+                                      
         args = [config_options.get(x) for x in cmd.params]
-        # decode json arguments
+                               
         args = [json_decode(i) for i in args]
-        # options
+                 
         kwargs = {}
         for x in cmd.options:
             kwargs[x] = config_options.get(x)
@@ -377,7 +377,7 @@ class CommandsServer(AuthenticatedServer):
                 raise UserFacingException("error: wallet not specified")
             kwargs['wallet_path'] = wallet_path
         func = getattr(self.cmd_runner, cmd.name)
-        # execute requested command now.  note: cmd can raise, the caller (self.handle) will wrap it.
+                                                                                                     
         result = await func(*args, **kwargs)
         return result
 
@@ -394,7 +394,7 @@ class Daemon(Logger):
         fd=None,
         *,
         listen_jsonrpc: bool = True,
-        start_network: bool = True,  # setting to False allows customising network settings before starting it
+        start_network: bool = True,                                                                           
     ):
         Logger.__init__(self)
         self.config = config
@@ -403,13 +403,13 @@ class Daemon(Logger):
             fd = get_file_descriptor(config)
             if fd is None:
                 raise Exception('failed to lock daemon; already running?')
-        self._plugins = None  # type: Optional[Plugins]
+        self._plugins = None                           
         self.asyncio_loop = util.get_asyncio_loop()
         if not self.config.NETWORK_OFFLINE:
             self.network = Network(config, daemon=self)
         self.fx = FxThread(config=config)
-        # wallet_key -> wallet
-        self._wallets = {}  # type: Dict[str, Abstract_Wallet]
+                              
+        self._wallets = {}                                    
         self._wallet_lock = threading.RLock()
 
         self._stop_entered = False
@@ -420,7 +420,7 @@ class Daemon(Logger):
         asyncio.run_coroutine_threadsafe(self._run(), self.asyncio_loop)
         if start_network and self.network:
             self.start_network()
-        # Setup commands server
+                               
         self.commands_server = None
         if listen_jsonrpc:
             self.commands_server = CommandsServer(self, fd)
@@ -431,14 +431,14 @@ class Daemon(Logger):
         self.logger.info("starting taskgroup.")
         try:
             async with self.taskgroup as group:
-                await group.spawn(asyncio.Event().wait)  # run forever (until cancel)
+                await group.spawn(asyncio.Event().wait)                              
         except Exception as e:
             self.logger.exception("taskgroup died.")
             util.send_exception_to_crash_reporter(e)
         finally:
             self.logger.info("taskgroup stopped.")
-            # note: we could just "await self.stop()", but in that case GUI users would
-            #       not see the exception (especially if the GUI did not start yet).
+                                                                                       
+                                                                                    
             self._stopping_soon_or_errored.set()
 
     def start_network(self):
@@ -446,7 +446,7 @@ class Daemon(Logger):
         assert not self.config.NETWORK_OFFLINE
         assert self.network
         self.network.start(jobs=[self.fx.run])
-        # prepare lightning functionality, also load channel db early
+                                                                     
         if self.config.LIGHTNING_USE_GOSSIP:
             self.network.start_gossip()
 
@@ -457,19 +457,19 @@ class Daemon(Logger):
         but MUST NOT be used as a *path* for the actual filesystem operations. (see #8495)
         """
         path = standardize_path(path)
-        # The extra normalisation makes it even harder to open the same wallet file multiple times simultaneously.
-        # - "realpath" resolves symlinks:
-        #   note: the path returned by realpath has been observed NOT to work for FS operations!
-        #         (e.g. for Cryptomator WinFSP/FUSE mounts, see #8495).
-        #         It is okay for us to use it for computing a canonical wallet *key*, but cannot be used as a path!
+                                                                                                                  
+                                         
+                                                                                                
+                                                                       
+                                                                                                                   
         try:
             path = os.path.realpath(path, strict=False)
-        except OSError as e:  # see #10182
+        except OSError as e:              
             _logger.warning(f"could not parse {path!r}: {e!r}")
             path = path
-        # - "normcase" does Windows-specific case and slash normalisation:
+                                                                          
         path = os.path.normcase(path)
-        # - prepend header to break usage of wallet keys as fs paths
+                                                                    
         header = "WALLETKEY-"
         return header + str(path)
 
@@ -495,7 +495,7 @@ class Daemon(Logger):
         assert password != ''
         path = standardize_path(path)
         wallet_key = self._wallet_key_from_path(path)
-        # wizard will be launched if we return
+                                              
         if wallet := self._wallets.get(wallet_key):
             if force_check_password:
                 wallet.check_password(password)
@@ -505,7 +505,7 @@ class Daemon(Logger):
         if self.network:
             wallet.start_network(self.network)
         elif wallet.lnworker:
-            # in offline mode, we need to trigger callbacks
+                                                           
             coro = wallet.lnworker.lnwatcher.trigger_callbacks(requires_synchronizer=False)
             asyncio.run_coroutine_threadsafe(coro, self.asyncio_loop)
         self.add_wallet(wallet)
@@ -523,7 +523,7 @@ class Daemon(Logger):
             *,
             upgrade: bool = False,
             config: SimpleConfig,
-            force_check_password: bool = False,  # if set, always validate password
+            force_check_password: bool = False,                                    
     ) -> Optional[Abstract_Wallet]:
         path = standardize_path(path)
         storage = WalletStorage(path, allow_partial_writes=config.WALLET_PARTIAL_WRITES)
@@ -533,7 +533,7 @@ class Daemon(Logger):
             if not password:
                 raise InvalidPassword('No password given')
             storage.decrypt(password)
-        # read data, pass it to db
+                                  
         db = WalletDB(storage.read(), storage=storage, upgrade=upgrade)
         if db.get_action():
             raise WalletUnfinished(db)
@@ -555,7 +555,7 @@ class Daemon(Logger):
 
     @with_wallet_lock
     def get_wallets(self) -> Dict[str, Abstract_Wallet]:
-        return dict(self._wallets)  # copy
+        return dict(self._wallets)        
 
     def delete_wallet(self, path: str) -> bool:
         self.stop_wallet(path)
@@ -591,18 +591,18 @@ class Daemon(Logger):
         if 'wallet_path' in self.config.cmdline_options:
             self.logger.warning("Ignoring parameter 'wallet_path' for daemon. "
                                 "Use the load_wallet command instead.")
-        # init plugins
+                      
         self._plugins = Plugins(self.config, 'cmdline')
-        # block until we are stopping
+                                     
         try:
             self._stopping_soon_or_errored.wait()
         except KeyboardInterrupt:
             self.logger.info("got KeyboardInterrupt")
-        # we either initiate shutdown now,
-        # or it has already been initiated (in which case this is a no-op):
+                                          
+                                                                           
         self.logger.info("run_daemon is calling stop()")
         asyncio.run_coroutine_threadsafe(self.stop(), self.asyncio_loop).result()
-        # wait until "stop" finishes:
+                                     
         self._stopped_event.wait()
 
     async def stop(self):
@@ -642,7 +642,7 @@ class Daemon(Logger):
         gui_name = self.config.GUI_NAME
         if gui_name in ['lite', 'classic']:
             gui_name = 'qt'
-        self._plugins = Plugins(self.config, gui_name)  # init plugins
+        self._plugins = Plugins(self.config, gui_name)                
         self.logger.info(f'launching GUI: {gui_name}')
         try:
             try:
@@ -653,13 +653,13 @@ class Daemon(Logger):
             if not self._stop_entered:
                 self.gui_object.main()
             else:
-                # If daemon.stop() was called before gui_object got created, stop gui now.
+                                                                                          
                 self.gui_object.stop()
         except BaseException as e:
             self.logger.error(f'GUI raised exception: {repr(e)}. shutting down.')
             raise
         finally:
-            # app will exit now
+                               
             asyncio.run_coroutine_threadsafe(self.stop(), self.asyncio_loop).result()
 
     @with_wallet_lock
@@ -676,11 +676,11 @@ class Daemon(Logger):
             if not os.path.isfile(path):
                 continue
             wallet = self.get_wallet(path)
-            # note: we only create a new wallet object if one was not loaded into the daemon already.
-            #       This is to avoid having two wallet objects contending for the same file.
-            #       Take care: this only works if the daemon knows about all wallet objects.
-            #                  if other code already has created a Wallet() for a file but did not tell the daemon,
-            #                  hard-to-understand bugs will follow...
+                                                                                                     
+                                                                                            
+                                                                                            
+                                                                                                                   
+                                                                     
             if wallet is None:
                 try:
                     wallet = self._load_wallet(path, old_password, upgrade=True, config=self.config)
@@ -720,7 +720,7 @@ class Daemon(Logger):
     ) -> bool:
         """returns whether password is unified"""
         if new_password is None:
-            # we opened a non-encrypted wallet
+                                              
             return False
         if wallet_dir is None:
             wallet_dir = os.path.dirname(self.config.get_wallet_path())

@@ -20,13 +20,13 @@ class QrCodeDataOverflow(qrcode.exceptions.DataOverflowError):
 
 class QRCodeWidget(QWidget):
 
-    MIN_BOXSIZE = 2  # min size in pixels of single black/white unit box of the qr code
+    MIN_BOXSIZE = 2
 
     def __init__(self, data=None, *, manual_size: bool = False):
         QWidget.__init__(self)
         self.data = None
         self.qr = None
-        self._framesize = None  # type: Optional[int]
+        self._framesize = None
         self._manual_size = manual_size
         self.setData(data)
 
@@ -38,7 +38,7 @@ class QRCodeWidget(QWidget):
             )
             try:
                 qr.add_data(data)
-                qr_matrix = qr.get_matrix()  # test that data fits in QR code
+                qr_matrix = qr.get_matrix()
             except (ValueError, qrcode.exceptions.DataOverflowError) as e:
                 raise QrCodeDataOverflow() from e
             self.qr = qr
@@ -64,9 +64,7 @@ class QRCodeWidget(QWidget):
         )
 
     def grab(self) -> QtGui.QPixmap:
-        """Overrides QWidget.grab to only include the QR code itself,
-        excluding horizontal/vertical stretch.
-        """
+
         fsize = self._framesize
         if fsize is None:
             fsize = -1
@@ -146,7 +144,7 @@ class QRDialog(WindowModalDialog):
         vbox.addLayout(hbox)
         self.setLayout(vbox)
 
-        # note: the word-wrap on the text_label is causing layout sizing issues.
-        #       see https://stackoverflow.com/a/25661985 and https://bugreports.qt.io/browse/QTBUG-37673
-        #       workaround:
+
+
+
         self.setMinimumSize(self.sizeHint())

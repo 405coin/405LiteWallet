@@ -93,14 +93,14 @@ class TestTransaction(ElectrumTestCase):
         self.assertFalse(match_script_against_template(script, SCRIPTPUBKEY_TEMPLATE_ANYSEGWIT))
 
     def test_script_GetOp(self):
-        # TODO add more test cases for script_GetOp
-        # cases from https://github.com/bitcoinj/bitcoinj/blob/09defa626648687f8bd6ea7d197818249eebd3c8/core/src/test/resources/org/bitcoinj/script/script_tests.json#L721-L723
+                                                   
+                                                                                                                                                                               
         with self.assertRaises(MalformedBitcoinScript):
-            [x for x in script_GetOp(bfh("4c01"))]            # PUSHDATA1 with not enough bytes
+            [x for x in script_GetOp(bfh("4c01"))]                                             
         with self.assertRaises(MalformedBitcoinScript):
-            [x for x in script_GetOp(bfh("4d0200ff"))]        # PUSHDATA2 with not enough bytes
+            [x for x in script_GetOp(bfh("4d0200ff"))]                                         
         with self.assertRaises(MalformedBitcoinScript):
-            [x for x in script_GetOp(bfh("4e03000000ffff"))]  # PUSHDATA4 with not enough bytes
+            [x for x in script_GetOp(bfh("4e03000000ffff"))]                                   
 
     def test_tx_update_signatures(self):
         tx = tx_from_any("cHNidP8BAFUBAAAAASpcmpT83pj1WBzQAWLGChOTbOt1OJ6mW/OGM7Qk60AxAAAAAAD/////AUBCDwAAAAAAGXapFCMKw3g0BzpCFG8R74QUrpKf6q/DiKwAAAAAAAAA")
@@ -157,7 +157,7 @@ class TestTransaction(ElectrumTestCase):
         self.assertEqual(estimated_output_size('bc1q3g5tmkmlvxryhh843v4dz026avatc0zzr6h3af'), 31)
         self.assertEqual(estimated_output_size('bc1qnvks7gfdu72de8qv6q6rhkkzu70fqz4wpjzuxjf6aydsx7wxfwcqnlxuv3'), 43)
 
-    # TODO other tests for segwit tx
+                                    
     def test_tx_signed_segwit(self):
         tx = transaction.Transaction(signed_segwit_blob)
 
@@ -172,43 +172,43 @@ class TestTransaction(ElectrumTestCase):
         self.assertEqual(tx.txid(), "b97f9180173ab141b61b9f944d841e60feec691d6daab4d4d932b24dd36606fe")
 
     def test_convert_raw_tx_to_hex(self):
-        # raw hex
+                 
         self.assertEqual('020000000001012005273af813ba23b0c205e4b145e525c280dd876e061f35bff7db9b2e0043640100000000fdffffff02d885010000000000160014e73f444b8767c84afb46ef4125d8b81d2542a53d00e1f5050000000017a914052ed032f5c74a636ed5059611bb90012d40316c870247304402200c628917673d75f05db893cc377b0a69127f75e10949b35da52aa1b77a14c350022055187adf9a668fdf45fc09002726ba7160e713ed79dddcd20171308273f1a2f1012103cb3e00561c3439ccbacc033a72e0513bcfabff8826de0bc651d661991ade6171049e1600',
                          convert_raw_tx_to_hex('020000000001012005273af813ba23b0c205e4b145e525c280dd876e061f35bff7db9b2e0043640100000000fdffffff02d885010000000000160014e73f444b8767c84afb46ef4125d8b81d2542a53d00e1f5050000000017a914052ed032f5c74a636ed5059611bb90012d40316c870247304402200c628917673d75f05db893cc377b0a69127f75e10949b35da52aa1b77a14c350022055187adf9a668fdf45fc09002726ba7160e713ed79dddcd20171308273f1a2f1012103cb3e00561c3439ccbacc033a72e0513bcfabff8826de0bc651d661991ade6171049e1600'))
-        # base43
+                
         self.assertEqual('020000000001012005273af813ba23b0c205e4b145e525c280dd876e061f35bff7db9b2e0043640100000000fdffffff02d885010000000000160014e73f444b8767c84afb46ef4125d8b81d2542a53d00e1f5050000000017a914052ed032f5c74a636ed5059611bb90012d40316c870247304402200c628917673d75f05db893cc377b0a69127f75e10949b35da52aa1b77a14c350022055187adf9a668fdf45fc09002726ba7160e713ed79dddcd20171308273f1a2f1012103cb3e00561c3439ccbacc033a72e0513bcfabff8826de0bc651d661991ade6171049e1600',
                          convert_raw_tx_to_hex('64XF-8+PM6*4IYN-QWW$B2QLNW+:C8-$I$-+T:L.6DKXTSWSFFONDP1J/MOS3SPK0-SYVW38U9.3+A1/*2HTHQTJGP79LVEK-IITQJ1H.C/X$NSOV$8DWR6JAFWXD*LX4-EN0.BDOF+PPYPH16$NM1H.-MAA$V1SCP0Q.6Y5FR822S6K-.5K5F.Z4Q:0SDRG-4GEBLAO4W9Z*H-$1-KDYAFOGF675W0:CK5M1LT92IG:3X60P3GKPM:X2$SP5A7*LT9$-TTEG0/DRZYV$7B4ADL9CVS5O7YG.J64HLZ24MVKO/-GV:V.T/L$D3VQ:MR8--44HK8W'))
 
     def test_get_address_from_output_script(self):
-        # the inverse of this test is in test_bitcoin: test_address_to_script
+                                                                             
         addr_from_script = lambda script: transaction.get_address_from_output_script(bfh(script))
 
-        # bech32/bech32m native segwit
-        # test vectors from BIP-0173/BIP-0350
+                                      
+                                             
         self.assertEqual('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4', addr_from_script('0014751e76e8199196d454941c45d1b3a323f1433bd6'))
         self.assertEqual('bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y', addr_from_script('5128751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6'))
         self.assertEqual('bc1sw50qgdz25j', addr_from_script('6002751e'))
         self.assertEqual('bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs', addr_from_script('5210751e76e8199196d454941c45d1b3a323'))
         self.assertEqual('bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0', addr_from_script('512079be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798'))
-        # almost but not quite
+                              
         self.assertEqual(None, addr_from_script('0013751e76e8199196d454941c45d1b3a323f1433b'))
 
-        # base58 p2pkh
+                      
         self.assertEqual('14gcRovpkCoGkCNBivQBvw7eso7eiNAbxG', addr_from_script('76a91428662c67561b95c79d2257d2a93d9d151c977e9188ac'))
         self.assertEqual('1BEqfzh4Y3zzLosfGhw1AsqbEKVW6e1qHv', addr_from_script('76a914704f4b81cadb7bf7e68c08cd3657220f680f863c88ac'))
-        # almost but not quite
+                              
         self.assertEqual(None, addr_from_script('76a9130000000000000000000000000000000000000088ac'))
 
-        # base58 p2sh
+                     
         self.assertEqual('35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUCQMJbT', addr_from_script('a9142a84cf00d47f699ee7bbc1dea5ec1bdecb4ac15487'))
         self.assertEqual('3PyjzJ3im7f7bcV724GR57edKDqoZvH7Ji', addr_from_script('a914f47c8954e421031ad04ecd8e7752c9479206b9d387'))
-        # almost but not quite
+                              
         self.assertEqual(None, addr_from_script('a912f47c8954e421031ad04ecd8e7752c947920687'))
 
-        # p2pk
+              
         self.assertEqual(None, addr_from_script('210289e14468d94537493c62e2168318b568912dec0fb95609afd56f2527c2751c8bac'))
         self.assertEqual(None, addr_from_script('41045485b0b076848af1209e788c893522a90f3df77c1abac2ca545846a725e6c3da1f7743f55a1bc3b5f0c7e0ee4459954ec0307022742d60032b13432953eb7120ac'))
-        # almost but not quite
+                              
         self.assertEqual(None, addr_from_script('200289e14468d94537493c62e2168318b568912dec0fb95609afd56f2527c2751cac'))
         self.assertEqual(None, addr_from_script('210589e14468d94537493c62e2168318b568912dec0fb95609afd56f2527c2751c8bac'))
 
@@ -242,8 +242,8 @@ class TestTransaction(ElectrumTestCase):
                          partial_tx.serialize())
         self.assertEqual(raw_hex_network_tx,
                          partial_tx.serialize_as_bytes().hex())
-        # note: the diff between the following, and raw_hex_psbt, is that we added
-        #       an extra FINAL_SCRIPTWITNESS field in finalize_psbt()
+                                                                                  
+                                                                     
         self.assertEqual("70736274ff01009a020000000258e87a21b56daf0c23be8e7070456c336f7cbaa5c8757924f545887bb2abdd750000000000ffffffff838d0427d0ec650a68aa46bb0b098aea4422c071b2ca78352a077959d07cea1d0100000000ffffffff0270aaf00800000000160014d85c2b71d0060b09c9886aeb815e50991dda124d00e1f5050000000016001400aea9a2e5f0f876a588df5546e8742d1d87008f00000000000100bb0200000001aad73931018bd25f84ae400b68848be09db706eac2ac18298babee71ab656f8b0000000048473044022058f6fc7c6a33e1b31548d481c826c015bd30135aad42cd67790dab66d2ad243b02204a1ced2604c6735b6393e5b41691dd78b00f0c5942fb9f751856faa938157dba01feffffff0280f0fa020000000017a9140fb9463421696b82c833af241c78c17ddbde493487d0f20a270100000017a91429ca74f8a08f81999428185c97b5d852e4063f6187650000000107da00473044022074018ad4180097b873323c0015720b3684cc8123891048e7dbcd9b55ad679c99022073d369b740e3eb53dcefa33823c8070514ca55a7dd9544f157c167913261118c01483045022100f61038b308dc1da865a34852746f015772934208c6d24454393cd99bdf2217770220056e675a675a6d0a02b85b14e5e29074d8a25a9b5760bea2816f661910a006ea01475221029583bf39ae0a609747ad199addd634fa6108559d6c5cd39b4c2183f1ab96e07f2102dab61ff49a14db6a7d02b0cd1fbb78fc4b18312b5b4e54dae4dba2fbfef536d752ae010801000001012000c2eb0b0000000017a914b7f5faf40e3d40a5a459b1db3535f2b72fa921e8870107232200208c2353173743b595dfb4a07b72ba8e42e3797da74e87fe7d9d7497e3b20289030108da0400473044022062eb7a556107a7c73f45ac4ab5a1dddf6f7075fb1275969a7f383efff784bcb202200c05dbb7470dbf2f08557dd356c7325c1ed30913e996cd3840945db12228da5f01473044022065f45ba5998b59a27ffe1a7bed016af1f1f90d54b3aa8f7450aa5f56a25103bd02207f724703ad1edb96680b284b56d4ffcb88f7fb759eabbe08aa30f29b851383d20147522103089dc10c7ac6db54f91329af617333db388cead0c231f723379d1b99030b02dc21023add904f3d6dcf59ddb906b0dee23529b7ffb9ed50e5e86151926860221f0e7352ae00220203a9a4c37f5996d3aa25dbac6b570af0650394492942460b354753ed9eeca5877110d90c6a4f000000800000008004000080002202027f6399757d2eff55a136ad02c684b1838b6556e5f1b6b34282a94b6b5005109610d90c6a4f00000080000000800500008000",
                          partial_tx.serialize_as_bytes(force_psbt=True).hex())
 
@@ -274,19 +274,19 @@ class TestTransaction(ElectrumTestCase):
                 with self.subTest(msg=case_name, has_whitespaces=has_whitespaces):
                     if not has_whitespaces:
                         data = raw_tx.data
-                        tx_from_any(data)  # test if raises (should not)
+                        tx_from_any(data)                               
                     else:
                         if isinstance(raw_tx.data, str):
                             data = whitespace_str + raw_tx.data + whitespace_str
                         else:
                             data = whitespace_bytes + raw_tx.data + whitespace_bytes
                         if raw_tx.is_whitespace_allowed:
-                            tx_from_any(data)  # test if raises (should not)
+                            tx_from_any(data)                               
                         else:
                             with self.assertRaises(transaction.SerializationError):
-                                tx_from_any(data)  # test if raises (should)
+                                tx_from_any(data)                           
 
-#####
+     
 
     def _run_naive_tests_on_tx(self, raw_tx, txid):
         tx = transaction.Transaction(raw_tx)
@@ -384,7 +384,7 @@ class TestTransaction(ElectrumTestCase):
         txid = 'e9933221a150f78f9f224899f8568ff6422ffcc28ca3d53d87936368ff7c4b1d'
         self._run_naive_tests_on_tx(raw_tx, txid)
 
-    # input: p2sh, not multisig
+                               
     def test_txid_regression_issue_3899(self):
         raw_tx = '0100000004328685b0352c981d3d451b471ae3bfc78b82565dc2a54049a81af273f0a9fd9c010000000b0009630330472d5fae685bffffffff328685b0352c981d3d451b471ae3bfc78b82565dc2a54049a81af273f0a9fd9c020000000b0009630359646d5fae6858ffffffff328685b0352c981d3d451b471ae3bfc78b82565dc2a54049a81af273f0a9fd9c030000000b000963034bd4715fae6854ffffffff328685b0352c981d3d451b471ae3bfc78b82565dc2a54049a81af273f0a9fd9c040000000b000963036de8705fae6860ffffffff0130750000000000001976a914b5abca61d20f9062fb1fdbb880d9d93bac36675188ac00000000'
         txid = 'f570d5d1e965ee61bcc7005f8fefb1d3abbed9d7ddbe035e2a68fa07e5fc4a0d'
@@ -400,15 +400,15 @@ class TestTransaction(ElectrumTestCase):
         txid = '9b9f39e314662a7433aadaa5c94a2f1e24c7e7bf55fc9e1f83abd72be933eb95'
         self._run_naive_tests_on_tx(raw_tx, txid)
 
-    # see https://bitcoin.stackexchange.com/questions/38006/txout-script-criteria-scriptpubkey-critieria
+                                                                                                        
     def test_txid_invalid_op_return(self):
         raw_tx = '01000000019ac03d5ae6a875d970128ef9086cef276a1919684a6988023cc7254691d97e6d010000006b4830450221009d41dc793ba24e65f571473d40b299b6459087cea1509f0d381740b1ac863cb6022039c425906fcaf51b2b84d8092569fb3213de43abaff2180e2a799d4fcb4dd0aa012102d5ede09a8ae667d0f855ef90325e27f6ce35bbe60a1e6e87af7f5b3c652140fdffffffff080100000000000000010101000000000000000202010100000000000000014c0100000000000000034c02010100000000000000014d0100000000000000044dffff010100000000000000014e0100000000000000064effffffff0100000000'
         txid = 'ebc9fa1196a59e192352d76c0f6e73167046b9d37b8302b6bb6968dfd279b767'
         self._run_naive_tests_on_tx(raw_tx, txid)
 
 
-# these transactions are from Bitcoin Core unit tests --->
-# https://github.com/bitcoin/bitcoin/blob/11376b5583a283772c82f6d32d0007cdbf5b8ef0/src/test/data/tx_valid.json
+                                                          
+                                                                                                              
 
     def test_txid_bitcoin_core_0001(self):
         raw_tx = '0100000001b14bdcbc3e01bdaad36cc08e81e69c82e1060bc14e518db2b49aa43ad90ba26000000000490047304402203f16c6f40162ab686621ef3000b04e75418a0c0cb2d8aebeac894ae360ac1e780220ddc15ecdfc3507ac48e1681a33eb60996631bf6bf5bc0a0682c4db743ce7ca2b01ffffffff0140420f00000000001976a914660d4ef3a743e3e696ad990364e555c271ad504b88ac00000000'
@@ -870,20 +870,20 @@ class TestTransaction(ElectrumTestCase):
         txid = '45d17fb7db86162b2b6ca29fa4e163acf0ef0b54110e49b819bda1f948d423a3'
         self._run_naive_tests_on_tx(raw_tx, txid)
 
-# txns from Bitcoin Core ends <---
+                                  
 
 
 class TestTransactionTestnet(ElectrumTestCase):
     TESTNET = True
 
     def test_spending_op_cltv_p2sh(self):
-        # from https://github.com/brianddk/reddit/blob/8ca383c9e00cb5a4c1201d1bab534d5886d3cb8f/python/elec-p2sh-hodl.py
+                                                                                                                        
         wif = 'cQNjiPwYKMBr2oB3bWzf3rgBsu198xb8Nxxe51k6D3zVTA98L25N'
         sats = 9999
         sats_less_fees = sats - 200
         locktime = 1602565200
 
-        # Build the Transaction Input
+                                     
         _, privkey, compressed = deserialize_privkey(wif)
         pubkey = ECPrivkey(privkey).get_public_key_hex(compressed=compressed)
         prevout = TxOutpoint(txid=bfh('6d500966f9e494b38a04545f0cea35fc7b3944e341a64b804fed71cdee11d434'), out_idx=1)
@@ -894,17 +894,17 @@ class TestTransactionTestnet(ElectrumTestCase):
         ])
         txin.redeem_script = redeem_script
 
-        # Build the Transaction Output
+                                      
         txout = PartialTxOutput.from_address_and_value(
             'tb1qv9hg20f0g08d460l67ph6p4ukwt7m0ttqzj7mk', sats_less_fees)
 
-        # Build and sign the transaction
+                                        
         tx = PartialTransaction.from_io([txin], [txout], locktime=locktime, version=1)
         sig = tx.sign_txin(0, privkey)
         txin.script_sig = construct_script([sig, redeem_script])
 
-        # note: in testnet3 chain, signature differs (no low-R grinding),
-        # so txid there is: a8110bbdd40d65351f615897d98c33cbe33e4ebedb4ba2fc9e8c644423dadc93
+                                                                         
+                                                                                            
         self.assertEqual('3266138b0b79007f35ac9a1824e294763708bd4a6440b5c227f4e1251b66e92b',
                          tx.txid())
 
@@ -914,7 +914,7 @@ class TestTransactionTestnet(ElectrumTestCase):
         sats_less_fees = sats - 300
         locktime = 1602572140
 
-        # Build the Transaction Input
+                                     
         _, privkey, compressed = deserialize_privkey(wif)
         pubkey = ECPrivkey(privkey).get_public_key_hex(compressed=compressed)
         witness_script = construct_script([
@@ -929,11 +929,11 @@ class TestTransactionTestnet(ElectrumTestCase):
         txin.script_sig = b''
         txin.witness_script = witness_script
 
-        # Build the Transaction Output
+                                      
         txout = PartialTxOutput.from_address_and_value(
             'tb1qtgsfkgptcxdn6dz6wh8c4dguk3cezwne5j5c47', sats_less_fees)
 
-        # Build and sign the transaction
+                                        
         tx = PartialTransaction.from_io([txin], [txout], locktime=locktime, version=2)
         sig = tx.sign_txin(0, privkey)
         txin.witness = construct_witness([sig, witness_script])
@@ -1058,8 +1058,8 @@ class TestTransactionVerifySig(ElectrumTestCase):
 
 
 class TestSighashBIP143(ElectrumTestCase):
-    #These tests are taken from bip143, https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-    #Input of transaction
+                                                                                                      
+                         
     locktime=0
     prevout = TxOutpoint(txid=bfh('6eb98797a21c6c10aa74edf29d618be109f48a8e94c694f3701e08ca69186436'), out_idx=1)
     txin = PartialTxInput(prevout=prevout)
@@ -1067,7 +1067,7 @@ class TestSighashBIP143(ElectrumTestCase):
     txin.witness_script = bfh('56210307b8ae49ac90a048e9b53357a2354b3334e9c8bee813ecb98e99a7e07e8c3ba32103b28f0c28bfab54554ae8c658ac5c3e0ce6e79ad336331f78c428dd43eea8449b21034b8113d703413d57761b8b9781957b8c0ac1dfe69f492580ca4195f50376ba4a21033400f6afecb833092a9a21cfdf1ed1376e58c5d1f47de74683123987e967a8f42103a6d48b1131e94ba04d9737d61acdaa1322008af9602b3b14862c07a1789aac162102d8b661b0b3302ee2f162b09e07a55ad5dfbe673a9f01d9f0c19617681024306b56ae')
     txin.redeem_script = bfh('0020a16b5755f7f6f96dbd65f5f0d6ab9418b89af4b1f14a1bb8a09062c35f0dcb54')
     txin._trusted_value_sats = 987654321
-    #Output of Transaction
+                          
     txout1 = PartialTxOutput(scriptpubkey=bfh('76a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac'), value=900000000)
     txout2 = PartialTxOutput(scriptpubkey=bfh('76a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac'), value=87000000)
 
@@ -1133,7 +1133,7 @@ class TestSighashBIP341(ElectrumTestCase):
             unsigned_tx = Transaction(tcase["given"]["rawUnsignedTx"])
             self.assertEqual(len(tcase["given"]["utxosSpent"]), len(unsigned_tx.inputs()))
             tx = PartialTransaction.from_tx(unsigned_tx)
-            # add utxo data
+                           
             for txin, json_utxo in zip(tx.inputs(), tcase["given"]["utxosSpent"]):
                 txin.witness_utxo = TxOutput(scriptpubkey=bfh(json_utxo["scriptPubKey"]), value=int(json_utxo["amountSats"]))
             for txin_test in tcase["inputSpending"]:
@@ -1150,6 +1150,6 @@ class TestSighashBIP341(ElectrumTestCase):
                 txin.witness = construct_witness([sig])
                 txin.script_sig = b""
                 self.assertTrue(txin.is_complete())
-            # note: some input utxos are not taproot, and there is no key data for them
-            #       - txin_idx=2, addr 1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH
-            #       - txin_idx=5, addr bc1q0ht9tyks4vh7p5p904t340cr9nvahy7u3re7zg
+                                                                                       
+                                                                         
+                                                                                 

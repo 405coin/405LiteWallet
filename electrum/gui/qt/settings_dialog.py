@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2012 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import ast
 import sys
@@ -33,11 +33,11 @@ from PyQt6.QtWidgets import (QComboBox,  QTabWidget, QDialog, QSpinBox,  QCheckB
 
 from electrum.i18n import _, languages
 from electrum import util
-from electrum.util import base_units_list, event_listener
+from electrum.util import event_listener
 
 from electrum.gui import messages
 
-from .util import ColorScheme, HelpLabel, Buttons, CloseButton, QtEventListener
+from .util import ColorScheme, HelpLabel, Buttons, CloseButton, QtEventListener, apply_dashboard_dialog_style
 
 
 if TYPE_CHECKING:
@@ -58,6 +58,7 @@ class SettingsDialog(QDialog, QtEventListener):
 
     def __init__(self, window: 'ElectrumWindow', config: 'SimpleConfig'):
         QDialog.__init__(self)
+        apply_dashboard_dialog_style(self, "SettingsDialog")
         self.setWindowTitle(_('Preferences'))
         self.setMinimumWidth(500)
         self.config = config
@@ -73,7 +74,7 @@ class SettingsDialog(QDialog, QtEventListener):
         vbox = QVBoxLayout()
         tabs = QTabWidget()
 
-        # language
+
         lang_label = HelpLabel.from_configvar(self.config.cv.LOCALIZATION_LANGUAGE)
         lang_combo = QComboBox()
         lang_combo.addItems(list(languages.values()))
@@ -81,7 +82,7 @@ class SettingsDialog(QDialog, QtEventListener):
         lang_cur_setting = self.config.LOCALIZATION_LANGUAGE
         try:
             index = lang_keys.index(lang_cur_setting)
-        except ValueError:  # not in list
+        except ValueError:
             index = 0
         lang_combo.setCurrentIndex(index)
         if not self.config.cv.LOCALIZATION_LANGUAGE.is_modifiable():
@@ -111,7 +112,7 @@ class SettingsDialog(QDialog, QtEventListener):
                 self.app.update_status_signal.emit()
         nz.valueChanged.connect(on_nz)
 
-        # lightning
+
         trampoline_cb = checkbox_from_configvar(self.config.cv.LIGHTNING_USE_GOSSIP)
         trampoline_cb.setChecked(not self.config.LIGHTNING_USE_GOSSIP)
 
@@ -120,7 +121,7 @@ class SettingsDialog(QDialog, QtEventListener):
             if not use_trampoline:
                 if not window.question('\n'.join([
                         _("Are you sure you want to disable trampoline?"),
-                        _("Without this option, Electrum will need to sync with the Lightning network on every start."),
+                        _("Without this option, 405LiteWallet will need to sync with the Lightning network on every start."),
                         _("This may impact the reliability of your payments."),
                 ]), parent=self):
                     trampoline_cb.setCheckState(Qt.CheckState.Checked)
@@ -132,7 +133,7 @@ class SettingsDialog(QDialog, QtEventListener):
                 self.network.run_from_another_thread(
                     self.network.stop_gossip())
             util.trigger_callback('ln_gossip_sync_progress')
-            # FIXME: update all wallet windows
+
             util.trigger_callback('channels_updated', self.wallet)
         trampoline_cb.stateChanged.connect(on_trampoline_checked)
 
@@ -190,27 +191,6 @@ class SettingsDialog(QDialog, QtEventListener):
 
         msat_cb.stateChanged.connect(on_msat_checked)
 
-        # units
-        units = base_units_list
-        msg = (_('Base unit of your wallet.')
-               + '\n1 BTC = 1000 mBTC. 1 mBTC = 1000 bits. 1 bit = 100 sat.\n'
-               + _('This setting affects the Send tab, and all balance related fields.'))
-        unit_label = HelpLabel(_('Base unit') + ':', msg)
-        unit_combo = QComboBox()
-        unit_combo.addItems(units)
-        unit_combo.setCurrentIndex(units.index(self.config.get_base_unit()))
-
-        def on_unit(x, nz):
-            unit_result = units[unit_combo.currentIndex()]
-            if self.config.get_base_unit() == unit_result:
-                return
-            self.config.set_base_unit(unit_result)
-            nz.setMaximum(self.config.decimal_point)
-            self.app.refresh_tabs_signal.emit()
-            self.app.update_status_signal.emit()
-            self.app.refresh_amount_edits_signal.emit()
-        unit_combo.currentIndexChanged.connect(lambda x: on_unit(x, nz))
-
         thousandsep_cb = checkbox_from_configvar(self.config.cv.BTC_AMOUNTS_ADD_THOUSANDS_SEP)
         thousandsep_cb.setChecked(self.config.BTC_AMOUNTS_ADD_THOUSANDS_SEP)
 
@@ -248,13 +228,6 @@ class SettingsDialog(QDialog, QtEventListener):
             self.need_restart = True
         colortheme_combo.currentIndexChanged.connect(on_colortheme)
 
-        updatecheck_cb = checkbox_from_configvar(self.config.cv.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS)
-        updatecheck_cb.setChecked(self.config.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS)
-
-        def on_set_updatecheck(_x):
-            self.config.AUTOMATIC_CENTRALIZED_UPDATE_CHECKS = updatecheck_cb.isChecked()
-        updatecheck_cb.stateChanged.connect(on_set_updatecheck)
-
         filelogging_cb = checkbox_from_configvar(self.config.cv.WRITE_LOGS_TO_DISK)
         filelogging_cb.setChecked(self.config.WRITE_LOGS_TO_DISK)
 
@@ -262,6 +235,13 @@ class SettingsDialog(QDialog, QtEventListener):
             self.config.WRITE_LOGS_TO_DISK = filelogging_cb.isChecked()
             self.need_restart = True
         filelogging_cb.stateChanged.connect(on_set_filelogging)
+
+        notifications_cb = checkbox_from_configvar(self.config.cv.GUI_QT_ENABLE_NOTIFICATIONS)
+        notifications_cb.setChecked(self.config.GUI_QT_ENABLE_NOTIFICATIONS)
+
+        def on_set_notifications(_x):
+            self.config.GUI_QT_ENABLE_NOTIFICATIONS = notifications_cb.isChecked()
+        notifications_cb.stateChanged.connect(on_set_notifications)
 
         screenshot_protection_cb = checkbox_from_configvar(
             self.config.cv.GUI_QT_SCREENSHOT_PROTECTION
@@ -279,7 +259,7 @@ class SettingsDialog(QDialog, QtEventListener):
 
         block_explorers = sorted(util.block_explorer_info().keys())
         BLOCK_EX_CUSTOM_ITEM = _("Custom URL")
-        if BLOCK_EX_CUSTOM_ITEM in block_explorers:  # malicious translation?
+        if BLOCK_EX_CUSTOM_ITEM in block_explorers:
             block_explorers.remove(BLOCK_EX_CUSTOM_ITEM)
         block_explorers.append(BLOCK_EX_CUSTOM_ITEM)
         block_ex_label = HelpLabel.from_configvar(self.config.cv.BLOCK_EXPLORER)
@@ -307,7 +287,7 @@ class SettingsDialog(QDialog, QtEventListener):
         def on_be_edit():
             val = block_ex_custom_e.text()
             try:
-                val = ast.literal_eval(val)  # to also accept tuples
+                val = ast.literal_eval(val)
             except Exception:
                 pass
             self.config.BLOCK_EXPLORER_CUSTOM = val
@@ -321,7 +301,7 @@ class SettingsDialog(QDialog, QtEventListener):
         block_ex_hbox_w = QWidget()
         block_ex_hbox_w.setLayout(block_ex_hbox)
 
-        # Fiat Currency
+
         self.history_rates_cb = checkbox_from_configvar(self.config.cv.FX_HISTORY_RATES)
         ccy_combo = QComboBox()
         ex_combo = QComboBox()
@@ -387,7 +367,6 @@ class SettingsDialog(QDialog, QtEventListener):
         gui_widgets.append((colortheme_label, colortheme_combo))
         gui_widgets.append((block_ex_label, block_ex_hbox_w))
         units_widgets = []
-        units_widgets.append((unit_label, unit_combo))
         units_widgets.append((nz_label, nz))
         units_widgets.append((msat_cb, None))
         units_widgets.append((thousandsep_cb, None))
@@ -399,8 +378,8 @@ class SettingsDialog(QDialog, QtEventListener):
         fiat_widgets.append((QLabel(_('Source')), ex_combo))
         fiat_widgets.append((self.history_rates_cb, None))
         misc_widgets = []
-        misc_widgets.append((updatecheck_cb, None))
         misc_widgets.append((filelogging_cb, None))
+        misc_widgets.append((notifications_cb, None))
         misc_widgets.append((screenshot_protection_cb, None))
         misc_widgets.append((alias_label, self.alias_e))
         misc_widgets.append((qr_label, qr_combo))
@@ -459,5 +438,5 @@ class SettingsDialog(QDialog, QtEventListener):
         try:
             self.app.alias_received_signal.disconnect(self.set_alias_color)
         except TypeError:
-            pass  # 'method' object is not connected
+            pass
         event.accept()

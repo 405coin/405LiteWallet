@@ -19,7 +19,7 @@ class QtEventListener(EventListener):
         EventListener.register_callbacks(self)
 
     def unregister_callbacks(self):
-        #self.qt_callback_signal.disconnect()
+                                             
         EventListener.unregister_callbacks(self)
 
     def on_qt_callback_signal(self, args):
@@ -27,7 +27,7 @@ class QtEventListener(EventListener):
         return func(self, *args[1:])
 
 
-# decorator for members of the QtEventListener class
+                                                    
 def qt_event_listener(func):
     func = event_listener(func)
 
@@ -37,10 +37,10 @@ def qt_event_listener(func):
     return decorator
 
 
-# return delay in msec when expiry time string should be updated
-# returns 0 when expired or expires > 1 day away (no updates needed)
+                                                                
+                                                                    
 def status_update_timer_interval(exp):
-    # very roughly according to util.age
+                                        
     exp_in = int(exp - time())
     exp_in_min = int(exp_in/60)
 
@@ -57,7 +57,7 @@ def status_update_timer_interval(exp):
     return interval
 
 
-# TODO: copied from qt password_dialog.py, move to common code
+                                                              
 def check_password_strength(password: str) -> Tuple[int, str]:
     """Check the strength of the password entered by the user and return back the same
     :param password: password entered by user in New Password

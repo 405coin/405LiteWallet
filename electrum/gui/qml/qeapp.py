@@ -93,16 +93,16 @@ class QEAppController(BaseCrashReporter, QObject):
         self._intent = ''
         self._secureWindow = False
 
-        # map of permissions and grant status _after_ asking user
-        self._permissions = {}  # type: dict[str, bool]
+                                                                 
+        self._permissions = {}                         
 
-        # set up notification queue and notification_timer
+                                                          
         self.user_notification_queue = queue.Queue()
         self.user_notification_last_time = 0
 
         self.notification_timer = QTimer(self)
         self.notification_timer.setSingleShot(False)
-        self.notification_timer.setInterval(500)  # msec
+        self.notification_timer.setInterval(500)        
         self.notification_timer.timeout.connect(self.on_notification_timer)
 
         QEDaemon.instance.walletLoaded.connect(self.on_wallet_loaded)
@@ -119,11 +119,11 @@ class QEAppController(BaseCrashReporter, QObject):
         if not qewallet:
             return
 
-        # register wallet in Exception_Hook
+                                           
         Exception_Hook.maybe_setup(wallet=qewallet.wallet)
 
-        # attach to the wallet user notification events
-        # connect only once
+                                                       
+                           
         try:
             qewallet.userNotify.disconnect(self.on_wallet_usernotify)
         except Exception:
@@ -144,15 +144,15 @@ class QEAppController(BaseCrashReporter, QObject):
             self.notification_timer.stop()
             return
         now = time.time()
-        rate_limit = 20  # seconds
+        rate_limit = 20           
         if self.user_notification_last_time + rate_limit > now:
             return
         self.user_notification_last_time = now
         self.logger.info("Notifying GUI about new user notifications")
-        # request permission and defer notify until after permission request callback
-        # note: permission request is only shown to user once, so it is safe to request
-        # multiple times
-        if self.isAndroid() and not self.hasPermission(permissions.Permission.POST_NOTIFICATIONS) \
+                                                                                     
+                                                                                       
+                        
+        if self.isAndroid() and not self.hasPermission(permissions.Permission.POST_NOTIFICATIONS)\
                 and self._permissions.get(permissions.Permission.POST_NOTIFICATIONS) is None:
             self.request_permission(permissions.Permission.POST_NOTIFICATIONS)
             return
@@ -165,13 +165,13 @@ class QEAppController(BaseCrashReporter, QObject):
     def doNotify(self, wallet_name, message):
         self.logger.debug(f'sending push notification to OS: {message=!r}')
         if os.name == 'nt':
-            icon = ""  # plyer wants image to be in .ico format on Windows
+            icon = ""                                                     
         else:
             icon = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "icons", "electrum.png",
             )
         try:
-            # TODO: lazy load not in UI thread please
+                                                     
             global notification
             if not notification:
                 from plyer import notification
@@ -331,7 +331,7 @@ class QEAppController(BaseCrashReporter, QObject):
     def setPluginEnabled(self, plugin: str, enabled: bool):
         if enabled:
             self._plugins.enable(plugin)
-            # note: all enabled plugins will receive this hook:
+                                                               
             run_hook('init_qml', self._app)
         else:
             self._plugins.disable(plugin)
@@ -354,7 +354,7 @@ class QEAppController(BaseCrashReporter, QObject):
 
     @pyqtSlot(object, object, object)
     def crash(self, e, text, tb):
-        self.exc_args = (e, text, tb)  # for BaseCrashReporter
+        self.exc_args = (e, text, tb)                         
         self.showException.emit(self.crashData())
 
     @pyqtSlot(str)
@@ -383,9 +383,9 @@ class QEAppController(BaseCrashReporter, QObject):
         threading.Thread(target=report_task, daemon=True).start()
 
     def _get_traceback_str_to_display(self) -> str:
-        # The msg_box that shows the report uses rich_text=True, so
-        # if traceback contains special HTML characters, e.g. '<',
-        # they need to be escaped to avoid formatting issues.
+                                                                   
+                                                                  
+                                                             
         traceback_str = super()._get_traceback_str_to_display()
         return html.escape(traceback_str).replace('&#x27;', '&apos;')
 
@@ -427,7 +427,7 @@ class QEAppController(BaseCrashReporter, QObject):
     def _getSystemBarHeight(self, bar_type: str) -> int:
         if not self.enforcesEdgeToEdge():
             return 0
-        assert systemSdkVersion >= 30, \
+        assert systemSdkVersion >= 30,\
             f"Android WindowInsets unavailable on {systemSdkVersion=}"
         try:
             root_insets = jview.getRootWindowInsets()
@@ -440,7 +440,7 @@ class QEAppController(BaseCrashReporter, QObject):
             else:
                 raise ValueError(f"Invalid bar_type: {bar_type}")
 
-            # Get the display metrics to convert pixels to dp
+                                                             
             display_metrics = jpythonActivity.getResources().getDisplayMetrics()
             density = display_metrics.density
 
@@ -448,7 +448,7 @@ class QEAppController(BaseCrashReporter, QObject):
             if not height > 0:
                 return 0
 
-            # Convert from pixels to dp for QML
+                                               
             height_dp = int(height / density)
 
             self.logger.debug(f"_getSystemBarHeight: {height=}, {height_dp=}, {bar_type=}")
@@ -475,7 +475,7 @@ class ElectrumQmlApplication(QGuiApplication):
 
         self.logger = get_logger(__name__)
 
-        # TODO QT6 order of declaration is important now?
+                                                         
         qmlRegisterType(QEAmount, 'org.electrum', 1, 0, 'Amount')
         qmlRegisterType(QEBytes, 'org.electrum', 1, 0, 'Bytes')
         qmlRegisterType(QENewWalletWizard, 'org.electrum', 1, 0, 'QNewWalletWizard')
@@ -506,12 +506,12 @@ class ElectrumQmlApplication(QGuiApplication):
         qmlRegisterType(QETxSweepFinalizer, 'org.electrum', 1, 0, 'SweepFinalizer')
         qmlRegisterType(QEBip39RecoveryListModel, 'org.electrum', 1, 0, 'Bip39RecoveryListModel')
         qmlRegisterType(FeeSlider, 'org.electrum', 1, 0, 'FeeSlider')
-        # TODO QT6: these were declared as uncreatable, but that doesn't seem to work for pyqt6
-        # qmlRegisterUncreatableType(QEAmount, 'org.electrum', 1, 0, 'Amount', 'Amount can only be used as property')
-        # qmlRegisterUncreatableType(QENewWalletWizard, 'org.electrum', 1, 0, 'QNewWalletWizard', 'QNewWalletWizard can only be used as property')
-        # qmlRegisterUncreatableType(QEServerConnectWizard, 'org.electrum', 1, 0, 'QServerConnectWizard', 'QServerConnectWizard can only be used as property')
-        # qmlRegisterUncreatableType(QEFilterProxyModel, 'org.electrum', 1, 0, 'FilterProxyModel', 'FilterProxyModel can only be used as property')
-        # qmlRegisterUncreatableType(QSortFilterProxyModel, 'org.electrum', 1, 0, 'QSortFilterProxyModel', 'QSortFilterProxyModel can only be used as property')
+                                                                                               
+                                                                                                                     
+                                                                                                                                                  
+                                                                                                                                                              
+                                                                                                                                                   
+                                                                                                                                                                
 
         self.engine = QQmlApplicationEngine(parent=self)
 
@@ -522,13 +522,13 @@ class ElectrumQmlApplication(QGuiApplication):
         self.engine.addImageProvider('qrgen', self.qr_ip)
         self.qr_ip_h = QEQRImageProviderHelper(qr_size)
 
-        # add a monospace font as we can't rely on device having one
+                                                                    
         self.fixedFont = 'PT Mono'
         not_loaded = get_font_id('PTMono-Regular.ttf') < 0
         not_loaded = get_font_id('PTMono-Bold.ttf') < 0 and not_loaded
         if not_loaded:
             self.logger.warning('Could not load font PT Mono')
-            self.fixedFont = 'Monospace' # hope for the best
+            self.fixedFont = 'Monospace'                    
 
         self.context = self.engine.rootContext()
         self.plugins = plugins
@@ -561,10 +561,10 @@ class ElectrumQmlApplication(QGuiApplication):
 
         qInstallMessageHandler(self.message_handler)
 
-        # get notified whether root QML document loads or not
+                                                             
         self.engine.objectCreated.connect(self.objectCreated)
 
-    # slot is called after loading root QML. If object is None, it has failed.
+                                                                              
     @pyqtSlot('QObject*', 'QUrl')
     def objectCreated(self, object, url):
         self.engine.objectCreated.disconnect(self.objectCreated)
@@ -574,7 +574,7 @@ class ElectrumQmlApplication(QGuiApplication):
             self.appController.startup_finished()
 
     def message_handler(self, line, funct, file):
-        # filter out common harmless messages
+                                             
         if re.search('file:///.*TypeError: Cannot read property.*null$', file):
             return
         self.logger.warning(file)
@@ -583,14 +583,14 @@ class ElectrumQmlApplication(QGuiApplication):
 class Exception_Hook(QObject, Logger):
     _report_exception = pyqtSignal(object, object, object)
 
-    _INSTANCE = None  # type: Optional[Exception_Hook]  # singleton
+    _INSTANCE = None                                               
 
     def __init__(self, *, slot):
         QObject.__init__(self)
         Logger.__init__(self)
         assert self._INSTANCE is None, "Exception_Hook is supposed to be a singleton"
-        self.wallet_types_seen = set()  # type: Set[str]
-        self.exception_ids_seen = set()  # type: Set[bytes]
+        self.wallet_types_seen = set()                  
+        self.exception_ids_seen = set()                    
 
         sys.excepthook = self.handler
         threading.excepthook = self.handler
@@ -610,6 +610,6 @@ class Exception_Hook(QObject, Logger):
         self.logger.error('exception caught by crash reporter', exc_info=exc_info)
         groupid_hash = BaseCrashReporter.get_traceback_groupid_hash(*exc_info)
         if groupid_hash in self.exception_ids_seen:
-            return  # to avoid annoying the user, only show crash reporter once per exception groupid
+            return                                                                                   
         self.exception_ids_seen.add(groupid_hash)
         self._report_exception.emit(*exc_info)

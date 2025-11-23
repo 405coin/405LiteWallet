@@ -1,27 +1,27 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2012 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import os
 import signal
@@ -40,7 +40,7 @@ except Exception as e:
 
 from PyQt6.QtGui import QGuiApplication, QCursor
 from PyQt6.QtWidgets import QApplication, QSystemTrayIcon, QWidget, QMenu, QMessageBox, QDialog, QToolTip
-from PyQt6.QtCore import QObject, pyqtSignal, QTimer, Qt
+from PyQt6.QtCore import QObject, pyqtSignal, QTimer, Qt, QEvent
 
 import PyQt6.QtCore as QtCore
 
@@ -48,22 +48,22 @@ from electrum.logging import Logger, get_logger
 _logger = get_logger(__name__)
 
 try:
-    # Preload QtMultimedia at app start, if available.
-    # We use QtMultimedia on some platforms for camera-handling, and
-    # lazy-loading it later led to some crashes. Maybe due to bugs in PyQt. (see #7725)
+
+
+
     from PyQt6.QtMultimedia import QMediaDevices; del QMediaDevices
 except (ImportError, RuntimeError) as e:
     _logger.debug(f"failed to import optional dependency: PyQt6.QtMultimedia. exc={repr(e)}")
-    pass  # failure is ok; it is an optional dependency.
+    pass
 else:
     _logger.debug(f"successfully preloaded optional dependency: PyQt6.QtMultimedia")
 
 if sys.platform == "linux" and os.environ.get("APPIMAGE"):
-    # For AppImage, we default to xcb qt backend, for better support of older system.
-    # qt6 normally defaults to QT_QPA_PLATFORM=wayland instead of QT_QPA_PLATFORM=xcb.
-    # However, the wayland QPA plugin requires libwayland-client0>=1.19, which is too new
-    # for debian 11 or ubuntu 20.04. So instead, we default to the X11 integration (and not wayland).
-    # see https://bugreports.qt.io/browse/QTBUG-114635
+
+
+
+
+
     os.environ.setdefault("QT_QPA_PLATFORM", "xcb")
 
 from electrum.i18n import _, set_language
@@ -86,7 +86,6 @@ from electrum.gui.messages import TERMS_OF_USE_LATEST_VERSION
 from .util import (read_QIcon, ColorScheme, custom_message_box, MessageBoxMixin, WWLabel,
                    set_windows_os_screenshot_protection_drm_flag)
 from .main_window import ElectrumWindow
-from .network_dialog import NetworkDialog
 from .stylesheet_patcher import patch_qt_stylesheet
 from .lightning_dialog import LightningDialog
 from .exception_window import Exception_Hook
@@ -96,6 +95,7 @@ from .wizard.wallet import QENewWalletWizard
 if TYPE_CHECKING:
     from electrum.daemon import Daemon
     from electrum.plugin import Plugins
+    from .network_dialog import NetworkDialog
 
 
 class OpenFileEventFilter(QObject):
@@ -124,6 +124,14 @@ class ScreenshotProtectionEventFilter(QObject):
             set_windows_os_screenshot_protection_drm_flag(obj)
         return False
 
+APP_NAME = "405LiteWallet"
+APP_EXECUTABLE_NAME = "405LiteWallet-1.0.1"
+APP_INSTALLER_NAME = "405LiteWallet-install-1.0.1.exe"
+APP_PORTABLE_NAME = "405LiteWallet-portable-1.0.1.exe"
+setattr(constants.net, "APP_NAME", APP_NAME)
+setattr(constants.net, "APP_EXECUTABLE_NAME", APP_EXECUTABLE_NAME)
+setattr(constants.net, "APP_INSTALLER_NAME", APP_INSTALLER_NAME)
+setattr(constants.net, "APP_PORTABLE_NAME", APP_PORTABLE_NAME)
 
 class QElectrumApplication(QApplication):
     new_window_signal = pyqtSignal(str, object)
@@ -145,24 +153,35 @@ class ElectrumGui(BaseElectrumGui, Logger):
         BaseElectrumGui.__init__(self, config=config, daemon=daemon, plugins=plugins)
         Logger.__init__(self)
         self.logger.info(f"Qt GUI starting up... Qt={QtCore.QT_VERSION_STR}, PyQt={QtCore.PYQT_VERSION_STR}")
-        # Uncomment this call to verify objects are being properly
-        # GC-ed when windows are closed
-        #plugins.add_jobs([DebugMem([Abstract_Wallet, SPV, Synchronizer,
-        #                            ElectrumWindow], interval=5)])
+
+
+
+
         if hasattr(QtCore.Qt, "AA_ShareOpenGLContexts"):
             QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
         if hasattr(QGuiApplication, 'setDesktopFileName'):
-            QGuiApplication.setDesktopFileName('electrum')
-        QGuiApplication.setApplicationName("Electrum")
+            QGuiApplication.setDesktopFileName(APP_EXECUTABLE_NAME)
+        if hasattr(QGuiApplication, 'setApplicationDisplayName'):
+            QGuiApplication.setApplicationDisplayName(APP_NAME)
+        QGuiApplication.setApplicationName(APP_NAME)
         self.gui_thread = threading.current_thread()
-        self.windows = []  # type: List[ElectrumWindow]
+        self.windows = []
         self.open_file_efilter = OpenFileEventFilter(self.windows)
         self.app = QElectrumApplication(sys.argv)
+        class _DisableTooltipsFilter(QObject):
+            def __init__(self):
+                super().__init__()
+            def eventFilter(self, obj, event):
+                if event.type() == QEvent.Type.ToolTip:
+                    return True
+                return QObject.eventFilter(self, obj, event)
+        self._tooltip_filter = _DisableTooltipsFilter()
+        self.app.installEventFilter(self._tooltip_filter)
         self.app.installEventFilter(self.open_file_efilter)
         self.screenshot_protection_efilter = ScreenshotProtectionEventFilter()
         if sys.platform in ['win32', 'windows'] and self.config.GUI_QT_SCREENSHOT_PROTECTION:
             self.app.installEventFilter(self.screenshot_protection_efilter)
-        # explicitly set 'AA_DontShowIconsInMenus' False so menu icons are shown on MacOS
+
         self.app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, on=False)
         self.app.setWindowIcon(read_QIcon("electrum.png"))
         self.translator = ElectrumTranslator()
@@ -173,31 +192,24 @@ class ElectrumGui(BaseElectrumGui, Logger):
         self._num_wizards_in_progress = 0
         self._num_wizards_lock = threading.Lock()
         self.dark_icon = self.config.GUI_QT_DARK_TRAY_ICON
-        self.tray = None  # type: Optional[QSystemTrayIcon]
+        self.tray = None
         self._init_tray()
         self.app.new_window_signal.connect(self.start_new_window)
         self.app.quit_signal.connect(self.app.quit, Qt.ConnectionType.QueuedConnection)
-        # maybe set dark theme
+
         self._default_qtstylesheet = self.app.styleSheet()
         self.reload_app_stylesheet()
 
     def _init_tray(self):
         self.tray = QSystemTrayIcon(self.tray_icon(), None)
-        self.tray.setToolTip('Electrum')
+        self.tray.showMessage = lambda *args, **kwargs: None
+        self.tray.setToolTip(APP_NAME)
         self.tray.activated.connect(self.tray_activated)
         self.build_tray_menu()
         self.tray.show()
 
     def reload_app_stylesheet(self):
-        """Set the Qt stylesheet and custom colors according to the user-selected
-        light/dark theme.
-        TODO this can ~almost be used to change the theme at runtime (without app restart),
-             except for util.ColorScheme... widgets already created with colors set using
-             ColorSchemeItem.as_stylesheet() and similar will not get recolored.
-             See e.g.
-             - in Coins tab, the color for "frozen" UTXOs, or
-             - in TxDialog, the receiving/change address colors
-        """
+
         use_dark_theme = self.config.GUI_QT_COLOR_THEME == 'dark'
         if use_dark_theme:
             try:
@@ -208,17 +220,17 @@ class ElectrumGui(BaseElectrumGui, Logger):
                 self.logger.warning(f'Error setting dark theme: {repr(e)}')
         else:
             self.app.setStyleSheet(self._default_qtstylesheet)
-        # Apply any necessary stylesheet patches
+
         patch_qt_stylesheet(use_dark_theme=use_dark_theme)
-        # Even if we ourselves don't set the dark theme,
-        # the OS/window manager/etc might set *a dark theme*.
-        # Hence, try to choose colors accordingly:
+
+
+
         ColorScheme.update_from_widget(QWidget(), force_dark=use_dark_theme)
 
     def build_tray_menu(self):
         if not self.tray:
             return
-        # Avoid immediate GC of old menu when window closed via its action
+
         if self.tray.contextMenu() is None:
             m = QMenu()
             self.tray.setContextMenu(m)
@@ -227,8 +239,6 @@ class ElectrumGui(BaseElectrumGui, Logger):
             m.clear()
         network = self.daemon.network
         m.addAction(_("Plugins"), self.show_plugins_dialog)
-        if network:
-            m.addAction(_("Network"), self.show_network_dialog)
         if network and network.lngossip:
             m.addAction(_("Lightning Network"), self.show_lightning_dialog)
         for window in self.windows:
@@ -238,7 +248,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
             submenu.addAction(_("Close"), window.close)
         m.addAction(_("Dark/Light"), self.toggle_tray_icon)
         m.addSeparator()
-        m.addAction(_("Exit Electrum"), self.app.quit)
+        m.addAction(_("Exit {app}").format(app=APP_NAME), self.app.quit)
 
     def tray_icon(self):
         if self.dark_icon:
@@ -269,10 +279,10 @@ class ElectrumGui(BaseElectrumGui, Logger):
         self.app.new_window_signal.disconnect()
         self.app.removeEventFilter(self.open_file_efilter)
         self.open_file_efilter = None
-        # it is save to remove the filter, even if it has not been installed
+
         self.app.removeEventFilter(self.screenshot_protection_efilter)
         self.screenshot_protection_efilter = None
-        # If there are still some open windows, try to clean them up.
+
         for window in list(self.windows):
             window.close()
             window.clean_up()
@@ -282,7 +292,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
         if self.lightning_dialog:
             self.lightning_dialog.close()
             self.lightning_dialog = None
-        # clipboard persistence. see http://www.mail-archive.com/pyqt@riverbankcomputing.com/msg17328.html
+
         event = QtCore.QEvent(QtCore.QEvent.Type.Clipboard)
         self.app.sendEvent(self.app.clipboard(), event)
         if self.tray:
@@ -291,18 +301,18 @@ class ElectrumGui(BaseElectrumGui, Logger):
             self.tray = None
 
     def _maybe_quit_if_no_windows_open(self) -> None:
-        """Check if there are any open windows and decide whether we should quit."""
-        # keep daemon running after close
+
+
         if self.config.get('daemon'):
             return
-        # check if a wizard is in progress
+
         with self._num_wizards_lock:
             if self._num_wizards_in_progress > 0 or len(self.windows) > 0:
                 return
         self.app.quit()
 
     def new_window(self, path, uri=None):
-        # Use a signal as can be called from daemon thread
+
         self.app.new_window_signal.emit(path, uri)
 
     def show_lightning_dialog(self):
@@ -318,12 +328,8 @@ class ElectrumGui(BaseElectrumGui, Logger):
         d.exec()
 
     def show_network_dialog(self, proxy_tab=False):
-        if self.network_dialog:
-            self.network_dialog.show(proxy_tab=proxy_tab)
-            self.network_dialog.raise_()
-            return
-        self.network_dialog = NetworkDialog(network=self.daemon.network)
-        self.network_dialog.show(proxy_tab=proxy_tab)
+        self.logger.info("Network dialog is disabled in this build.")
+        return
 
     def _create_window_for_wallet(self, wallet):
         w = ElectrumWindow(self, wallet)
@@ -359,31 +365,27 @@ class ElectrumGui(BaseElectrumGui, Logger):
             app_is_starting: bool = False,
             force_wizard: bool = False,
     ) -> Optional[ElectrumWindow]:
-        """Raises the window for the wallet if it is open.
-        Otherwise, opens the wallet and creates a new window for it.
-        Warning: the returned window might be for a completely different wallet
-                 than the provided path, as we allow user interaction to change the path.
-        """
+
         if not self.has_accepted_terms_of_use():
             self.logger.warning(f"terms of use not accepted, rejecting to start new window")
             return None
 
         wallet = None
-        # Try to open with daemon first. If this succeeds, there won't be a wizard at all
-        # (the wallet main window will appear directly).
+
+
         if not force_wizard:
             try:
                 wallet = self.daemon.load_wallet(path, None)
             except FileNotFoundError:
-                pass  # open with wizard below
+                pass
             except InvalidPassword:
-                pass  # open with wizard below
+                pass
             except WalletRequiresSplit:
-                pass  # open with wizard below
+                pass
             except WalletRequiresUpgrade:
-                pass  # open with wizard below
+                pass
             except WalletUnfinished:
-                pass  # open with wizard below
+                pass
             except Exception as e:
                 self.logger.exception('')
                 err_text = str(e) if isinstance(e, WalletFileException) else repr(e)
@@ -393,18 +395,18 @@ class ElectrumGui(BaseElectrumGui, Logger):
                                    text=_('Cannot load wallet') + ' (1):\n' + err_text)
                 if isinstance(e, WalletFileException) and e.should_report_crash:
                     send_exception_to_crash_reporter(e)
-                # if app is starting, still let wizard appear
+
                 if not app_is_starting:
                     return
-        # Open a wizard window. This lets the user e.g. enter a password, or select
-        # a different wallet.
+
+
         try:
             if not wallet:
                 wallet = self._start_wizard_to_select_or_create_wallet(path)
             if not wallet:
                 return
             window = self.get_window_for_wallet(wallet)
-            # create or raise window
+
             if not window:
                 window = self._create_window_for_wallet(wallet)
         except UserCancelled:
@@ -419,11 +421,11 @@ class ElectrumGui(BaseElectrumGui, Logger):
             if isinstance(e, WalletFileException) and e.should_report_crash:
                 send_exception_to_crash_reporter(e)
             if app_is_starting:
-                # If we raise in this context, there are no more fallbacks, we will shut down.
-                # Worst case scenario, we might have gotten here without user interaction,
-                # in which case, if we raise now without user interaction, the same sequence of
-                # events is likely to repeat when the user restarts the process.
-                # So we play it safe: clear path, clear uri, force a wizard to appear.
+
+
+
+
+
                 try:
                     wallet_dir = os.path.dirname(path)
                     filename = get_new_wallet_name(wallet_dir)
@@ -444,7 +446,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
     def _start_wizard_to_select_or_create_wallet(self, path) -> Optional[Abstract_Wallet]:
         wizard = QENewWalletWizard(self.config, self.app, self.plugins, self.daemon, path)
         result = wizard.exec()
-        # TODO: use dialog.open() instead to avoid new event loop spawn?
+
         self.logger.info(f'wizard dialog exec result={result}')
         if result == QDialog.DialogCode.Rejected:
             self.logger.info('wizard dialog cancelled by user')
@@ -468,16 +470,19 @@ class ElectrumGui(BaseElectrumGui, Logger):
         else:
             wallet_file = d['wallet_name']
 
-        password = d.get('password') or None  # convert '' to None
+        password = d.get('password') or None
+        remember_minutes = d.get('remember_password_minutes') or 0
 
         try:
             wallet = self.daemon.load_wallet(wallet_file, password, upgrade=True)
+            if password and remember_minutes > 0:
+                wallet._initial_autounlock = (password, int(remember_minutes) * 60)
             return wallet
         except WalletRequiresSplit as e:
             wizard.run_split(wallet_file, e._split_data)
             return
         except WalletUnfinished as e:
-            # wallet creation is not complete, 2fa online phase
+
             db = e._wallet_db
             action = db.get_action()
             assert action[1] == 'accept_terms_of_use', 'only support for resuming trustedcoin split setup'
@@ -518,7 +523,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
             self.daemon.stop_wallet(window.wallet.storage.path)
 
     def reload_window(self, window):
-        # bump counter so that we do not close the app
+
         self._num_wizards_in_progress += 1
         wallet = window.wallet
         window.should_stop_wallet_on_close = False
@@ -537,9 +542,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
         return False
 
     def ask_terms_of_use(self):
-        """Ask the user to accept the terms of use.
-        This is only shown if the user has not accepted them yet.
-        """
+
         if self.has_accepted_terms_of_use():
             return
         from electrum.gui.qt.wizard.terms_of_use import QETermsOfUseWizard
@@ -550,28 +553,21 @@ class ElectrumGui(BaseElectrumGui, Logger):
             raise UserCancelled()
 
     def init_network(self):
-        """Start the network, including showing a first-start network dialog if config does not exist."""
-        if self.daemon.network:
-            # first-start network-setup
-            if not self.config.cv.NETWORK_AUTO_CONNECT.is_set():
-                dialog = QEServerConnectWizard(self.config, self.app, self.plugins, self.daemon)
-                result = dialog.exec()
-                if result == QDialog.DialogCode.Rejected:
-                    self.logger.info('network wizard dialog cancelled by user')
-                    raise UserCancelled()
 
-            # start network
+        if self.daemon.network:
+            if not self.config.cv.NETWORK_AUTO_CONNECT.is_set():
+                self.config.NETWORK_AUTO_CONNECT = True
             self.daemon.start_network()
 
     def main(self):
-        # setup Ctrl-C handling and tear-down code first, so that user can easily exit whenever
-        self.app.setQuitOnLastWindowClosed(False)  # so _we_ can decide whether to quit
+
+        self.app.setQuitOnLastWindowClosed(False)
         self.app.lastWindowClosed.connect(self._maybe_quit_if_no_windows_open)
         self.app.aboutToQuit.connect(self._cleanup_before_exit)
         signal.signal(signal.SIGINT, lambda *args: self.app.quit())
-        # hook for crash reporter
+
         Exception_Hook.maybe_setup(config=self.config)
-        # start network, and maybe show first-start network-setup
+
         try:
             self.ask_terms_of_use()
             self.init_network()
@@ -580,7 +576,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
         except Exception as e:
             self.logger.exception('')
             return
-        # start wizard to select/create wallet
+
         path = self.config.get_wallet_path()
         try:
             if not self.start_new_window(path, self.config.get('url'), app_is_starting=True):
@@ -588,12 +584,12 @@ class ElectrumGui(BaseElectrumGui, Logger):
         except Exception as e:
             self.logger.error("error loading wallet (or creating window for it)")
             send_exception_to_crash_reporter(e)
-            # Let Qt event loop start properly so that crash reporter window can appear.
-            # We will shutdown when the user closes that window, via lastWindowClosed signal.
-        # main loop
+
+
+
         self.logger.info("starting Qt main loop")
         self.app.exec()
-        # on some platforms the exec_ call may not return, so use _cleanup_before_exit
+
 
     def stop(self):
         self.logger.info('closing GUI')
@@ -612,8 +608,7 @@ class ElectrumGui(BaseElectrumGui, Logger):
     def do_copy(self, text: str, *, title: str = None) -> None:
         self.app.clipboard().setText(text)
         message = _("Text copied to Clipboard") if title is None else _("{} copied to Clipboard").format(title)
-        # tooltip cannot be displayed immediately when called from a menu; wait 200ms
-        QTimer.singleShot(200, lambda: QToolTip.showText(QCursor.pos(), message, None))
+
 
 
 def standalone_exception_dialog(exception: Union[str, BaseException]) -> None:
@@ -622,12 +617,12 @@ def standalone_exception_dialog(exception: Union[str, BaseException]) -> None:
         app = QApplication([])
 
     msg_box = QMessageBox()
-    msg_box.setWindowTitle(_("Error starting Electrum"))
+    msg_box.setWindowTitle(_("Error starting {app}").format(app=APP_NAME))
     msg_box.setIcon(QMessageBox.Icon.Critical)
     msg_box.setText(_("An error occurred") + ":")
     msg_box.setInformativeText(str(exception))
 
-    # Add detailed traceback if available
+
     if hasattr(exception, "__traceback__"):
         import traceback
         detailed_text = ''.join(traceback.format_exception(

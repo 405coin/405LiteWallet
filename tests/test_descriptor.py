@@ -1,9 +1,9 @@
-# Copyright (c) 2018-2023 The HWI developers
-# Copyright (c) 2023 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#
-# originally from https://github.com/bitcoin-core/HWI/blob/f5a9b29c00e483cc99a1b8f4f5ef75413a092869/test/test_descriptor.py
+                                            
+                                            
+                                                                  
+                                                                     
+ 
+                                                                                                                           
 
 from binascii import unhexlify
 import unittest
@@ -249,8 +249,8 @@ class TestDescriptor(ElectrumTestCase):
         self.assertEqual(desc.to_string_no_checksum(), d)
 
     def test_tr_descriptor_bip386(self):
-        # test vectors from https://github.com/bitcoin/bips/blob/e2f7481a132e1c5863f5ffcbff009964d7c2af20/bip-0386.mediawiki#test-vectors
-        # TODO add missing tests
+                                                                                                                                         
+                                
         self.assertEqual(
             "512077aab6e066f8a7419c5ab714c12c67d25007ed55a43cadcacb4d7a970a093f11",
             parse_descriptor("tr(a34b99f22c790c4e36b2b3c2c35a36db06226e41c692fc82b8b56ac1c540c5bd)").expand().output_script.hex())
@@ -268,16 +268,16 @@ class TestDescriptor(ElectrumTestCase):
         self.assertEqual(desc.pubkeys[0].pubkey, "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B")
         self.assertEqual(desc.pubkeys[0].deriv_path, "/0/*")
         self.assertEqual(desc.to_string_no_checksum(), d)
-        with self.assertRaises(ValueError):  # "pos" arg needed due to "*"
+        with self.assertRaises(ValueError):                               
             e = desc.expand()
         e = desc.expand(pos=7)
         self.assertEqual(e.output_script, unhexlify("0014c5f80de08f6ae8dd720bf4e4948ba498c96256a1"))
         self.assertEqual(e.redeem_script, None)
         self.assertEqual(e.witness_script, None)
 
-        with self.assertRaises(ValueError):  # wildcard only allowed in last position
+        with self.assertRaises(ValueError):                                          
             parse_descriptor("wpkh([00000001/84h/1h/0h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/*/0)")
-        with self.assertRaises(ValueError):  # only one wildcard(*) is allowed
+        with self.assertRaises(ValueError):                                   
             parse_descriptor("wpkh([00000001/84h/1h/0h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/*/*)")
 
     @as_testnet
@@ -318,53 +318,53 @@ class TestDescriptor(ElectrumTestCase):
         pubkey_uncomp_hex = pubkey.get_public_key_hex(compressed=False)
         self.assertEqual(pubkey_comp_hex, "02a0507c8bb3d96dfd7731bafb0ae30e6ed10bbadd6a9f9f88eaf0602b9cc99adc")
         self.assertEqual(pubkey_uncomp_hex, "04a0507c8bb3d96dfd7731bafb0ae30e6ed10bbadd6a9f9f88eaf0602b9cc99adc3ccfc29410b8f23c15d88413a6b88c8cd44b016a7f1dd91a8d64c3107c6bce1a")
-        # pkh
+             
         desc = parse_descriptor(f"pkh({pubkey_comp_hex})")
         self.assertEqual(desc.expand().output_script, bfh("76a9140297bde2689a3c79ffe050583b62f86f2d9dae5488ac"))
         desc = parse_descriptor(f"pkh({pubkey_uncomp_hex})")
         self.assertEqual(desc.expand().output_script, bfh("76a914e1f4a76b122f0288b013404cd52a9d1de0ced3c488ac"))
-        # wpkh
+              
         desc = parse_descriptor(f"wpkh({pubkey_comp_hex})")
         self.assertEqual(desc.expand().output_script, bfh("00140297bde2689a3c79ffe050583b62f86f2d9dae54"))
-        with self.assertRaises(ValueError):  # only compressed public keys can be used in segwit scripts
+        with self.assertRaises(ValueError):                                                             
             desc = parse_descriptor(f"wpkh({pubkey_uncomp_hex})")
-        # sh(wsh(multi()))
+                          
         desc = parse_descriptor(f"sh(wsh(multi(2,[00000001/48h/0h/0h/2h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/*,{pubkey_comp_hex})))")
         self.assertEqual(desc.expand(pos=2).output_script, bfh("a9148f162cce29ad81e63ed45cd09aff83418316eab687"))
-        with self.assertRaises(ValueError):  # only compressed public keys can be used in segwit scripts
+        with self.assertRaises(ValueError):                                                             
             desc = parse_descriptor(f"sh(wsh(multi(2,[00000001/48h/0h/0h/2h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/*,{pubkey_uncomp_hex})))")
 
     @as_testnet
     def test_parse_descriptor_context(self):
         desc = parse_descriptor("sh(wsh(sortedmulti(2,[00000001/48h/0h/0h/2h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/0,[00000002/48h/0h/0h/2h]tpubDFHiBJDeNvqPWNJbzzxqDVXmJZoNn2GEtoVcFhMjXipQiorGUmps3e5ieDGbRrBPTFTh9TXEKJCwbAGW9uZnfrVPbMxxbFohuFzfT6VThty/0/0)))")
         self.assertTrue(isinstance(desc, SHDescriptor))
-        with self.assertRaises(ValueError):  # Can only have sh() at top level
+        with self.assertRaises(ValueError):                                   
             desc = parse_descriptor("wsh(sh(multi(2,[00000001/48h/0h/0h/2h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/0,[00000002/48h/0h/0h/2h]tpubDFHiBJDeNvqPWNJbzzxqDVXmJZoNn2GEtoVcFhMjXipQiorGUmps3e5ieDGbRrBPTFTh9TXEKJCwbAGW9uZnfrVPbMxxbFohuFzfT6VThty/0/0)))")
-        with self.assertRaises(ValueError):  # Can only have wsh() at top level or inside sh()
+        with self.assertRaises(ValueError):                                                   
             desc = parse_descriptor("wsh(wsh(multi(2,[00000001/48h/0h/0h/2h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/0,[00000002/48h/0h/0h/2h]tpubDFHiBJDeNvqPWNJbzzxqDVXmJZoNn2GEtoVcFhMjXipQiorGUmps3e5ieDGbRrBPTFTh9TXEKJCwbAGW9uZnfrVPbMxxbFohuFzfT6VThty/0/0)))")
 
         desc = parse_descriptor("wpkh([00000001/84h/1h/0h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/0)")
         self.assertTrue(isinstance(desc, WPKHDescriptor))
-        with self.assertRaises(ValueError):  # Can only have wpkh() at top level or inside sh()
+        with self.assertRaises(ValueError):                                                    
             desc = parse_descriptor("wsh(wpkh([00000001/84h/1h/0h]tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B/0/0))")
 
     def test_parse_descriptor_ypub_zpub_forbidden(self):
         desc = parse_descriptor("wpkh([535e473f/0h]xpub68W3CJPrQzHhTQcHM6tbCvNVB9ih4tbzsFBLwe7zZUj5uHuhxBUhvnXe1RQhbKCTiTj3D7kXni6yAD88i2xnjKHaJ5NqTtHawKnPFCDnmo4/0/*)")
-        with self.assertRaises(ValueError):  # only standard xpub/xprv allowed
+        with self.assertRaises(ValueError):                                   
             desc = parse_descriptor("wpkh([535e473f/0h]ypub6TLJVy4mZfqBJhoQBTgDR1TzM7s91WbVnMhZj31swV6xxPiwCqeGYrBn2dNHbDrP86qqxbM6FNTX3VjhRjNoXYyBAR5G3o75D3r2djmhZwM/0/*)")
-        with self.assertRaises(ValueError):  # only standard xpub/xprv allowed
+        with self.assertRaises(ValueError):                                   
             desc = parse_descriptor("wpkh([535e473f/0h]zpub6nAZodjgiMNf9zzX1pTqd6ZVX61ax8azhUDnWRumKVUr1VYATVoqAuqv3qKsb8WJXjxei4wei2p4vnMG9RnpKnen2kmgdhvZUmug2NnHNsr/0/*)")
 
     @as_testnet
     def test_sortedmulti_ranged_pubkey_order(self):
         xpub1 = "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B"
         xpub2 = "tpubDFHiBJDeNvqPWNJbzzxqDVXmJZoNn2GEtoVcFhMjXipQiorGUmps3e5ieDGbRrBPTFTh9TXEKJCwbAGW9uZnfrVPbMxxbFohuFzfT6VThty"
-        # if ranged, we sort lexicographically
+                                              
         desc = parse_descriptor(f"sh(wsh(sortedmulti(2,[00000001/48h/0h/0h/2h]{xpub1}/0/*,[00000002/48h/0h/0h/2h]{xpub2}/0/*)))")
         self.assertEqual([xpub1, xpub2], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
         desc = parse_descriptor(f"sh(wsh(sortedmulti(2,[00000002/48h/0h/0h/2h]{xpub2}/0/*,[00000001/48h/0h/0h/2h]{xpub1}/0/*)))")
         self.assertEqual([xpub1, xpub2], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
-        # if unsorted "multi", don't touch order
+                                                
         desc = parse_descriptor(f"sh(wsh(multi(2,[00000002/48h/0h/0h/2h]{xpub2}/0/*,[00000001/48h/0h/0h/2h]{xpub1}/0/*)))")
         self.assertEqual([xpub2, xpub1], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
 
@@ -372,23 +372,23 @@ class TestDescriptor(ElectrumTestCase):
     def test_sortedmulti_unranged_pubkey_order(self):
         xpub1 = "tpubD6NzVbkrYhZ4WaWSyoBvQwbpLkojyoTZPRsgXELWz3Popb3qkjcJyJUGLnL4qHHoQvao8ESaAstxYSnhyswJ76uZPStJRJCTKvosUCJZL5B"
         xpub2 = "tpubDFHiBJDeNvqPWNJbzzxqDVXmJZoNn2GEtoVcFhMjXipQiorGUmps3e5ieDGbRrBPTFTh9TXEKJCwbAGW9uZnfrVPbMxxbFohuFzfT6VThty"
-        # if not ranged, we sort according to final derived pubkey order
+                                                                        
         desc = parse_descriptor(f"sh(wsh(sortedmulti(2,[00000001/48h/0h/0h/2h]{xpub1}/0/0,[00000002/48h/0h/0h/2h]{xpub2}/0/0)))")
         self.assertEqual([xpub1, xpub2], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
         desc = parse_descriptor(f"sh(wsh(sortedmulti(2,[00000001/48h/0h/0h/2h]{xpub1}/0/1,[00000002/48h/0h/0h/2h]{xpub2}/0/1)))")
         self.assertEqual([xpub2, xpub1], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
         desc = parse_descriptor(f"sh(wsh(sortedmulti(2,[00000001/48h/0h/0h/2h]{xpub1}/0/4,[00000002/48h/0h/0h/2h]{xpub2}/0/4)))")
         self.assertEqual([xpub1, xpub2], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
-        # if unsorted "multi", don't touch order
+                                                
         desc = parse_descriptor(f"sh(wsh(multi(2,[00000001/48h/0h/0h/2h]{xpub1}/0/1,[00000002/48h/0h/0h/2h]{xpub2}/0/1)))")
         self.assertEqual([xpub1, xpub2], [pk.pubkey for pk in desc.subdescriptors[0].subdescriptors[0].pubkeys])
 
     def test_pubkey_provider_deriv_path(self):
         xpub = "xpub68W3CJPrQzHhTQcHM6tbCvNVB9ih4tbzsFBLwe7zZUj5uHuhxBUhvnXe1RQhbKCTiTj3D7kXni6yAD88i2xnjKHaJ5NqTtHawKnPFCDnmo4"
-        # valid:
+                
         pp = PubkeyProvider(origin=None, pubkey=xpub, deriv_path="/1/7")
         pp = PubkeyProvider(origin=None, pubkey=xpub, deriv_path="/1/*")
-        # invalid:
+                  
         with self.assertRaises(ValueError):
             pp = PubkeyProvider(origin=None, pubkey=xpub, deriv_path="1")
         with self.assertRaises(ValueError):
@@ -401,8 +401,8 @@ class TestDescriptor(ElectrumTestCase):
             pp = PubkeyProvider(origin=None, pubkey=xpub, deriv_path="*/*")
 
         pubkey_hex = "02a0507c8bb3d96dfd7731bafb0ae30e6ed10bbadd6a9f9f88eaf0602b9cc99adc"
-        # valid:
+                
         pp = PubkeyProvider(origin=None, pubkey=pubkey_hex, deriv_path=None)
-        # invalid:
+                  
         with self.assertRaises(ValueError):
             pp = PubkeyProvider(origin=None, pubkey=pubkey_hex, deriv_path="/1/7")

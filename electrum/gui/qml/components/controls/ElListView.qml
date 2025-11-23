@@ -6,8 +6,8 @@ import QtQuick.Controls.Material
 ListView {
     id: root
 
-    // avoid interference with android back-gesture by defining deadzones
-    // you can override to 0 if listview is away from left or right edge.
+    
+    
     property int exclusionZone: constants.fingerWidth / 2
     property int leftExclusionZone: exclusionZone
     property int rightExclusionZone: exclusionZone

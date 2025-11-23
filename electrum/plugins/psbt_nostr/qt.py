@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2025 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 from functools import partial
 from typing import TYPE_CHECKING, List, Tuple, Optional, Union
@@ -99,7 +99,7 @@ class QtCosignerWallet(EventListener, CosignerWallet):
     @event_listener
     def on_event_psbt_nostr_received(self, wallet, *args):
         if self.wallet == wallet:
-            self.obj.cosignerReceivedPsbt.emit(*args)  # put on UI thread via signal
+            self.obj.cosignerReceivedPsbt.emit(*args)                               
 
     def send_to_cosigners(self, tx: Union['Transaction', 'PartialTransaction'], label: str):
         if tx.txid():
@@ -136,9 +136,9 @@ class QtCosignerWallet(EventListener, CosignerWallet):
             QMessageBox.StandardButton.Open,
             (QPushButton('Discard'), QMessageBox.ButtonRole.DestructiveRole, 100),
         ]
-        if tx.txid():  # cannot add tx without txid to wallet history (e.g. unsigned legacy tx)
+        if tx.txid():                                                                          
             buttons.append(
-                (QPushButton('Save to wallet'), QMessageBox.ButtonRole.AcceptRole, 101)  # type: ignore
+                (QPushButton('Save to wallet'), QMessageBox.ButtonRole.AcceptRole, 101)                
             )
         result = self.window.show_message(msg, rich_text=True, icon=QMessageBox.Icon.Question, buttons=buttons)
         if result == QMessageBox.StandardButton.Open:
@@ -147,7 +147,7 @@ class QtCosignerWallet(EventListener, CosignerWallet):
             show_transaction(tx, parent=self.window, prompt_if_unsaved=True, on_closed=partial(self.on_tx_dialog_closed, event_id))
         else:
             self.mark_pending_event_rcvd(event_id)
-            if result == 100:  # Discard
+            if result == 100:           
                 return
             self.add_transaction_to_wallet(tx, label=label, on_failure=self.on_add_fail)
             self.window.update_tabs()

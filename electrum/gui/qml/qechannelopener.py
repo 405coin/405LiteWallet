@@ -34,12 +34,12 @@ class QEChannelOpener(QObject, AuthMixin):
     channelOpenSuccess = pyqtSignal([str, bool, int, bool],
                                     arguments=['cid', 'has_onchain_backup', 'min_depth', 'tx_complete'])
 
-    dataChanged = pyqtSignal()  # generic notify signal
+    dataChanged = pyqtSignal()                         
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._connect_str = None
         self._amount = QEAmount()
         self._valid = False
@@ -124,20 +124,20 @@ class QEChannelOpener(QObject, AuthMixin):
     def trampolineNodeNames(self):
         return list(hardcoded_trampoline_nodes().keys())
 
-    # FIXME have requested funding amount
+                                         
     def validate(self):
         """side-effects: sets self._node_pubkey, self._connect_str_resolved"""
         connect_str_valid = False
         if self._connect_str:
             self._logger.debug(f'checking if {self._connect_str=!r} is valid')
             if not self._wallet.wallet.config.LIGHTNING_USE_GOSSIP:
-                # using trampoline: connect_str is the name of a trampoline node
+                                                                                
                 peer_addr = hardcoded_trampoline_nodes()[self._connect_str]
                 self._node_pubkey = peer_addr.pubkey
                 self._connect_str_resolved = str(peer_addr)
                 connect_str_valid = True
             else:
-                # using gossip: connect_str is anything extract_nodeid() can parse
+                                                                                  
                 try:
                     self._node_pubkey, _rest = extract_nodeid(self._connect_str)
                 except ConnStringFormatError:
@@ -157,7 +157,7 @@ class QEChannelOpener(QObject, AuthMixin):
             self.setValid(False)
             return
 
-        # for MAX, estimate is assumed to be calculated and set in self._amount.satsInt
+                                                                                       
         if self._amount.satsInt < MIN_FUNDING_SAT:
             message = _('Minimum required amount: {}').format(
                 self._wallet.wallet.config.format_amount_and_units(MIN_FUNDING_SAT)
@@ -186,7 +186,7 @@ class QEChannelOpener(QObject, AuthMixin):
             return False
         return True
 
-    # FIXME "max" button in amount_dialog should enforce LIGHTNING_MAX_FUNDING_SAT
+                                                                                  
     @pyqtSlot()
     @pyqtSlot(bool)
     def openChannel(self, confirm_backup_conflict=False):
@@ -225,7 +225,7 @@ class QEChannelOpener(QObject, AuthMixin):
         conn_str: a connection string that extract_nodeid can parse, i.e. cannot be a trampoline name
         """
         self._logger.debug('opening channel')
-        # read funding_sat from tx; converts '!' to int value
+                                                             
         funding_sat = funding_tx.output_value_for_address(DummyAddress.CHANNEL)
         lnworker = self._wallet.wallet.lnworker
 
@@ -242,12 +242,12 @@ class QEChannelOpener(QObject, AuthMixin):
                 self.channelOpenSuccess.emit(chan.channel_id.hex(), chan.has_onchain_backup(),
                                              chan.constraints.funding_txn_minimum_depth, funding_tx.is_complete())
 
-                # TODO: handle incomplete TX
-                # if not funding_tx.is_complete():
-                #     self._txdetails = QETxDetails(self)
-                #     self._txdetails.rawTx = funding_tx
-                #     self._txdetails.wallet = self._wallet
-                #     self.txDetailsChanged.emit()
+                                            
+                                                  
+                                                         
+                                                        
+                                                           
+                                                  
 
             except (CancelledError, TimeoutError):
                 error = _('Could not connect to channel peer')

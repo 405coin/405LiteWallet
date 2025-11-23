@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2014 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import hashlib
 import sys
 import time
@@ -81,8 +81,8 @@ async def get_payment_request(url: str) -> 'PaymentRequest':
                 async with session.get(url) as response:
                     resp_content = await response.read()
                     response.raise_for_status()
-                    # Guard against `bitcoin:`-URIs with invalid payment request URLs
-                    if "Content-Type" not in response.headers \
+                                                                                     
+                    if "Content-Type" not in response.headers\
                     or response.headers["Content-Type"] != "application/bitcoin-paymentrequest":
                         data = None
                         error = "payment URL not pointing to a payment request handling server"
@@ -105,7 +105,7 @@ async def get_payment_request(url: str) -> 'PaymentRequest':
         data = None
         error = f"Unknown scheme for payment request. URL: {url}"
     pr = PaymentRequest(data, error=error)
-    # do x509/dnssec verification now. we still expect the caller to at least check pr.error!
+                                                                                             
     await pr.verify()
     return pr
 
@@ -114,18 +114,18 @@ class PaymentRequest:
 
     def __init__(self, data: bytes, *, error=None):
         self.raw = data
-        self.error = error  # type: Optional[str]
-        self._verified_success = None  # caches result of _verify
-        self._verified_success_msg = None  # type: Optional[str]
+        self.error = error                       
+        self._verified_success = None                            
+        self._verified_success_msg = None                       
         self._parse(data)
-        self.requestor = None # known after verify
+        self.requestor = None                     
         self.tx = None
 
     def __str__(self):
         return str(self.raw)
 
     def _parse(self, r: bytes):
-        self.outputs = []  # type: List[PartialTxOutput]
+        self.outputs = []                               
         if self.error:
             return
         try:
@@ -145,7 +145,7 @@ class PaymentRequest:
         for o in self.details.outputs:
             addr = transaction.get_address_from_output_script(o.script)
             if not addr:
-                # TODO maybe rm restriction but then get_requestor and get_id need changes
+                                                                                          
                 self.error = "only addresses are allowed as outputs"
                 return
             self.outputs.append(PartialTxOutput.from_address_and_value(addr, o.amount))
@@ -153,8 +153,8 @@ class PaymentRequest:
         self.payment_url = self.details.payment_url
 
     async def verify(self) -> bool:
-        # FIXME: we should enforce that this method was called before we attempt payment
-        # note: this method might do network requests (at least for verify_dnssec)
+                                                                                        
+                                                                                  
         if self._verified_success is True:
             return True
         if self.error:
@@ -169,7 +169,7 @@ class PaymentRequest:
             self.error = "Error: Cannot parse payment request"
             return False
         if not pr.signature:
-            # the address will be displayed as requestor
+                                                        
             self.requestor = None
             return True
         if pr.pki_type in ["x509+sha256", "x509+sha1"]:
@@ -187,18 +187,18 @@ class PaymentRequest:
             return False
         cert = pb2.X509Certificates()
         cert.ParseFromString(paymntreq.pki_data)
-        # verify the chain of certificates
+                                          
         try:
             x, ca = verify_cert_chain(cert.certificate)
         except BaseException as e:
             _logger.exception('')
             self.error = str(e)
             return False
-        # get requestor name
+                            
         self.requestor = x.get_common_name()
         if self.requestor.startswith('*.'):
             self.requestor = self.requestor[2:]
-        # verify the BIP70 signature
+                                    
         pubkey0 = rsakey.RSAKey(x.modulus, x.exponent)
         sig = paymntreq.signature
         paymntreq.signature = b''
@@ -216,7 +216,7 @@ class PaymentRequest:
         if not verify:
             self.error = "ERROR: Invalid Signature for Payment Request Data"
             return False
-        ### SIG Verified
+                        
         self._verified_success_msg = 'Signed by Trusted CA: ' + ca.get_common_name()
         self._verified_success = True
         return True
@@ -360,7 +360,7 @@ def sign_request_with_alias(pr, alias, alias_privkey):
 def verify_cert_chain(chain):
     """ Verify a chain of certificates. The last certificate is the CA"""
     load_ca_list()
-    # parse the chain
+                     
     cert_num = len(chain)
     x509_chain = []
     for i in range(cert_num):
@@ -373,7 +373,7 @@ def verify_cert_chain(chain):
                 raise Exception("ERROR: Supplied CA Certificate Error")
     if not cert_num > 1:
         raise Exception("ERROR: CA Certificate Chain Not Provided by Payment Processor")
-    # if the root CA is not supplied, add it to the chain
+                                                         
     ca = x509_chain[cert_num-1]
     if ca.getFingerprint() not in ca_list:
         keyID = ca.get_issuer_keyID()
@@ -383,7 +383,7 @@ def verify_cert_chain(chain):
             x509_chain.append(root)
         else:
             raise Exception("Supplied CA Not Found in Trusted CA Store.")
-    # verify the chain of signatures
+                                    
     cert_num = len(x509_chain)
     for i in range(1, cert_num):
         x = x509_chain[i]
@@ -419,14 +419,14 @@ def check_ssl_config(config: 'SimpleConfig'):
     with open(cert_path, 'r', encoding='utf-8') as f:
         s = f.read()
     bList = pem.dePemList(s, "CERTIFICATE")
-    # verify chain
+                  
     x, ca = verify_cert_chain(bList)
-    # verify that privkey and pubkey match
+                                          
     privkey = rsakey.RSAKey(*params)
     pubkey = rsakey.RSAKey(x.modulus, x.exponent)
     assert x.modulus == params[0]
     assert x.exponent == params[1]
-    # return requestor
+                      
     requestor = x.get_common_name()
     if requestor.startswith('*.'):
         requestor = requestor[2:]
@@ -451,7 +451,7 @@ def sign_request_with_x509(pr, key_path, cert_path):
     pr.signature = bytes(sig)
 
 
-def serialize_request(req):  # FIXME this is broken
+def serialize_request(req):                        
     pr = make_unsigned_request(req)
     signature = req.get('sig')
     requestor = req.get('name')

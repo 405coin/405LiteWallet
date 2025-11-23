@@ -1,6 +1,6 @@
-# Copyright (C) 2019 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+
+
+
 
 import asyncio
 import base64
@@ -24,13 +24,13 @@ class UpdateCheck(QDialog, Logger):
     download_url = "https://electrum.org/#download"
 
     VERSION_ANNOUNCEMENT_SIGNING_KEYS = (
-        "13xjmVAB1EATPP8RshTE8S8sNwwSUM9p1P",  # ThomasV (since 3.3.4)
-        "1Nxgk6NTooV4qZsX5fdqQwrLjYcsQZAfTg",  # ghost43 (since 4.1.2)
+        "13xjmVAB1EATPP8RshTE8S8sNwwSUM9p1P",
+        "1Nxgk6NTooV4qZsX5fdqQwrLjYcsQZAfTg",
     )
 
     def __init__(self, *, latest_version=None):
         QDialog.__init__(self)
-        self.setWindowTitle('Electrum - ' + _('Update Check'))
+        self.setWindowTitle('405LiteWallet - ' + _('Update Check'))
         self.content = QVBoxLayout()
         self.content.setContentsMargins(*[10]*4)
 
@@ -88,10 +88,10 @@ class UpdateCheck(QDialog, Logger):
                 self.detail_label.setText(_("You can download the new version from {}.").format(url))
             else:
                 self.heading_label.setText('<h2>' + _("Already up to date") + '</h2>')
-                self.detail_label.setText(_("You are already on the latest version of Electrum."))
+                self.detail_label.setText(_("You are already on the latest version of 405LiteWallet."))
         else:
             self.heading_label.setText('<h2>' + _("Checking for updates...") + '</h2>')
-            self.detail_label.setText(_("Please wait while Electrum checks for available updates."))
+            self.detail_label.setText(_("Please wait while 405LiteWallet checks for available updates."))
 
 
 class UpdateCheckThread(QThread, Logger):
@@ -102,21 +102,21 @@ class UpdateCheckThread(QThread, Logger):
         QThread.__init__(self)
         Logger.__init__(self)
         self.network = Network.get_instance()
-        self._fut = None  # type: Optional[asyncio.Future]
+        self._fut = None
 
     async def get_update_info(self):
-        # note: Use long timeout here as it is not critical that we get a response fast,
-        #       and it's bad not to get an update notification just because we did not wait enough.
+
+
         async with make_aiohttp_session(proxy=self.network.proxy, timeout=120) as session:
             async with session.get(UpdateCheck.url) as result:
                 signed_version_dict = await result.json(content_type=None)
-                # example signed_version_dict:
-                # {
-                #     "version": "3.9.9",
-                #     "signatures": {
-                #         "1Lqm1HphuhxKZQEawzPse8gJtgjm9kUKT4": "IA+2QG3xPRn4HAIFdpu9eeaCYC7S5wS/sDxn54LJx6BdUTBpse3ibtfq8C43M7M1VfpGkD5tsdwl5C6IfpZD/gQ="
-                #     }
-                # }
+
+
+
+
+
+
+
                 version_num = signed_version_dict['version']
                 sigs = signed_version_dict['signatures']
                 for address, sig in sigs.items():

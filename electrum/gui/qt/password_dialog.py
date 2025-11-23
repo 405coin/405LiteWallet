@@ -1,48 +1,51 @@
-#!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2013 ecdsa@github
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import re
 import math
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import QLabel, QGridLayout, QVBoxLayout, QCheckBox
 
 from electrum.i18n import _
 from electrum.plugin import run_hook
 
-from .util import icon_path, WindowModalDialog, OkButton, CancelButton, Buttons, PasswordLineEdit
+from .util import (
+    WindowModalDialog,
+    OkButton,
+    CancelButton,
+    Buttons,
+    PasswordLineEdit,
+    read_QIcon,
+    apply_dashboard_dialog_style,
+)
 
 
 def check_password_strength(password):
 
-    '''
-    Check the strength of the password entered by the user and return back the same
-    :param password: password entered by user in New Password
-    :return: password strength Weak or Medium or Strong
-    '''
+
     password = password
     n = math.log(len(set(password)))
     num = re.search("[0-9]", password) is not None and re.match("^[0-9]*$", password) is None
@@ -103,11 +106,10 @@ class PasswordLayout(object):
             if wallet and wallet.has_password() and not wallet.storage.is_encrypted_with_hw_device():
                 grid.addWidget(QLabel(_('Current Password:')), 0, 0)
                 grid.addWidget(self.pw, 0, 1)
-                lockfile = "lock.png"
+                lockfile = "lock.svg"
             else:
-                lockfile = "unlock.png"
-            logo.setPixmap(QPixmap(icon_path(lockfile))
-                           .scaledToWidth(36, mode=Qt.TransformationMode.SmoothTransformation))
+                lockfile = "unlock.svg"
+            logo.setPixmap(read_QIcon(lockfile).pixmap(36, 36))
 
         self.new_password_label = QLabel(msgs[0])
         grid.addWidget(self.new_password_label, 1, 0)
@@ -118,7 +120,7 @@ class PasswordLayout(object):
         grid.addWidget(self.conf_pw, 2, 1)
         vbox.addLayout(grid)
 
-        # Password Strength Label
+
         if kind != PW_PASSPHRASE:
             self.pw_strength = QLabel()
             grid.addWidget(self.pw_strength, 3, 0, 1, 2)
@@ -158,7 +160,7 @@ class PasswordLayout(object):
 
     def new_password(self):
         pw = self.new_pw.text()
-        # Empty passphrases are fine and returned empty.
+
         if pw == "" and self.kind != PW_PASSPHRASE:
             pw = None
         return pw
@@ -194,6 +196,7 @@ class ChangePasswordDialogBase(WindowModalDialog):
 
     def __init__(self, parent, wallet):
         WindowModalDialog.__init__(self, parent)
+        apply_dashboard_dialog_style(self, "ChangePasswordDialog")
         is_encrypted = wallet.has_storage_encryption()
         OK_button = OkButton(self)
 
@@ -214,6 +217,7 @@ class NewPasswordDialog(WindowModalDialog):
     def __init__(self, parent, msg):
         self.msg = msg
         WindowModalDialog.__init__(self, parent)
+        apply_dashboard_dialog_style(self, "NewPasswordDialog")
         OK_button = OkButton(self)
         self.playout = PasswordLayout(
             msg=self.msg,
@@ -292,6 +296,7 @@ class PasswordDialog(WindowModalDialog):
     def __init__(self, parent=None, msg=None):
         msg = msg or _('Please enter your password')
         WindowModalDialog.__init__(self, parent, _("Enter Password"))
+        apply_dashboard_dialog_style(self, "PasswordPrompt")
         self.pw = pw = PasswordLineEdit()
         label = QLabel(msg)
         label.setWordWrap(True)

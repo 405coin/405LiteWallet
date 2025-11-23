@@ -21,7 +21,7 @@ class QENetwork(QObject, QtEventListener):
 
     networkUpdated = pyqtSignal()
     blockchainUpdated = pyqtSignal()
-    heightChanged = pyqtSignal([int], arguments=['height'])  # local blockchain height
+    heightChanged = pyqtSignal([int], arguments=['height'])                           
     serverHeightChanged = pyqtSignal([int], arguments=['height'])
     proxySet = pyqtSignal()
     proxyChanged = pyqtSignal()
@@ -32,7 +32,7 @@ class QENetwork(QObject, QtEventListener):
     isLaggingChanged = pyqtSignal()
     gossipUpdated = pyqtSignal()
 
-    # shared signal for static properties
+                                         
     dataChanged = pyqtSignal()
 
     _height = 0
@@ -51,11 +51,11 @@ class QENetwork(QObject, QtEventListener):
 
     def __init__(self, network: 'Network', parent=None):
         super().__init__(parent)
-        assert network, "--offline is not yet implemented for this GUI"  # TODO
+        assert network, "--offline is not yet implemented for this GUI"        
         self.network = network
         self._serverListModel = None
-        self._height = network.get_local_height()  # init here, update event can take a while
-        self._server_height = network.get_server_height()  # init here, update event can take a while
+        self._height = network.get_local_height()                                            
+        self._server_height = network.get_server_height()                                            
         self.register_callbacks()
         self.destroyed.connect(lambda: self.on_destroy())
 
@@ -137,7 +137,7 @@ class QENetwork(QObject, QtEventListener):
 
     def update_histogram(self, histogram):
         capped_histogram, bytes_current = histogram.get_capped_data()
-        # add clamping attributes for the GUI
+                                             
         self._fee_histogram = {
             'histogram': capped_histogram,
             'total': bytes_current,
@@ -170,7 +170,7 @@ class QENetwork(QObject, QtEventListener):
 
     @event_listener
     def on_event_unknown_channels(self, unknown):
-        if unknown == 0 and self._gossipUnknownChannels == 0:  # TODO: backend sends a lot of unknown=0 events
+        if unknown == 0 and self._gossipUnknownChannels == 0:                                                 
             return
         self._logger.debug(f'unknown channels {unknown}')
         self._gossipUnknownChannels = unknown
@@ -185,7 +185,7 @@ class QENetwork(QObject, QtEventListener):
             self.network.run_from_another_thread(self.network.stop_gossip())
 
     @pyqtProperty(int, notify=heightChanged)
-    def height(self):  # local blockchain height
+    def height(self):                           
         return self._height
 
     @pyqtProperty(int, notify=serverHeightChanged)
@@ -197,7 +197,7 @@ class QENetwork(QObject, QtEventListener):
     def autoConnect(self):
         return self.network.config.NETWORK_AUTO_CONNECT
 
-    # auto_connect is actually a tri-state, expose the undefined case
+                                                                     
     @pyqtProperty(bool, notify=autoConnectChanged)
     def autoConnectDefined(self):
         return self.network.config.cv.NETWORK_AUTO_CONNECT.is_set()
@@ -227,7 +227,7 @@ class QENetwork(QObject, QtEventListener):
     @pyqtProperty(str, notify=statusChanged)
     def serverWithStatus(self):
         server = self._server
-        if not self.network.is_connected():  # connecting or disconnected
+        if not self.network.is_connected():                              
             return f'{server} (connecting...)'
         return server
 
@@ -305,4 +305,4 @@ class QENetwork(QObject, QtEventListener):
 
     @pyqtSlot()
     def probeTor(self):
-        ProxySettings.probe_tor(self.torProbeFinished.emit)  # via signal
+        ProxySettings.probe_tor(self.torProbeFinished.emit)              

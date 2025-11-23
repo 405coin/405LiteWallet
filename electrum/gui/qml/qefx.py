@@ -74,7 +74,7 @@ class QEFX(QObject, QtEventListener):
     @pyqtProperty(bool, notify=historicRatesChanged)
     def historicRates(self):
         if not self.fx.config.cv.FX_HISTORY_RATES.is_set():
-            self.fx.config.FX_HISTORY_RATES = True  # override default
+            self.fx.config.FX_HISTORY_RATES = True                    
         return self.fx.config.FX_HISTORY_RATES
 
     @historicRates.setter
@@ -95,7 +95,7 @@ class QEFX(QObject, QtEventListener):
             self.fx.set_exchange(source)
             self.rateSourceChanged.emit()
 
-    enabledUpdated = pyqtSignal()  # curiously, enabledChanged is clashing, so name it enabledUpdated
+    enabledUpdated = pyqtSignal()                                                                    
     @pyqtProperty(bool, notify=enabledUpdated)
     def enabled(self):
         return self.fx.is_enabled()
@@ -167,7 +167,7 @@ class QEFX(QObject, QtEventListener):
 
     @pyqtSlot(str, result=bool)
     def isRecent(self, timestamp):
-        # return True if unknown, e.g. timestamp not known yet, tx in mempool
+                                                                             
         try:
             td = Decimal(timestamp)
             if td == 0:

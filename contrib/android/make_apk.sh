@@ -12,18 +12,18 @@ PACKAGES="$PROJECT_ROOT"/packages/
 git -C "$PROJECT_ROOT" rev-parse 2>/dev/null || fail "Building outside a git clone is not supported."
 
 
-# arguments have been checked in build.sh
+
 export ELEC_APK_GUI=$1
 
 if [ ! -d "$PACKAGES" ]; then
     "$CONTRIB"/make_packages.sh || fail "make_packages failed"
 fi
 
-# update locale
+
 info "preparing electrum-locale."
 (
     "$CONTRIB/locale/build_cleanlocale.sh"
-    # we want the binary to have only compiled (.mo) locale files; not source (.po) files
+
     rm -r "$PROJECT_ROOT/electrum/locale/locale"/*/electrum.po
 )
 
@@ -31,23 +31,23 @@ pushd "$CONTRIB_ANDROID"
 
 info "apk building phase starts."
 
-# Uncomment and change below to set a custom android package id,
-# e.g. to allow simultaneous mainnet and testnet installs of the apk.
-# defaults:
-#   export APP_PACKAGE_NAME=Electrum
-#   export APP_PACKAGE_DOMAIN=org.electrum
-# FIXME: changing "APP_PACKAGE_NAME" seems to require a clean rebuild of ".buildozer/",
-#        to avoid that, maybe change "APP_PACKAGE_DOMAIN" instead.
-# So, in particular, to build a testnet apk, simply uncomment:
-#export APP_PACKAGE_DOMAIN=org.electrum.testnet
+
+
+
+
+
+
+
+
+
 
 if [ $CI ]; then
-    # override log level specified in buildozer.spec to "debug":
+
     export BUILDOZER_LOG_LEVEL=2
 fi
 
 if [[ "$3" == "release" ]] ; then
-    # do release build, and sign the APKs.
+
     TARGET="release"
     export P4A_RELEASE_KEYSTORE_PASSWD="$4"
     export P4A_RELEASE_KEYALIAS_PASSWD="$4"
@@ -58,16 +58,16 @@ if [[ "$3" == "release" ]] ; then
         exit 1
     fi
 elif [[ "$3" == "release-unsigned" ]] ; then
-    # do release build, but do not sign the APKs.
+
     TARGET="release"
 elif [[ "$3" == "debug" ]] ; then
-    # do debug build.
+
     TARGET="apk"
     export P4A_DEBUG_KEYSTORE="$CONTRIB_ANDROID"/android_debug.keystore
     export P4A_DEBUG_KEYSTORE_PASSWD=unsafepassword
     export P4A_DEBUG_KEYALIAS_PASSWD=unsafepassword
     export P4A_DEBUG_KEYALIAS=electrum
-    # create keystore if needed
+
     if [ ! -f "$P4A_DEBUG_KEYSTORE" ]; then
         keytool -genkey -v -keystore "$CONTRIB_ANDROID"/android_debug.keystore \
             -alias "$P4A_DEBUG_KEYALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
@@ -82,8 +82,8 @@ fi
 
 
 if [[ "$2" == "all" ]] ; then
-    # build all apks
-    # FIXME failures are not propagated out: we should fail the script if any arch build fails
+
+
     export APP_ANDROID_ARCHS=armeabi-v7a
     export APP_ANDROID_NUMERIC_VERSION=$("$CONTRIB_ANDROID"/get_apk_versioncode.py "$APP_ANDROID_ARCHS")
     "$CONTRIB_ANDROID"/make_barcode_scanner.sh "$APP_ANDROID_ARCHS" || fail "make_barcode_scanner.sh failed"

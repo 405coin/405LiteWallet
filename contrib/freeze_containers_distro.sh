@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Run this after a new release to update pin for build container distro packages
+
 
 set -e
 
 DEBIAN_SNAPSHOT_BASE="https://snapshot.debian.org/archive/debian/"
-DEBIAN_APPIMAGE_DISTRO="bullseye"  # should match build-linux/appimage Dockerfile base
-DEBIAN_WINE_DISTRO="bookworm"    # should match build-wine Dockerfile base
-DEBIAN_ANDROID_DISTRO="bookworm" # should match android Dockerfile base
+DEBIAN_APPIMAGE_DISTRO="bullseye"
+DEBIAN_WINE_DISTRO="bookworm"
+DEBIAN_ANDROID_DISTRO="bookworm"
 
 contrib="$(dirname "$0")"
 
@@ -31,15 +31,15 @@ wget -O /dev/null ${DEBIAN_SNAPSHOT} 2>/dev/null
 
 echo "Valid!"
 
-# build-linux
+
 echo "deb ${DEBIAN_SNAPSHOT} ${DEBIAN_APPIMAGE_DISTRO} main" > "$contrib/build-linux/appimage/apt.sources.list"
 echo "deb-src ${DEBIAN_SNAPSHOT} ${DEBIAN_APPIMAGE_DISTRO} main" >> "$contrib/build-linux/appimage/apt.sources.list"
 
-# build-wine
+
 echo "deb ${DEBIAN_SNAPSHOT} ${DEBIAN_WINE_DISTRO} main" > "$contrib/build-wine/apt.sources.list"
 echo "deb-src ${DEBIAN_SNAPSHOT} ${DEBIAN_WINE_DISTRO} main" >> "$contrib/build-wine/apt.sources.list"
 
-# android
+
 echo "deb ${DEBIAN_SNAPSHOT} ${DEBIAN_ANDROID_DISTRO} main" > "$contrib/android/apt.sources.list"
 echo "deb-src ${DEBIAN_SNAPSHOT} ${DEBIAN_ANDROID_DISTRO} main" >> "$contrib/android/apt.sources.list"
 

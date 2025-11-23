@@ -20,9 +20,9 @@ CACHEDIR="$CONTRIB_OSX/.cache"
 cd "$PROJECT_ROOT"
 
 
-# Code Signing: See https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html
+
 if [ -n "$CODESIGN_CERT" ]; then
-    # Test the identity is valid for signing by doing this hack. There is no other way to do this.
+
     cp -f /bin/ls ./CODESIGN_TEST
     set +e
     codesign -s "$CODESIGN_CERT" --dryrun -f ./CODESIGN_TEST > /dev/null 2>&1
@@ -39,12 +39,12 @@ else
 fi
 
 
-function DoCodeSignMaybe { # ARGS: infoName fileOrDirName
+function DoCodeSignMaybe {
     infoName="$1"
     file="$2"
     deep=""
     if [ -z "$CODESIGN_CERT" ]; then
-        # no cert -> we won't codesign
+
         return
     fi
     if [ -d "$file" ]; then
@@ -59,7 +59,7 @@ function DoCodeSignMaybe { # ARGS: infoName fileOrDirName
     codesign -f -v $deep -s "$CODESIGN_CERT" $hardened_arg "$file" || fail "Could not code sign ${infoName}"
 }
 
-# note: no --dirty, as we have dirtied electrum/locale/ ourselves.
+
 VERSION=$(git describe --tags --always)
 
 DoCodeSignMaybe "app bundle" "dist/${PACKAGE}.app"

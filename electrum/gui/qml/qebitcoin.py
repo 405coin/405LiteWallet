@@ -69,9 +69,9 @@ class QEBitcoin(QObject):
 
         k = keystore.from_master_key(key)
         if wallet_type == 'standard':
-            if isinstance(k, keystore.Xpub):  # has bip32 xpub
+            if isinstance(k, keystore.Xpub):                  
                 t1 = xpub_type(k.xpub)
-                if t1 not in ['standard', 'p2wpkh', 'p2wpkh-p2sh']:  # disallow Ypub/Zpub
+                if t1 not in ['standard', 'p2wpkh', 'p2wpkh-p2sh']:                      
                     self.validationMessage = '%s: %s' % (_('Wrong key type'), t1)
                     return False
             elif isinstance(k, keystore.Old_KeyStore):
@@ -80,18 +80,18 @@ class QEBitcoin(QObject):
                 self._logger.error(f"unexpected keystore type: {type(keystore)}")
                 return False
         elif wallet_type == 'multisig':
-            if not isinstance(k, keystore.Xpub):  # old mpk?
+            if not isinstance(k, keystore.Xpub):            
                 self.validationMessage = '%s: %s' % (_('Wrong key type'), "not bip32")
                 return False
             t1 = xpub_type(k.xpub)
-            if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:  # disallow ypub/zpub
+            if t1 not in ['standard', 'p2wsh', 'p2wsh-p2sh']:                      
                 self.validationMessage = '%s: %s' % (_('Wrong key type'), t1)
                 return False
         else:
             self.validationMessage = '%s: %s' % (_('Unsupported wallet type'), wallet_type)
             self._logger.error(f'Unsupported wallet type: {wallet_type}')
             return False
-        # looks okay
+                    
         return True
 
     @pyqtSlot(str, result=bool)

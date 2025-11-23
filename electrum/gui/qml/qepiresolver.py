@@ -23,7 +23,7 @@ class QEPIResolver(QObject):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._recipient = None
         self._pi = None
         self._busy = False
@@ -46,8 +46,8 @@ class QEPIResolver(QObject):
         if self._pi.need_resolve():
             self.resolve_pi()
         else:
-            # assuming if the PI is an invoice if it doesn't need resolving
-            # as there are no request types that do not need resolving currently
+                                                                           
+                                                                                
             self.invoiceResolved.emit(self._pi)
 
     walletChanged = pyqtSignal()

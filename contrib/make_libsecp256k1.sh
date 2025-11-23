@@ -1,23 +1,23 @@
 #!/bin/bash
 
-# This script was tested on Linux and MacOS hosts, where it can be used
-# to build native libsecp256k1 binaries.
-#
-# It can also be used to cross-compile to Windows:
-# $ sudo apt-get install mingw-w64
-# For a Windows x86 (32-bit) target, run:
-# $ GCC_TRIPLET_HOST="i686-w64-mingw32" ./contrib/make_libsecp256k1.sh
-# Or for a Windows x86_64 (64-bit) target, run:
-# $ GCC_TRIPLET_HOST="x86_64-w64-mingw32" ./contrib/make_libsecp256k1.sh
-#
-# To cross-compile to Linux x86:
-# sudo apt-get install gcc-multilib g++-multilib
-# $ AUTOCONF_FLAGS="--host=i686-linux-gnu CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32" ./contrib/make_libsecp256k1.sh
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 LIBSECP_VERSION="a660a4976efe880bae7982ee410b9e0dc59ac983"
-# ^ tag "v0.7.0"
-# note: this version is duplicated in contrib/android/p4a_recipes/libsecp256k1/__init__.py
-#       (and also in electrum-ecc, for the "secp256k1" git submodule)
+
+
+
 
 set -e
 

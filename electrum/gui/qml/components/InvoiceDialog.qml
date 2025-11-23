@@ -18,7 +18,7 @@ ElDialog {
     signal invoiceAmountChanged
 
     title: invoice.invoiceType == Invoice.OnchainInvoice ? qsTr('On-chain Invoice') : qsTr('Lightning Invoice')
-    iconSource: Qt.resolvedUrl('../../icons/tab_send.png')
+    iconSource: Qt.resolvedUrl('../../icons/tab_send.svg')
 
     padding: 0
 
@@ -234,7 +234,7 @@ ElDialog {
                                     target: invoice.amountOverride
                                     function onSatsIntChanged() {
                                         console.log('amountOverride satsIntChanged, sats=' + invoice.amountOverride.satsInt)
-                                        if (amountMax.checked)  // amountOverride updated by max amount estimate
+                                        if (amountMax.checked)  
                                             amountBtc.text = Config.formatSatsForEditing(invoice.amountOverride.satsInt)
                                     }
                                 }
@@ -488,7 +488,7 @@ ElDialog {
                         if (amountMax.checked)
                             invoice.amountOverride.isMax = true
                     }
-                    doPay() // only signal here
+                    doPay() 
                 }
             }
         }
@@ -512,7 +512,7 @@ ElDialog {
         target: Daemon.currentWallet
         function onBroadcastSucceeded(txid) {
             if (dialog.broadcastTxid == txid) {
-                // our txid was broadcast successfully, close invoicedialog and show success popup
+                
                 dialog.close()
                 var successdialog = app.messageDialog.createObject(mainView, {
                     text: qsTr('Payment sent.')

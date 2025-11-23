@@ -15,10 +15,10 @@ from electrum.logging import Logger
 from electrum.wallet import restore_wallet_from_text
 
 
-# Set this locally to make the test suite run faster.
-# If set, unit tests that would normally test functions with multiple implementations,
-# will only be run once, using the fastest implementation.
-# e.g. libsecp256k1 vs python-ecdsa. pycryptodomex vs pyaes.
+                                                     
+                                                                                      
+                                                          
+                                                            
 FAST_TESTS = False
 
 
@@ -33,9 +33,9 @@ class ElectrumTestCase(unittest.IsolatedAsyncioTestCase, Logger):
     TESTNET = False
     REGTEST = False
     TEST_ANCHOR_CHANNELS = False
-    # maxDiff = None  # for debugging
+                                     
 
-    # some unit tests are modifying globals... so we run sequentially:
+                                                                      
     _test_lock = threading.Lock()
 
     def __init__(self, *args, **kwargs):
@@ -60,8 +60,8 @@ class ElectrumTestCase(unittest.IsolatedAsyncioTestCase, Logger):
     def setUp(self):
         have_lock = self._test_lock.acquire(timeout=0.1)
         if not have_lock:
-            # This can happen when trying to run the tests in parallel,
-            # or if a prior test raised  during `setUp` or `asyncSetUp` and never released the lock.
+                                                                       
+                                                                                                    
             raise Exception("timed out waiting for test_lock")
         super().setUp()
         self.electrum_path = tempfile.mkdtemp(prefix="electrum-unittest-base-")
@@ -70,7 +70,7 @@ class ElectrumTestCase(unittest.IsolatedAsyncioTestCase, Logger):
     async def asyncSetUp(self):
         await super().asyncSetUp()
         loop = util.get_asyncio_loop()
-        # IsolatedAsyncioTestCase creates event loops with debug=True, which makes the tests take ~4x time
+                                                                                                          
         if not (os.environ.get("PYTHONASYNCIODEBUG") or os.environ.get("PYTHONDEVMODE")):
             loop.set_debug(False)
         util._asyncio_event_loop = loop
@@ -79,7 +79,7 @@ class ElectrumTestCase(unittest.IsolatedAsyncioTestCase, Logger):
         util.callback_mgr.clear_all_callbacks()
         shutil.rmtree(self.electrum_path)
         super().tearDown()
-        util._asyncio_event_loop = None  # cleared here, at the ~last possible moment. asyncTearDown is too early.
+        util._asyncio_event_loop = None                                                                           
         self._test_lock.release()
 
 

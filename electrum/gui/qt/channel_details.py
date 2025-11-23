@@ -43,23 +43,23 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
 
     def __init__(self, window: 'ElectrumWindow', chan: AbstractChannel):
         super().__init__(window)
-        # initialize instance fields
+
         self.window = window
         self.wallet = window.wallet
         self.chan = chan
         self.format_msat = lambda msat: window.format_amount_and_units(msat / 1000)
         self.format_sat = lambda sat: window.format_amount_and_units(sat)
-        # register callbacks for updating
+
         self.register_callbacks()
         title = _('Lightning Channel') if not self.chan.is_backup() else _('Channel Backup')
         self.setWindowTitle(title)
         self.setMinimumSize(800, 400)
-        # activity labels. not used for backups.
+
         self.local_balance_label = SelectableLabel()
         self.remote_balance_label = SelectableLabel()
         self.can_send_label = SelectableLabel()
         self.can_receive_label = SelectableLabel()
-        # add widgets
+
         vbox = QtWidgets.QVBoxLayout(self)
         if self.chan.is_backup():
             vbox.addWidget(QLabel('\n'.join([
@@ -76,13 +76,13 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
             form.addRow(QLabel(_('Channel stats')+ ':'), hbox_stats)
 
         if not self.chan.is_backup():
-            # add htlc tree view to vbox (wouldn't scale correctly in QFormLayout)
+
             vbox.addWidget(QLabel(_('Payments (HTLCs):')))
             w = self.create_htlc_list(chan)
             vbox.addWidget(w)
 
         vbox.addLayout(Buttons(CloseButton(self)))
-        # initialize sent/received fields
+
         self.update()
 
     def make_htlc_item(self, i: UpdateAddHtlc, direction: Direction) -> HTLCItem:
@@ -192,7 +192,7 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
             form.addRow(QLabel('Remote SCID Alias:'), SelectableLabel(str(ShortID(remote_scid_alias))))
         form.addRow(QLabel(_('State') + ':'), SelectableLabel(chan.get_state_for_GUI()))
         if remote_peer_sent_error := chan.get_remote_peer_sent_error():
-            err_label = WWLabel(remote_peer_sent_error)  # note: text is already truncated to reasonable len
+            err_label = WWLabel(remote_peer_sent_error)
             err_label.setTextFormat(QtCore.Qt.TextFormat.PlainText)
             form.addRow(WWLabel(_('Remote peer sent error [DO NOT TRUST]') + ':'), err_label)
         self.capacity = self.format_sat(chan.get_capacity())
@@ -230,12 +230,12 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
         ))
         form_layout_left.addRow(_('Local reserve') + ':', local_reserve_label)
         form_layout_right.addRow(_('Remote reserve' + ':'), remote_reserve_label)
-        #self.htlc_minimum_msat = SelectableLabel(str(chan.config[REMOTE].htlc_minimum_msat))
-        #form_layout_left.addRow(_('Minimum HTLC value accepted by peer (mSAT):'), self.htlc_minimum_msat)
-        #self.max_htlcs = SelectableLabel(str(chan.config[REMOTE].max_accepted_htlcs))
-        #form_layout_left.addRow(_('Maximum number of concurrent HTLCs accepted by peer:'), self.max_htlcs)
-        #self.max_htlc_value = SelectableLabel(self.format_sat(chan.config[REMOTE].max_htlc_value_in_flight_msat / 1000))
-        #form_layout_left.addRow(_('Maximum value of in-flight HTLCs accepted by peer:'), self.max_htlc_value)
+
+
+
+
+
+
         local_dust_limit_label = SelectableLabel("{}".format(
             self.format_sat(chan.config[LOCAL].dust_limit_sat),
         ))
@@ -248,7 +248,7 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
         self.sent_label = SelectableLabel()
         form_layout_left.addRow(_('Total sent') + ':', self.sent_label)
         form_layout_right.addRow(_('Total received') + ':', self.received_label)
-        # to-self-delay
+
         csv_local_header = SelectableLabel(_("Remote force-close CSV delay") + ":")
         csv_local_header.setToolTip(_("Force-close CSV delay imposed on them"))
         csv_remote_header = SelectableLabel(_("Local force-close CSV delay") + ":")
@@ -257,14 +257,14 @@ class ChannelDetailsDialog(QtWidgets.QDialog, MessageBoxMixin, QtEventListener):
         csv_remote_label = SelectableLabel(_("{} blocks").format(chan.config[REMOTE].to_self_delay))
         form_layout_left.addRow(csv_local_header, csv_local_label)
         form_layout_right.addRow(csv_remote_header, csv_remote_label)
-        # onchain feerate
+
         self.current_feerate = SelectableLabel()
         form_layout_left.addRow(_('Current feerate') + ':', self.current_feerate)
-        # channel stats left column
+
         hbox_stats.addLayout(form_layout_left, 50)
-        # vertical line separator
+
         hbox_stats.addWidget(VLine())
-        # channel stats right column
+
         hbox_stats.addLayout(form_layout_right, 50)
         return hbox_stats
 

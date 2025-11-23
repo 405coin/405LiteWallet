@@ -11,7 +11,7 @@ Wizard {
     iconSource: ""
     header: null
 
-    enter: null // disable transition
+    enter: null 
 
     wiz: Daemon.termsOfUseWizard
     finishButtonText: qsTr('Next')

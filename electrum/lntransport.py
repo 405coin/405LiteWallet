@@ -1,9 +1,9 @@
-# Copyright (C) 2018 Adam Gibson (waxwing)
-# Copyright (C) 2018 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+                                          
+                                            
+                                                                  
+                                                                    
 
-# Derived from https://gist.github.com/AdamISZ/046d05c156aaeb56cc897f85eecb3eb8
+                                                                               
 
 import re
 import hashlib
@@ -75,10 +75,10 @@ def get_bolt8_hkdf(salt, ikm):
     with info field set to a zero length string as per BOLT8
     Return as two 32 byte fields.
     """
-    #Extract
+            
     prk = hmac_oneshot(salt, msg=ikm, digest=hashlib.sha256)
     assert len(prk) == 32
-    #Expand
+           
     info = b""
     T0 = b""
     T1 = hmac_oneshot(prk, T0 + info + b"\x01", digest=hashlib.sha256)
@@ -92,7 +92,7 @@ def act1_initiator_message(hs, epriv, epub):
     ck2, temp_k1 = get_bolt8_hkdf(hs.ck, ss)
     hs.ck = ck2
     c = aead_encrypt(temp_k1, 0, hs.update(epub), b"")
-    #for next step if we do it
+                              
     hs.update(c)
     msg = hs.handshake_version + epub + c
     assert len(msg) == 50
@@ -104,7 +104,7 @@ def create_ephemeral_key() -> (bytes, bytes):
     return privkey.get_secret_bytes(), privkey.get_public_key_bytes()
 
 
-def split_host_port(host_port: str) -> Tuple[str, str]: # port returned as string
+def split_host_port(host_port: str) -> Tuple[str, str]:                          
     ipv6  = re.compile(r'\[(?P<host>[:0-9a-f]+)\](?P<port>:\d+)?$')
     other = re.compile(r'(?P<host>[^:]+)(?P<port>:\d+)?$')
     m = ipv6.match(host_port)
@@ -134,10 +134,10 @@ def extract_nodeid(connect_contents: str) -> Tuple[bytes, Optional[str]]:
     """
     rest = None
     try:
-        # connection string?
+                            
         nodeid_hex, rest = connect_contents.split("@", 1)
     except ValueError:
-        # node id as hex?
+                         
         nodeid_hex = connect_contents
     if rest == '':
         raise ConnStringFormatError('At least a hostname must be supplied after the at symbol.')
@@ -151,18 +151,18 @@ def extract_nodeid(connect_contents: str) -> Tuple[bytes, Optional[str]]:
 
 
 class LNPeerAddr:
-    # note: while not programmatically enforced, this class is meant to be *immutable*
+                                                                                      
 
     def __init__(self, host: str, port: int, pubkey: bytes):
         assert isinstance(host, str), repr(host)
         assert isinstance(port, int), repr(port)
         assert isinstance(pubkey, bytes), repr(pubkey)
         try:
-            net_addr = NetAddress(host, port)  # this validates host and port
+            net_addr = NetAddress(host, port)                                
         except Exception as e:
             raise ValueError(f"cannot construct LNPeerAddr: invalid host or port (host={host}, port={port})") from e
-        # note: not validating pubkey as it would be too expensive:
-        # if not ECPubkey.is_pubkey_bytes(pubkey): raise ValueError()
+                                                                   
+                                                                     
         self.host = host
         self.port = port
         self.pubkey = pubkey
@@ -247,7 +247,7 @@ class LNTransportBase:
                     offset = 18 + length + 16
                     if len(buffer) >= offset:
                         c = bytes(buffer[18:offset])
-                        del buffer[:offset]  # much faster than: buffer=buffer[offset:]
+                        del buffer[:offset]                                            
                         msg = aead_decrypt(rk_m, rn_m, b'', c)
                         yield msg
                         break
@@ -276,7 +276,7 @@ class LNTransportBase:
         return o
 
     def init_counters(self, ck):
-        # init counters
+                       
         self._sn = 0
         self._rn = 0
         self.r_ck = ck
@@ -297,7 +297,7 @@ class LNResponderTransport(LNTransportBase):
         self.reader = reader
         self.writer = writer
         self.privkey = privkey
-        self._pubkey = None  # remote pubkey
+        self._pubkey = None                 
 
     def name(self) -> str:
         return f"{super().name()}(in)"
@@ -322,7 +322,7 @@ class LNResponderTransport(LNTransportBase):
         _p = aead_decrypt(temp_k1, 0, h, c)
         hs.update(c)
 
-        # act 2
+               
         if 'epriv' not in kwargs:
             epriv, epub = create_ephemeral_key()
         else:
@@ -334,7 +334,7 @@ class LNResponderTransport(LNTransportBase):
         msg, temp_k2 = act1_initiator_message(hs, epriv, epub)
         self.writer.write(msg)
 
-        # act 3
+               
         act3 = b''
         while len(act3) < 66:
             buf = await self.reader.read(66 - len(act3))
@@ -377,11 +377,11 @@ class LNTransport(LNTransportBase):
         else:
             self.reader, self.writer = await self.e_proxy.open_connection(self.peer_addr.host, self.peer_addr.port)
         hs = HandshakeState(self.peer_addr.pubkey)
-        # Get a new ephemeral key
+                                 
         epriv, epub = create_ephemeral_key()
 
         msg, _temp_k1 = act1_initiator_message(hs, epriv, epub)
-        # act 1
+               
         self.writer.write(msg)
         rspns = await self.reader.read(2**10)
         if len(rspns) != 50:
@@ -390,14 +390,14 @@ class LNTransport(LNTransportBase):
         hver, alice_epub, tag = rspns[0], rspns[1:34], rspns[34:]
         if bytes([hver]) != hs.handshake_version:
             raise HandshakeFailed("unexpected handshake version: {}".format(hver))
-        # act 2
+               
         hs.update(alice_epub)
         ss = get_ecdh(epriv, alice_epub)
         ck, temp_k2 = get_bolt8_hkdf(hs.ck, ss)
         hs.ck = ck
         p = aead_decrypt(temp_k2, 0, hs.h, tag)
         hs.update(tag)
-        # act 3
+               
         my_pubkey = privkey_to_pubkey(self.privkey)
         c = aead_encrypt(temp_k2, 1, hs.h, my_pubkey)
         hs.update(c)

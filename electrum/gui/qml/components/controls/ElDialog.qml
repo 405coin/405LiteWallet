@@ -9,22 +9,22 @@ Dialog {
     property bool allowClose: true
     property string iconSource
     property bool resizeWithKeyboard: true
-    // inheriting classes can set needsSystemBarPadding this false to disable padding
+    
     property bool needsSystemBarPadding: true
 
     property bool _result: false
-    // workaround: remember opened state, to inhibit closed -> closed event
+    
     property bool _wasOpened: false
 
-    // Add bottom padding for Android navigation bar if needed
+    
     bottomPadding: needsSystemBarPadding ? app.navigationBarHeight : 0
 
-    // called to finally close dialog after checks by onClosing handler in main.qml
+    
     function doClose() {
         doReject()
     }
 
-    // avoid potential multiple signals, only emit once
+    
     function doAccept() {
         if (_result)
             return
@@ -32,7 +32,7 @@ Dialog {
         accept()
     }
 
-    // avoid potential multiple signals, only emit once
+    
     function doReject() {
         if (_result)
             return
@@ -70,7 +70,7 @@ Dialog {
     header: ColumnLayout {
         spacing: 0
 
-        // Add top padding for status bar on Android when using edge-to-edge
+        
         Item {
             visible: needsSystemBarPadding && app.statusBarHeight > 0
             Layout.fillWidth: true

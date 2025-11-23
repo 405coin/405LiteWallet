@@ -16,7 +16,7 @@ RUN apt-get update -q && \
     apt-get autoremove -y && \
     apt-get clean
 
-# create new user to avoid using root; but with sudo access and no password for convenience.
+
 ARG UID=1000
 RUN if [ "$UID" != "0" ] ; then useradd --uid $UID --create-home --shell /bin/bash "user" ; fi
 RUN usermod -append --groups sudo $(id -nu $UID || echo "user")

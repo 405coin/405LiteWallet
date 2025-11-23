@@ -8,8 +8,8 @@ WizardComponent {
     valid: wallettypegroup.checkedButton !== null
 
     function apply() {
-        // apply gets called when the page is rendered and implicitly
-        // sets the first radio button or the last selected one when going back
+        
+        
         wizard_data['wallet_type'] = wallettypegroup.checkedButton.wallettype
         delete wizard_data['seed_type']
         if (wizard_data['wallet_type'] == 'standard')

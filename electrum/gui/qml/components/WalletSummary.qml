@@ -99,8 +99,8 @@ Item {
     }
 
 
-    // instead of all these explicit connections, we should expose
-    // formatted balances directly as a property
+    
+    
     Connections {
         target: Config
         function onBaseUnitChanged() { setBalances() }

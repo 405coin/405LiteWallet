@@ -1,31 +1,31 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 
-# This module uses code from TLSLlite
-# TLSLite Author: Trevor Perrin)
+                                     
+                                
 
 
 import binascii
@@ -68,7 +68,7 @@ def dePem(s, name):
     if end == -1:
         raise SyntaxError("Missing PEM postfix")
     s = s[start+len("-----BEGIN %s-----" % name) : end]
-    retBytes = a2b_base64(s) # May raise SyntaxError
+    retBytes = a2b_base64(s)                        
     return retBytes
 
 def dePemList(s, name):
@@ -105,7 +105,7 @@ def dePemList(s, name):
         if end == -1:
             raise SyntaxError("Missing PEM postfix")
         s2 = s[start+len(prefix) : end]
-        retBytes = a2b_base64(s2) # May raise SyntaxError
+        retBytes = a2b_base64(s2)                        
         bList.append(retBytes)
         s = s[end+len(postfix) : ]
 
@@ -121,12 +121,12 @@ def pem(b, name):
     KoZIhvcNAQEFBQADAwA5kw==
     -----END CERTIFICATE-----
     """
-    s1 = b2a_base64(b)[:-1] # remove terminating \n
+    s1 = b2a_base64(b)[:-1]                        
     s2 = b""
     while s1:
         s2 += s1[:64] + b"\n"
         s1 = s1[64:]
-    s = ("-----BEGIN %s-----\n" % name).encode('ascii') + s2 + \
+    s = ("-----BEGIN %s-----\n" % name).encode('ascii') + s2 +\
         ("-----END %s-----\n" % name).encode('ascii')
     return s
 

@@ -16,9 +16,9 @@ class TestLNTransport(ElectrumTestCase):
 
     @needs_test_with_all_chacha20_implementations
     async def test_responder(self):
-        # local static
+                      
         ls_priv=bytes.fromhex('2121212121212121212121212121212121212121212121212121212121212121')
-        # ephemeral
+                   
         e_priv=bytes.fromhex('2222222222222222222222222222222222222222222222222222222222222222')
 
         class Writer:
@@ -89,7 +89,7 @@ class TestLNTransport(ElectrumTestCase):
                 await group.spawn(write_messages(t, messages_sent_by_client))
             server_shaked.set()
 
-        transports = []  # type: List[lntransport.LNTransportBase]
+        transports = []                                           
         async def f():
             server = await asyncio.start_server(cb, '127.0.0.1', port=None)
             server_port = server.sockets[0].getsockname()[1]
@@ -115,7 +115,7 @@ class TestLNTransport(ElectrumTestCase):
         self.assertEqual(split_host_port("kæn.guru"), ("kæn.guru", "9735"))
         self.assertEqual(split_host_port("127.0.0.1:8000"), ("127.0.0.1", "8000"))
         self.assertEqual(split_host_port("127.0.0.1"), ("127.0.0.1", "9735"))
-        # accepted by getaddrinfo but not ipaddress.ip_address
+                                                              
         self.assertEqual(split_host_port("127.0.0:8000"), ("127.0.0", "8000"))
         self.assertEqual(split_host_port("127.0.0"), ("127.0.0", "9735"))
         self.assertEqual(split_host_port("electrum.org:8000"), ("electrum.org", "8000"))
@@ -132,12 +132,12 @@ class TestLNTransport(ElectrumTestCase):
             extract_nodeid("00" * 32 + "@localhost")
         with self.assertRaises(ConnStringFormatError):
             extract_nodeid("00" * 33 + "@")
-        # pubkey + host
+                       
         self.assertEqual(extract_nodeid("00" * 33 + "@localhost"), (b"\x00" * 33, "localhost"))
         self.assertEqual(extract_nodeid(f"{pubkey1.hex()}@11.22.33.44"), (pubkey1, "11.22.33.44"))
         self.assertEqual(extract_nodeid(f"{pubkey1.hex()}@[2001:41d0:e:734::1]"), (pubkey1, "[2001:41d0:e:734::1]"))
-        # pubkey + host + port
+                              
         self.assertEqual(extract_nodeid(f"{pubkey1.hex()}@11.22.33.44:5555"), (pubkey1, "11.22.33.44:5555"))
         self.assertEqual(extract_nodeid(f"{pubkey1.hex()}@[2001:41d0:e:734::1]:8888"), (pubkey1, "[2001:41d0:e:734::1]:8888"))
-        # just pubkey
+                     
         self.assertEqual(extract_nodeid(f"{pubkey1.hex()}"), (pubkey1, None))

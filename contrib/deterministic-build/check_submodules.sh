@@ -11,7 +11,7 @@ git submodule init
 git submodule update
 
 function get_git_mtime {
-    if [ $# -eq 1 ]; then
+    if [ $
         git log --pretty=%at -n1 -- $1
     else
         git log --pretty=%ar -n1 -- $2

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class QEAbstractInvoiceListModel(QAbstractListModel):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES=('key', 'is_lightning', 'timestamp', 'date', 'message', 'amount',
                  'status', 'status_str', 'address', 'expiry', 'type', 'onchain_fallback',
                  'lightning_invoice')
@@ -78,7 +78,7 @@ class QEAbstractInvoiceListModel(QAbstractListModel):
         self.set_status_timer()
 
     def add_invoice(self, invoice: BaseInvoice):
-        # skip if already in list
+                                 
         key = invoice.get_id()
         for x in self._invoices:
             if x['key'] == key:
@@ -146,14 +146,14 @@ class QEAbstractInvoiceListModel(QAbstractListModel):
                         nearest_interval = nearest_interval if nearest_interval < interval else interval
 
         if nearest_interval != LN_EXPIRY_NEVER:
-            self._timer.setInterval(nearest_interval)  # msec
+            self._timer.setInterval(nearest_interval)        
             self._timer.start()
 
     @pyqtSlot()
     def updateStatusStrings(self):
         for i, item in enumerate(self._invoices):
             invoice = self.get_invoice_for_key(item['key'])
-            if invoice is None:  # invoice might be removed from the backend
+            if invoice is None:                                             
                 self._logger.debug(f'invoice {item["key"]} not found')
                 continue
             item['status'] = self.wallet.get_invoice_status(invoice)

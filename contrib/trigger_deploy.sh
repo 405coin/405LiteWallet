@@ -1,6 +1,6 @@
 #!/bin/bash
-# Triggers deploy.sh to maybe update the website or move binaries.
-# uploadserver needs to be defined in /etc/hosts
+
+
 
 SSHUSER=$1
 TRIGGERVERSION=$2

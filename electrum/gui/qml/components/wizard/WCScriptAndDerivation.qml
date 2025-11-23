@@ -106,7 +106,7 @@ WizardComponent {
                 wrapMode: Text.Wrap
             }
 
-            // standard
+            
             ElRadioButton {
                 Layout.fillWidth: true
                 ButtonGroup.group: scripttypegroup
@@ -130,7 +130,7 @@ WizardComponent {
                 visible: !isMultisig
             }
 
-            // multisig
+            
             ElRadioButton {
                 Layout.fillWidth: true
                 ButtonGroup.group: scripttypegroup
@@ -203,7 +203,7 @@ WizardComponent {
                             seedExtraWords: wizard_data['seed_extra_words']
                         })
                         dialog.accepted.connect(function () {
-                            // select matching script type button and set derivation path
+                            
                             for (var i = 0; i < scripttypegroup.buttons.length; i++) {
                                 var btn = scripttypegroup.buttons[i]
                                 if (btn.visible && btn.scripttype == dialog.scriptType) {

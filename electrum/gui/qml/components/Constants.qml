@@ -25,9 +25,9 @@ Item {
     readonly property int iconSizeXLarge: 48
     readonly property int iconSizeXXLarge: 64
 
-    readonly property int fingerWidth: 64 // TODO: determine finger width from screen dimensions and resolution
+    readonly property int fingerWidth: 64 
 
-    property color mutedForeground: 'gray' //Qt.lighter(Material.background, 2)
+    property color mutedForeground: 'gray' 
     property color darkerBackground: Qt.darker(Material.background, 1.20)
     property color lighterBackground: Qt.lighter(Material.background, 1.10)
     property color darkerDialogBackground: Qt.darker(Material.dialogColor, 1.20)
@@ -63,8 +63,8 @@ Item {
     property color colorPiechartParticipant: 'gray'
     property color colorPiechartSignature: 'yellow'
 
-    property color colorAddressExternal: "#8af296" //Qt.rgba(0,1,0,0.5)
-    property color colorAddressInternal: "#ffff00" //Qt.rgba(1,0.93,0,0.75)
+    property color colorAddressExternal: "#8af296" 
+    property color colorAddressInternal: "#ffff00" 
     property color colorAddressUsed: Qt.rgba(0.5,0.5,0.5,1)
     property color colorAddressUsedWithBalance: Qt.rgba(0.75,0.75,0.75,1)
     property color colorAddressFrozen: Qt.rgba(0.5,0.5,1,1)

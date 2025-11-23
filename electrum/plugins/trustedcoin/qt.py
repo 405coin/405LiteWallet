@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - Lightweight Bitcoin Client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 from functools import partial
 import os
@@ -289,7 +289,7 @@ class Plugin(TrustedCoinPlugin):
         }
         wizard.navmap_merge(views)
 
-        # insert page offering choice to go online or continue on another system
+                                                                                
         ext_online = {
             'trustedcoin_continue_online': {
                 'gui': WCContinueOnline,
@@ -526,7 +526,7 @@ class WCShowConfirmOTP(WalletWizardComponent):
             except ValueError:
                 return
         if len(text) == 6:
-            # verify otp
+                        
             self.wizard.trustedcoin_qhelper.checkOtp(self.wizard.trustedcoin_qhelper.shortId, otp_int)
             self.setEnabled(False)
             self.spinner_l.setVisible(True)
@@ -581,7 +581,7 @@ class WCContinueOnline(WalletWizardComponent):
 
         self.cb_online.setChecked(True)
         self.cb_online.stateChanged.connect(self.on_updated)
-        # self.cb_online.setToolTip(_("Check this box to request a new secret. You will need to retype your seed."))
+                                                                                                                    
         self.layout().addWidget(self.cb_online)
         self.layout().setAlignment(self.cb_online, Qt.AlignmentFlag.AlignHCenter)
         self.layout().addStretch(1)

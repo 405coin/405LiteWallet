@@ -101,7 +101,7 @@ Item {
     }
 
     MouseArea {
-        // capture all clicks
+        
         anchors.fill: parent
     }
 

@@ -1,12 +1,12 @@
 import sys
 import os
 
-# these are ~duplicated from run_electrum:
+                                               
 is_bundle = getattr(sys, 'frozen', False)
-is_local = not is_bundle and os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), "electrum.desktop"))
+is_local = not is_bundle and os.path.exists(os.path.join(os.path.dirname(os.path.dirname(__file__)), "405litewallet.desktop"))
 
-# when running from source, on Windows, also search for DLLs in inner 'electrum' folder
-if is_local and os.name == 'nt':  # fixme: duplicated between main script and __init__.py :(
+                                                                                       
+if is_local and os.name == 'nt':                                                            
     os.add_dll_directory(os.path.dirname(__file__))
 
 
@@ -36,13 +36,12 @@ __version__ = ELECTRUM_VERSION
 _logger = get_logger(__name__)
 
 
-# Ensure that asserts are enabled. For sanity and paranoia, we require this.
-# Code *should not rely* on asserts being enabled. In particular, safety and security checks should
-# always explicitly raise exceptions. However, this rule is mistakenly broken occasionally...
+                                                                            
+                                                                                                   
+                                                                                             
 try:
-    assert False  # noqa: B011
+    assert False              
 except AssertionError:
     pass
 else:
     raise ImportError("Running with asserts disabled. Refusing to continue. Exiting...")
-

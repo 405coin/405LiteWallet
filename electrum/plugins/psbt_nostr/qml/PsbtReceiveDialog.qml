@@ -20,8 +20,8 @@ ElDialog {
     property bool can_be_saved
     property int choice: PsbtReceiveDialog.Choice.None
 
-    // TODO: it might be better to defer popup until no dialogs are shown
-    z: 1 // raise z so it also covers dialogs using overlay as parent
+    
+    z: 1 
 
     anchors.centerIn: parent
 

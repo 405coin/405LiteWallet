@@ -23,7 +23,7 @@ WizardComponent {
         }
 
         if (cosigner) {
-            // multisig cosigner
+            
             if (input != wizard_data['multisig_cosigner_data'][cosigner.toString()]['seed_extra_words']) {
                 return
             }

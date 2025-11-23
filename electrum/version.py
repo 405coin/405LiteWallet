@@ -1,13 +1,13 @@
-ELECTRUM_VERSION = '4.6.2'       # version of the client package
+ELECTRUM_VERSION = '1.0.1'                                      
 
-PROTOCOL_VERSION_MIN = '1.4'     # electrum protocol
+PROTOCOL_VERSION_MIN = '1.4'                        
 PROTOCOL_VERSION_MAX = '1.6'
 
-# The hash of the mnemonic seed must begin with this
-SEED_PREFIX        = '01'      # Standard wallet
-SEED_PREFIX_SW     = '100'     # Segwit wallet
-SEED_PREFIX_2FA    = '101'     # Two-factor authentication
-SEED_PREFIX_2FA_SW = '102'     # Two-factor auth, using segwit
+                                                    
+SEED_PREFIX        = '01'                       
+SEED_PREFIX_SW     = '100'                    
+SEED_PREFIX_2FA    = '101'                                
+SEED_PREFIX_2FA_SW = '102'                                    
 
 
 def seed_prefix(seed_type):

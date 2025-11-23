@@ -1,11 +1,11 @@
 #!/bin/bash
-#
-# env vars:
-# - WWW_DIR: path to "electrum-web" git clone
-# - for signing the version announcement file:
-#   - ELECTRUM_SIGNING_ADDRESS (required)
-#   - ELECTRUM_SIGNING_WALLET (required)
-#
+
+
+
+
+
+
+
 
 set -e
 
@@ -38,7 +38,7 @@ VERSION=$("$CONTRIB"/print_electrum_version.py)
 info "VERSION: $VERSION"
 
 ANDROID_VERSIONCODE_NULLARCH=$("$CONTRIB"/android/get_apk_versioncode.py "null")
-# ^ note: should parse as an integer in the final json
+
 info "ANDROID_VERSIONCODE_NULLARCH: $ANDROID_VERSIONCODE_NULLARCH"
 
 set -x
@@ -46,10 +46,10 @@ set -x
 info "updating www repo"
 ./contrib/make_download "$WWW_DIR"
 info "signing the version announcement file"
-sig=$(./run_electrum -o signmessage $ELECTRUM_SIGNING_ADDRESS $VERSION -w $ELECTRUM_SIGNING_WALLET)
-# note: the contents of "extradata" are currently not signed. We could add another field, extradata_sigs,
-#       containing signature(s) for "extradata". extradata, being json, would have to be canonically
-#       serialized before signing.
+sig=$(./run_405litewallet -o signmessage $ELECTRUM_SIGNING_ADDRESS $VERSION -w $ELECTRUM_SIGNING_WALLET)
+
+
+
 cat <<EOF > "$WWW_DIR"/version
 {
     "version": "$VERSION",
@@ -60,7 +60,7 @@ cat <<EOF > "$WWW_DIR"/version
 }
 EOF
 
-# push changes to website repo
+
 pushd "$WWW_DIR"
 git diff
 git commit -a -m "version $VERSION"

@@ -100,7 +100,7 @@ MSG_LN_UTXO_RESERVE = (
     _("You should have at least {} on-chain in order to be able to sweep channel outputs.")
 )
 
-# not to be translated
+                      
 MSG_TERMS_OF_USE = (
 """1. Electrum is distributed under the MIT licence by Electrum Technologies GmbH. Most notably, this means that the Electrum software is provided as is, and that it comes without warranty.
 
@@ -108,7 +108,7 @@ MSG_TERMS_OF_USE = (
 
 3. We do not provide private user support. All issue resolutions are public, and take place on Github or public forums. If someone posing as 'Electrum support' proposes to help you via a private channel, this person is most likely an imposter trying to steal your bitcoins."""
 )
-TERMS_OF_USE_LATEST_VERSION : int = 1  # bump this if we want users re-prompted due to changes
+TERMS_OF_USE_LATEST_VERSION : int = 1                                                         
 
 
 MSG_CONNECTMODE_AUTOCONNECT = _('Auto-connect')

@@ -96,8 +96,8 @@ WizardComponent {
     Component.onCompleted: {
         participants = wizard_data['multisig_participants']
 
-        // cosigner index is determined here and put on the wizard_data dict in apply()
-        // as this page is the start for each additional cosigner
+        
+        
         cosigner = 2 + Object.keys(wizard_data['multisig_cosigner_data']).length
     }
 }

@@ -51,7 +51,7 @@ Item {
                     implicitHeight: keyheight
                 }
             }
-            // spacer
+            
             Item { Layout.preferredHeight: 1; Layout.preferredWidth: keywidth / 2 }
         }
         RowLayout {
@@ -66,7 +66,7 @@ Item {
                     implicitHeight: keyheight
                 }
             }
-            // spacer
+            
             Item { Layout.preferredHeight: 1; Layout.preferredWidth: keywidth }
         }
         RowLayout {
@@ -85,7 +85,7 @@ Item {
                 implicitWidth: keywidth
                 implicitHeight: keyheight
             }
-            // spacer
+            
             Item { Layout.preferredHeight: 1; Layout.preferredWidth: keywidth / 2 }
         }
     }

@@ -1,27 +1,27 @@
-# -*- coding: utf-8 -*-
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2011 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+                       
+ 
+                                       
+                                      
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 from typing import Tuple, TYPE_CHECKING, Optional, Union, Sequence, Mapping, Any
 import enum
@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from .transaction import OPPushDataGeneric
 
 
-################################## transactions
+                                               
 
 COINBASE_MATURITY = 100
 COIN = 100000000
@@ -50,15 +50,15 @@ NLOCKTIME_MIN = 0
 NLOCKTIME_BLOCKHEIGHT_MAX = 500_000_000 - 1
 NLOCKTIME_MAX = 2 ** 32 - 1
 
-# supported types of transaction outputs
-# TODO kill these with fire
+                                        
+                           
 TYPE_ADDRESS = 0
 TYPE_PUBKEY  = 1
 TYPE_SCRIPT  = 2
 
 
 class opcodes(IntEnum):
-    # push value
+                
     OP_0 = 0x00
     OP_FALSE = OP_0
     OP_PUSHDATA1 = 0x4c
@@ -84,7 +84,7 @@ class opcodes(IntEnum):
     OP_15 = 0x5f
     OP_16 = 0x60
 
-    # control
+             
     OP_NOP = 0x61
     OP_VER = 0x62
     OP_IF = 0x63
@@ -96,7 +96,7 @@ class opcodes(IntEnum):
     OP_VERIFY = 0x69
     OP_RETURN = 0x6a
 
-    # stack ops
+               
     OP_TOALTSTACK = 0x6b
     OP_FROMALTSTACK = 0x6c
     OP_2DROP = 0x6d
@@ -117,14 +117,14 @@ class opcodes(IntEnum):
     OP_SWAP = 0x7c
     OP_TUCK = 0x7d
 
-    # splice ops
+                
     OP_CAT = 0x7e
     OP_SUBSTR = 0x7f
     OP_LEFT = 0x80
     OP_RIGHT = 0x81
     OP_SIZE = 0x82
 
-    # bit logic
+               
     OP_INVERT = 0x83
     OP_AND = 0x84
     OP_OR = 0x85
@@ -134,7 +134,7 @@ class opcodes(IntEnum):
     OP_RESERVED1 = 0x89
     OP_RESERVED2 = 0x8a
 
-    # numeric
+             
     OP_1ADD = 0x8b
     OP_1SUB = 0x8c
     OP_2MUL = 0x8d
@@ -166,7 +166,7 @@ class opcodes(IntEnum):
 
     OP_WITHIN = 0xa5
 
-    # crypto
+            
     OP_RIPEMD160 = 0xa6
     OP_SHA1 = 0xa7
     OP_SHA256 = 0xa8
@@ -178,7 +178,7 @@ class opcodes(IntEnum):
     OP_CHECKMULTISIG = 0xae
     OP_CHECKMULTISIGVERIFY = 0xaf
 
-    # expansion
+               
     OP_NOP1 = 0xb0
     OP_CHECKLOCKTIMEVERIFY = 0xb1
     OP_NOP2 = OP_CHECKLOCKTIMEVERIFY
@@ -223,9 +223,9 @@ def script_num_to_bytes(i: int) -> bytes:
 
 
 def var_int(i: int) -> bytes:
-    # https://en.bitcoin.it/wiki/Protocol_specification#Variable_length_integer
-    # https://github.com/bitcoin/bitcoin/blob/efe1ee0d8d7f82150789f1f6840f139289628a2b/src/serialize.h#L247
-    # "CompactSize"
+                                                                               
+                                                                                                           
+                   
     assert i >= 0, i
     if i < 0xfd:
         return int.to_bytes(i, length=1, byteorder="little", signed=False)
@@ -261,7 +261,7 @@ def push_script(data: bytes) -> bytes:
     """
     data_len = len(data)
 
-    # "small integer" opcodes
+                             
     if data_len == 0 or data_len == 1 and data[0] == 0:
         return bytes([opcodes.OP_0])
     elif data_len == 1 and data[0] <= 16:
@@ -288,7 +288,7 @@ def construct_witness(items: Sequence[Union[str, int, bytes]]) -> bytes:
         if type(item) is int:
             item = script_num_to_bytes(item)
         elif isinstance(item, (bytes, bytearray)):
-            pass  # use as-is
+            pass             
         else:
             assert is_hex_str(item), repr(item)
             item = bfh(item)
@@ -299,7 +299,7 @@ def construct_witness(items: Sequence[Union[str, int, bytes]]) -> bytes:
 def construct_script(
     items: Sequence[Union[str, int, bytes, opcodes, 'OPPushDataGeneric']],
     *,
-    values: Optional[Mapping[int, Any]] = None,  # can be used to substitute into OPPushDataGeneric
+    values: Optional[Mapping[int, Any]] = None,                                                    
 ) -> bytes:
     """Constructs bitcoin script from given items."""
     from .transaction import OPPushDataGeneric
@@ -330,14 +330,14 @@ def relayfee(network: 'Network' = None) -> int:
         fee = network.relay_fee
     else:
         fee = FEERATE_DEFAULT_RELAY
-    # sanity safeguards, as network.relay_fee is coming from a server:
+                                                                      
     fee = min(fee, FEERATE_MAX_RELAY)
     fee = max(fee, FEERATE_MIN_RELAY)
     return fee
 
 
-# see https://github.com/bitcoin/bitcoin/blob/a62f0ed64f8bbbdfe6467ac5ce92ef5b5222d1bd/src/policy/policy.cpp#L14
-# and https://github.com/lightningnetwork/lightning-rfc/blob/7e3dce42cbe4fa4592320db6a4e06c26bb99122b/03-transactions.md#dust-limits
+                                                                                                                
+                                                                                                                                    
 DUST_LIMIT_P2PKH = 546
 DUST_LIMIT_P2SH = 540
 DUST_LIMIT_UNKNOWN_SEGWIT = 354
@@ -358,10 +358,27 @@ def hash_decode(x: str) -> bytes:
     return bfh(x)[::-1]
 
 
-############ functions from pywallet #####################
+                                                          
+
+def _addrtype_to_bytes(addrtype: Union[int, bytes]) -> bytes:
+    """Return a minimal big-endian byte representation for an address prefix."""
+    if isinstance(addrtype, bytes):
+        if not addrtype:
+            raise ValueError("address prefix cannot be empty")
+        return addrtype
+    if not isinstance(addrtype, int):
+        raise TypeError(f"unsupported addrtype: {type(addrtype)!r}")
+    if addrtype < 0:
+        raise ValueError("address prefix must be unsigned")
+    if addrtype == 0:
+        return b'\x00'
+    length = (addrtype.bit_length() + 7) // 8
+    return addrtype.to_bytes(length, byteorder='big')
+
 
 def hash160_to_b58_address(h160: bytes, addrtype: int) -> str:
-    s = bytes([addrtype]) + h160
+    prefix = _addrtype_to_bytes(addrtype)
+    s = prefix + h160
     s = s + sha256d(s)[0:4]
     return base_encode(s, base=58)
 
@@ -369,9 +386,12 @@ def hash160_to_b58_address(h160: bytes, addrtype: int) -> str:
 def b58_address_to_hash160(addr: str) -> Tuple[int, bytes]:
     addr = to_bytes(addr, 'ascii')
     _bytes = DecodeBase58Check(addr)
-    if len(_bytes) != 21:
-        raise Exception(f'expected 21 payload bytes in base58 address. got: {len(_bytes)}')
-    return _bytes[0], _bytes[1:21]
+    if len(_bytes) <= 21:
+        raise Exception(f'expected more than 20 payload bytes in base58 address. got: {len(_bytes)}')
+    h160 = _bytes[-20:]
+    prefix = _bytes[:-20]
+    addrtype = int.from_bytes(prefix, byteorder='big')
+    return addrtype, h160
 
 
 def hash160_to_p2pkh(h160: bytes, *, net=None) -> str:
@@ -414,17 +434,17 @@ def pubkey_to_address(txin_type: str, pubkey: str, *, net=None) -> str:
     return desc.expand().address(net=net)
 
 
-# TODO this method is confusingly named
+                                       
 def redeem_script_to_address(txin_type: str, scriptcode: bytes, *, net=None) -> str:
     assert isinstance(scriptcode, bytes)
     if txin_type == 'p2sh':
-        # given scriptcode is a redeem_script
+                                             
         return hash160_to_p2sh(hash_160(scriptcode), net=net)
     elif txin_type == 'p2wsh':
-        # given scriptcode is a witness_script
+                                              
         return script_to_p2wsh(scriptcode, net=net)
     elif txin_type == 'p2wsh-p2sh':
-        # given scriptcode is a witness_script
+                                              
         redeem_script = p2wsh_nested_script(scriptcode)
         return hash160_to_p2sh(hash_160(redeem_script), net=net)
     else:
@@ -555,7 +575,7 @@ def base_decode(v: Union[bytes, str], *, base: int) -> Optional[bytes]:
 
     based on the work of David Keijser in https://github.com/keis/base58
     """
-    # assert_bytes(v)
+                     
     v = to_bytes(v, 'ascii')
     if base not in (58, 43):
         raise ValueError('not supported base: {}'.format(base))
@@ -599,9 +619,9 @@ def DecodeBase58Check(psz: Union[bytes, str]) -> bytes:
         return payload
 
 
-# backwards compat
-# extended WIF for segwit (used in 3.0.x; but still used internally)
-# the keys in this dict should be a superset of what Imported Wallets can import
+                  
+                                                                    
+                                                                                
 WIF_SCRIPT_TYPES = {
     'p2pkh': 0,
     'p2wpkh': 1,
@@ -619,7 +639,7 @@ def is_segwit_script_type(txin_type: str) -> bool:
 
 def serialize_privkey(secret: bytes, compressed: bool, txin_type: str, *,
                       internal_use: bool = False) -> str:
-    # we only export secrets inside curve range
+                                               
     secret = ecc.ECPrivkey.normalize_secret_bytes(secret)
     if internal_use:
         prefix = bytes([(WIF_SCRIPT_TYPES[txin_type] + constants.net.WIF_PREFIX) & 255])
@@ -650,14 +670,14 @@ def deserialize_privkey(key: str) -> Tuple[str, bytes, bool]:
         raise BaseDecodeError(f"cannot deserialize privkey {neutered_privkey}") from e
 
     if txin_type is None:
-        # keys exported in version 3.0.x encoded script type in first byte
+                                                                          
         prefix_value = vch[0] - constants.net.WIF_PREFIX
         try:
             txin_type = WIF_SCRIPT_TYPES_INV[prefix_value]
         except KeyError as e:
             raise BitcoinException('invalid prefix ({}) for WIF key (1)'.format(vch[0])) from None
     else:
-        # all other keys must have a fixed first byte
+                                                     
         if vch[0] != constants.net.WIF_PREFIX:
             raise BitcoinException('invalid prefix ({}) for WIF key (2)'.format(vch[0]))
 
@@ -675,7 +695,7 @@ def deserialize_privkey(key: str) -> Tuple[str, bytes, bool]:
         raise BitcoinException('only compressed public keys can be used in segwit scripts')
 
     secret_bytes = vch[1:33]
-    # we accept secrets outside curve range; cast into range here:
+                                                                  
     secret_bytes = ecc.ECPrivkey.normalize_secret_bytes(secret_bytes)
     return txin_type, secret_bytes, compressed
 
@@ -711,7 +731,7 @@ def is_taproot_address(addr: str, *, net=None) -> bool:
 def is_b58_address(addr: str, *, net=None) -> bool:
     if net is None: net = constants.net
     try:
-        # test length, checksum, encoding:
+                                          
         addrtype, h = b58_address_to_hash160(addr)
     except Exception as e:
         return False
@@ -721,7 +741,7 @@ def is_b58_address(addr: str, *, net=None) -> bool:
 
 
 def is_address(addr: str, *, net=None) -> bool:
-    return is_segwit_address(addr, net=net) \
+    return is_segwit_address(addr, net=net)\
            or is_b58_address(addr, net=net)
 
 
@@ -735,14 +755,14 @@ def is_private_key(key: str, *, raise_on_error=False) -> bool:
         return False
 
 
-########### end pywallet functions #######################
+                                                          
 
 def is_minikey(text: str) -> bool:
-    # Minikeys are typically 22 or 30 characters, but this routine
-    # permits any length of 20 or more provided the minikey is valid.
-    # A valid minikey must begin with an 'S', be in base58, and when
-    # suffixed with '?' have its SHA256 hash begin with a zero byte.
-    # They are widely used in Casascius physical bitcoins.
+                                                                  
+                                                                     
+                                                                    
+                                                                    
+                                                          
     return (len(text) >= 20 and text[0] == 'S'
             and all(ord(c) in __b58chars for c in text)
             and sha256(text + '?')[0] == 0x00)
@@ -811,9 +831,9 @@ def taproot_tweak_seckey(seckey0: bytes, h: bytes) -> bytes:
     return int.to_bytes((seckey + tweak) % ecc.CURVE_ORDER, length=32, byteorder="big", signed=False)
 
 
-# a TapTree is either:
-#  - a (leaf_version, script) tuple (leaf_version is 0xc0 for BIP-0342 scripts)
-#  - a list of two elements, each with the same structure as TapTree itself
+                      
+                                                                               
+                                                                           
 TapTreeLeaf = Tuple[int, bytes]
 TapTree = Union[TapTreeLeaf, Sequence['TapTree']]
 
@@ -859,7 +879,7 @@ def control_block_for_taproot_script_spend(
     return (leaf_script, control_block)
 
 
-# user message signing
+                      
 def usermessage_magic(message: bytes) -> bytes:
     length = var_int(len(message))
     return b"\x18Bitcoin Signed Message:\n" + length + message
@@ -880,7 +900,7 @@ def verify_usermessage_with_address(address: str, sig65: bytes, message: bytes, 
         public_key, compressed, txin_type_guess = ECPubkey.from_ecdsa_sig65(sig65, h)
     except Exception as e:
         return False
-    # check public key using the address
+                                        
     pubkey_hex = public_key.get_public_key_hex(compressed)
     txin_types = (txin_type_guess,) if txin_type_guess else ('p2pkh', 'p2wpkh', 'p2wpkh-p2sh')
     for txin_type in txin_types:
@@ -889,6 +909,6 @@ def verify_usermessage_with_address(address: str, sig65: bytes, message: bytes, 
             break
     else:
         return False
-    # check message
-    # note: `$ bitcoin-cli verifymessage` does NOT enforce the low-S rule for ecdsa sigs
+                   
+                                                                                        
     return public_key.ecdsa_verify(sig65[1:], h, enforce_low_s=False)

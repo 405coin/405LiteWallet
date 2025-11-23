@@ -78,7 +78,7 @@ class MockNetwork:
         self.proxy = None
         self.debug = True
         self.bhi_lock = asyncio.Lock()
-        self.interface = None  # type: Interface | None
+        self.interface = None                          
 
     async def connection_down(self, interface: Interface):
         pass
@@ -98,7 +98,7 @@ class MockNetwork:
         return self.blockchain().height()
 
 
-# regtest chain:
+                
 BLOCK_HEADERS: Mapping[int, bytes] = {
     0: bfh("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff7f2002000000"),
     1: bfh("0000002006226e46111a0b59caaf126043eb5bbf28c34f3a5e332a1fc7b2b73cf188910f186c8dfd970a4545f79916bc1d75c9d00432f57c89209bf3bb115b7612848f509c25f45bffff7f2000000000"),
@@ -126,17 +126,17 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
         aiorpcx.RPCSession.__init__(self, *args, **kwargs)
         Logger.__init__(self)
         self.logger.debug(f'connection from {self.remote_address()}')
-        self.cur_height = 6  # type: int  # chain tip
+        self.cur_height = 6                          
         self.txs = {
             "bdae818ad3c1f261317738ae9284159bf54874356f186dbc7afd631dc1527fcb": bfh("020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025100ffffffff0200f2052a010000001600140297bde2689a3c79ffe050583b62f86f2d9dae540000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"),
-        }  # type: dict[str, bytes]
-        self.txid_to_block_height = collections.defaultdict(int)  # type: dict[str, int]
+        }                          
+        self.txid_to_block_height = collections.defaultdict(int)                        
         self.subbed_headers = False
-        self.notified_height = None  # type: Optional[int]
-        self.subbed_scripthashes = set()  # type: set[str]
-        self.sh_to_funding_txids = collections.defaultdict(set)  # type: dict[str, set[str]]
-        self.sh_to_spending_txids = collections.defaultdict(set)  # type: dict[str, set[str]]
-        self._method_counts = collections.defaultdict(int)  # type: dict[str, int]
+        self.notified_height = None                       
+        self.subbed_scripthashes = set()                  
+        self.sh_to_funding_txids = collections.defaultdict(set)                             
+        self.sh_to_spending_txids = collections.defaultdict(set)                             
+        self._method_counts = collections.defaultdict(int)                        
         _active_server_sessions.add(self)
 
     async def connection_lost(self):
@@ -201,7 +201,7 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
 
     async def _handle_block_headers(self, start_height, count):
         assert start_height <= self.cur_height, (start_height, self.cur_height)
-        last_height = min(start_height+count-1, self.cur_height)  # [start_height, last_height]
+        last_height = min(start_height+count-1, self.cur_height)                               
         count = last_height - start_height + 1
         headers = list(BLOCK_HEADERS[idx].hex() for idx in range(start_height, last_height+1))
         return {'headers': headers, 'count': count, 'max': 2016}
@@ -218,7 +218,7 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
         return rawtx.hex()
 
     async def _handle_transaction_get_merkle(self, tx_hash: str, height: int) -> dict:
-        # Fake stuff. Client will ignore it due to config.NETWORK_SKIPMERKLECHECK
+                                                                                 
         return {
             "merkle":
             [
@@ -251,12 +251,12 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
         """Returns touched scripthashes."""
         tx = Transaction(self.txs[txid])
         touched_sh = set()
-        # update sh_to_funding_txids
+                                    
         for txout in tx.outputs():
             sh = script_to_scripthash(txout.scriptpubkey)
             self.sh_to_funding_txids[sh].add(txid)
             touched_sh.add(sh)
-        # update sh_to_spending_txids
+                                     
         for txin in tx.inputs():
             if parent_tx_raw := self.txs.get(txin.prevout.txid.hex()):
                 parent_tx = Transaction(parent_tx_raw)
@@ -274,7 +274,7 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
     async def _handle_scripthash_get_history(self, sh: str) -> Sequence[dict]:
         hist_tuples = self._calc_sh_history(sh)
         hist_dicts = [{"height": height, "tx_hash": txid} for (txid, height) in hist_tuples]
-        for hist_dict in hist_dicts:  # add "fee" key for mempool txs
+        for hist_dict in hist_dicts:                                 
             if hist_dict["height"] in (0, -1,):
                 hist_dict["fee"] = 0
         return hist_dicts
@@ -285,7 +285,7 @@ class ToyServerSession(aiorpcx.RPCSession, Logger):
         for txid in txids:
             bh = self.txid_to_block_height[txid]
             hist.append((txid, bh))
-        hist.sort(key=lambda x: x[1])  # FIXME put mempool txs last
+        hist.sort(key=lambda x: x[1])                              
         return hist
 
     async def _send_notifications(self, *, touched_sh: Iterable[str], height_changed: bool = False) -> None:
@@ -353,11 +353,11 @@ class TestInterface(ElectrumTestCase):
 
     async def test_transaction_get(self):
         interface = await self._start_iface_and_wait_for_sync()
-        # try requesting tx unknown to server:
+                                              
         with self.assertRaises(RPCError) as ctx:
             await interface.get_transaction("deadbeef"*8)
         self.assertTrue("unknown txid" in ctx.exception.message)
-        # try requesting known tx:
+                                  
         rawtx = await interface.get_transaction("bdae818ad3c1f261317738ae9284159bf54874356f186dbc7afd631dc1527fcb")
         self.assertEqual(rawtx, _get_active_server_session().txs["bdae818ad3c1f261317738ae9284159bf54874356f186dbc7afd631dc1527fcb"].hex())
         self.assertEqual(_get_active_server_session()._method_counts["blockchain.transaction.get"], 2)
@@ -366,11 +366,11 @@ class TestInterface(ElectrumTestCase):
         interface = await self._start_iface_and_wait_for_sync()
         rawtx1 = "020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff025200ffffffff0200f2052a010000001600140297bde2689a3c79ffe050583b62f86f2d9dae540000000000000000266a24aa21a9ede2f61c3f71d1defd3fa999dfa36953755c690689799962b48bebd836974e8cf90120000000000000000000000000000000000000000000000000000000000000000000000000"
         tx = Transaction(rawtx1)
-        # broadcast
+                   
         await interface.broadcast_transaction(tx)
         self.assertEqual(bfh(rawtx1), _get_active_server_session().txs.get(tx.txid()))
-        # now request tx.
-        # as we just broadcast this same tx, this will hit the client iface cache, and won't call the server.
+                         
+                                                                                                             
         self.assertEqual(_get_active_server_session()._method_counts["blockchain.transaction.get"], 0)
         rawtx2 = await interface.get_transaction(tx.txid())
         self.assertEqual(rawtx1, rawtx2)
@@ -382,11 +382,11 @@ class TestInterface(ElectrumTestCase):
         If the guess is correct, we won't call the "blockchain.scripthash.get_history" RPC.
         """
         interface = await self._start_iface_and_wait_for_sync()
-        w1 = restore_wallet_from_text__for_unittest("9dk", path=None, config=self.config)['wallet']  # type: Abstract_Wallet
+        w1 = restore_wallet_from_text__for_unittest("9dk", path=None, config=self.config)['wallet']                         
         w1.start_network(self.network)
         await w1.up_to_date_changed_event.wait()
         self.assertEqual(_get_active_server_session()._method_counts["blockchain.scripthash.get_history"], 0)
-        # fund w1 (in mempool)
+                              
         funding_tx = "01000000000101e855888b77b1688d08985b863bfe85b354049b4eba923db9b5cf37089975d5d10000000000fdffffff0280969800000000001600140297bde2689a3c79ffe050583b62f86f2d9dae5460abe9000000000016001472df47551b6e7e0c8428814d2e572bc5ac773dda024730440220383efa2f0f5b87f8ce5d6b6eaf48cba03bf522b23fbb23b2ac54ff9d9a8f6a8802206f67d1f909f3c7a22ac0308ac4c19853ffca3a9317e1d7e0c88cc3a86853aaac0121035061949222555a0df490978fe6e7ebbaa96332ecb5c266918fd800c0eef736e7358d1400"
         funding_txid = await _get_active_server_session()._handle_transaction_broadcast(funding_tx)
         await w1.up_to_date_changed_event.wait()
@@ -396,12 +396,12 @@ class TestInterface(ElectrumTestCase):
         self.assertEqual(
             w1.adb.get_address_history("bcrt1qq2tmmcngng78nllq2pvrkchcdukemtj5jnxz44"),
             {funding_txid: 0})
-        # mine funding tx
+                         
         await _get_active_server_session().mine_block(txids_mined=[funding_txid])
         await w1.up_to_date_changed_event.wait()
         while not w1.is_up_to_date():
             await w1.up_to_date_changed_event.wait()
-        # see if we managed to guess new history, and hence did not need to call get_history RPC
+                                                                                                
         self.assertEqual(_get_active_server_session()._method_counts["blockchain.scripthash.get_history"], 1)
         self.assertEqual(
             w1.adb.get_address_history("bcrt1qq2tmmcngng78nllq2pvrkchcdukemtj5jnxz44"),

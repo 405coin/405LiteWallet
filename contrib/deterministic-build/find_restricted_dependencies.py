@@ -13,15 +13,15 @@ def is_dependency_edge_blacklisted(*, parent_pkg: str, dep: str) -> bool:
     dep = dep.lower()
     parent_pkg = parent_pkg.lower()
     return (parent_pkg, dep) in {
-        ("qrcode", "colorama"),  # only needed for using qrcode-CLI on Windows.
-        ("click",  "colorama"),  # 'click' is a CLI tool, and it only needs colorama on Windows.
-                                 # In fact, we should blacklist 'click' itself, but that should be done elsewhere.
+        ("qrcode", "colorama"),                                                
+        ("click",  "colorama"),                                                                 
+                                                                                                                  
     }
 
 
 def check_restriction(*, dep: str, restricted: str, parent_pkg: str):
-    # See: https://www.python.org/dev/peps/pep-0496/
-    # Hopefully we don't need to parse the whole microlanguage
+                                                    
+                                                              
     if is_dependency_edge_blacklisted(dep=dep, parent_pkg=parent_pkg):
         return False
     if "extra" in restricted and "[" not in dep:
@@ -44,10 +44,10 @@ def main():
         except ValueError:
             raise Exception("Package could not be found: {}=={}".format(p, v))
         try:
-            for r in data["requires_dist"]:  # type: str
+            for r in data["requires_dist"]:             
                 if ";" not in r:
                     continue
-                # example value for "r" at this point: "pefile (>=2017.8.1) ; sys_platform == \"win32\""
+                                                                                                        
                 dep, restricted = r.split(";", 1)
                 dep = dep.strip()
                 restricted = restricted.strip()
@@ -56,7 +56,7 @@ def main():
                     print(dep_basename, sep=" ")
                     print("Installing {} from {} although it is only needed for {}".format(dep, p, restricted), file=sys.stderr)
         except TypeError:
-            # Has no dependencies at all
+                                        
             continue
 
 if __name__ == "__main__":

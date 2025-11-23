@@ -23,8 +23,8 @@ from . import restore_wallet_from_text__for_unittest
 from .test_bitcoin import disable_ecdsa_r_value_grinding
 
 
-# test vectors for a single channel
-# https://github.com/lightningnetwork/lightning-rfc/blob/master/03-transactions.md#appendix-c-commitment-and-htlc-transaction-test-vectors
+                                   
+                                                                                                                                          
 funding_tx_id = '8984484a580b825b9972d7adb15050b3ab624ccd731946b3eeddb92f4e7ef6be'
 funding_output_index = 0
 funding_amount_satoshi = 10000000
@@ -34,7 +34,7 @@ local_dust_limit_satoshi = 546
 
 local_payment_basepoint = bytes.fromhex('034f355bdcb7cc0af728ef3cceb9615d90684bb5b2ca5f859ab0f0b704075871aa')
 remote_payment_basepoint = bytes.fromhex('032c0b7cf95324a07d05398b240174dc0c2be444d96b159aa6c7f7b1e668680991')
-# obs = get_obscured_ctn(42, local_payment_basepoint, remote_payment_basepoint)
+                                                                               
 local_funding_privkey = bytes.fromhex('30ff4956bbdd3222d44cc5e8a1261dab1e07957bdac5ae88fe3261ef321f374901')
 local_funding_pubkey = bytes.fromhex('023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb')
 remote_funding_pubkey = bytes.fromhex('030e9f7b623d2ccc7c9bd44d66d5ce21ce504c0acf6385a132cec6d3c39fa711c1')
@@ -43,16 +43,16 @@ localpubkey = bytes.fromhex('030d417a46946384f88d5f3337267c5e579765875dc4daca813
 remotepubkey = bytes.fromhex('0394854aa6eab5b2a8122cc726e9dded053a2184d88256816826d6231c068d4a5b')
 local_delayedpubkey = bytes.fromhex('03fd5960528dc152014952efdb702a88f71e3c1653b2314431701ec77e57fde83c')
 local_revocation_pubkey = bytes.fromhex('0212a140cd0c6539d07cd08dfe09984dec3251ea808b892efeac3ede9402bf2b19')
-# funding wscript = 5221023da092f6980e58d2c037173180e9a465476026ee50f96695963e8efe436f54eb21030e9f7b623d2ccc7c9bd44d66d5ce21ce504c0acf6385a132cec6d3c39fa711c152ae
+                                                                                                                                                                  
 
 
-# anchor test vectors are from https://github.com/lightningnetwork/lightning-rfc/commit/1739746afa3863ca783df9be4b7b0338afb63b49
+                                                                                                                                
 anchor_test_vector_path = os.path.join(os.path.dirname(__file__), "anchor-vectors.json")
 with open(anchor_test_vector_path) as f:
     ANCHOR_TEST_VECTORS = json.load(f)
 
-# in a commitment transaction with all the below htlcs, the order is different,
-# indices 1 and 2 are swapped
+                                                                               
+                             
 TEST_HTLCS = [
     {
         'incoming': True,
@@ -515,8 +515,8 @@ class TestLNUtil(ElectrumTestCase):
         to_local_msat = 6988000000
         to_remote_msat = 3000000000
         local_feerate_per_kw = 0
-        # base commitment transaction fee = 0
-        # actual commitment transaction fee = 0
+                                             
+                                               
 
         per_commitment_secret = 0x1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100
         per_commitment_point = secret_to_pubkey(per_commitment_secret)
@@ -659,7 +659,7 @@ class TestLNUtil(ElectrumTestCase):
         our_htlc_tx_witness = make_htlc_tx_witness(
             remotehtlcsig=bfh(remote_htlc_sig) + remote_sighash.to_bytes(1, 'big'),
             localhtlcsig=local_sig,
-            payment_preimage=htlc_payment_preimage if success else b'',  # will put 00 on witness if timeout
+            payment_preimage=htlc_payment_preimage if success else b'',                                     
             witness_script=htlc)
         our_htlc_tx._inputs[0].witness = our_htlc_tx_witness
         return str(our_htlc_tx)
@@ -744,7 +744,7 @@ class TestLNUtil(ElectrumTestCase):
                          get_per_commitment_secret_from_seed(0x0101010101010101010101010101010101010101010101010101010101010101.to_bytes(byteorder="big", length=32), 1))
 
     def test_key_derivation(self):
-        # BOLT3, Appendix E
+                           
         base_secret = 0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
         per_commitment_secret = 0x1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100
         revocation_basepoint_secret = 0x000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
@@ -765,12 +765,12 @@ class TestLNUtil(ElectrumTestCase):
         to_local_msat = 7000000000
         to_remote_msat = 3000000000
         local_feerate_per_kw = 15000
-        # base commitment transaction fee = 10860
-        # actual commitment transaction fee = 10860
-        # to_local amount 6989140 wscript 63210212a140cd0c6539d07cd08dfe09984dec3251ea808b892efeac3ede9402bf2b1967029000b2752103fd5960528dc152014952efdb702a88f71e3c1653b2314431701ec77e57fde83c68ac
-        # to_remote amount 3000000 P2WPKH(0394854aa6eab5b2a8122cc726e9dded053a2184d88256816826d6231c068d4a5b)
+                                                 
+                                                   
+                                                                                                                                                                                                    
+                                                                                                             
         remote_signature = bfh("3045022100f51d2e566a70ba740fc5d8c0f07b9b93d2ed741c3c0860c613173de7d39e7968022041376d520e9c0e1ad52248ddf4b22e12be8763007df977253ef45a4ca3bdb7c0")
-        # local_signature = 3044022051b75c73198c6deee1a875871c3961832909acd297c6b908d59e3319e5185a46022055c419379c5051a78d00dbbce11b5b664a0c22815fbcc6fcef6b1937c3836939
+                                                                                                                                                                        
         our_commit_tx = make_commitment(
             ctn=commitment_number,
             local_funding_pubkey=local_funding_pubkey,
@@ -797,8 +797,8 @@ class TestLNUtil(ElectrumTestCase):
 
     @disable_ecdsa_r_value_grinding
     def test_commitment_tx_anchors_test_vectors(self):
-        # this test is only valid for the original anchor output test vectors (not anchors-zero-fee-htlcs),
-        # therefore we patch the effective htlc tx weight to result in a finite weight
+                                                                                                           
+                                                                                      
         from electrum import lnutil
         effective_htlc_tx_weight_original = lnutil.effective_htlc_tx_weight
 
@@ -819,15 +819,15 @@ class TestLNUtil(ElectrumTestCase):
                 ref_commit_tx_str = test_vector['ExpectedCommitmentTxHex']
                 remote_signature = bfh(test_vector['RemoteSigHex'])
                 use_test_htlcs = test_vector['UseTestHtlcs']
-                htlc_descs = test_vector['HtlcDescs']  # type: List[Dict[str, str]]
+                htlc_descs = test_vector['HtlcDescs']                              
 
                 remote_htlcpubkey = remotepubkey
                 local_htlcpubkey = localpubkey
 
-                # test of the commitment transaction, build htlc outputs first
+                                                                              
                 test_htlcs = {}
                 if use_test_htlcs:
-                    # only consider htlcs whose sweep transaction creates outputs above dust limit
+                                                                                                  
                     threshold_sat_received = received_htlc_trim_threshold_sat(dust_limit_sat=local_dust_limit_satoshi, feerate=local_feerate_per_kw, has_anchors=True)
                     threshold_sat_offered = offered_htlc_trim_threshold_sat(dust_limit_sat=local_dust_limit_satoshi, feerate=local_feerate_per_kw, has_anchors=True)
                     for test_index, test_htlc in enumerate(TEST_HTLCS):
@@ -852,8 +852,8 @@ class TestLNUtil(ElectrumTestCase):
                             cltv_abs=test_htlc['expiry'],
                             htlc_id=None,
                             timestamp=0)
-                        # only add htlcs whose spending transaction creates above-dust outputs
-                        # TODO: should we include this check in make_commitment?
+                                                                                              
+                                                                                
                         if test_htlc['amount'] // 1000 >= (threshold_sat_received if test_htlc['incoming'] else threshold_sat_offered):
                             test_htlcs[test_index] = ScriptHtlc(htlc_script, update_add_htlc)
 
@@ -861,7 +861,7 @@ class TestLNUtil(ElectrumTestCase):
                     ctn=commitment_number,
                     local_funding_pubkey=local_funding_pubkey,
                     remote_funding_pubkey=remote_funding_pubkey,
-                    remote_payment_pubkey=remote_payment_basepoint,  # no key rotation for anchors
+                    remote_payment_pubkey=remote_payment_basepoint,                               
                     funder_payment_basepoint=local_payment_basepoint,
                     fundee_payment_basepoint=remote_payment_basepoint,
                     revocation_pubkey=local_revocation_pubkey,
@@ -878,28 +878,28 @@ class TestLNUtil(ElectrumTestCase):
                     has_anchors=True
                 )
                 self.sign_and_insert_remote_sig(our_commit_tx, remote_funding_pubkey, remote_signature, local_funding_pubkey, local_funding_privkey)
-                self.assertEqual(str(our_commit_tx), ref_commit_tx_str)  # only works without r value grinding
+                self.assertEqual(str(our_commit_tx), ref_commit_tx_str)                                       
 
-                # test the transactions spending the htlc outputs
-                # we need to keep track of the htlc order in order to compare to test vectors
+                                                                 
+                                                                                             
                 sorted_htlcs = {h[0]: h[1] for h in sorted(test_htlcs.items(), key=lambda x: (x[1].htlc.amount_msat, -x[1].htlc.cltv_abs))}
                 if use_test_htlcs:
                     for output_index, (test_index, htlc) in enumerate(sorted_htlcs.items()):
                         test_htlc = TEST_HTLCS[test_index]
                         our_htlc = self.htlc_tx(
                             htlc=htlc.redeem_script,
-                            htlc_output_index=output_index + 2,  # first two are anchors
+                            htlc_output_index=output_index + 2,                         
                             amount_msat=htlc.htlc.amount_msat,
                             htlc_payment_preimage=bfh(test_htlc['preimage']),
                             remote_htlc_sig=htlc_descs[output_index]['RemoteSigHex'],
                             success=test_htlc['incoming'],
-                            cltv_abs=test_htlc['expiry'] if not test_htlc['incoming'] else 0,  # expiry is for timeout transaction
+                            cltv_abs=test_htlc['expiry'] if not test_htlc['incoming'] else 0,                                     
                             local_feerate_per_kw=local_feerate_per_kw,
                             our_commit_tx=our_commit_tx,
                             has_anchors=True
                         )
                         ref_htlc = htlc_descs[output_index]['ResolutionTxHex']
-                        self.assertEqual(our_htlc, ref_htlc)  # only works without r value grinding
+                        self.assertEqual(our_htlc, ref_htlc)                                       
 
     def sign_and_insert_remote_sig(self, tx: PartialTransaction, remote_pubkey: bytes, remote_signature: bytes, pubkey: bytes, privkey: bytes):
         assert type(remote_pubkey) is bytes
@@ -974,7 +974,7 @@ class TestLNUtil(ElectrumTestCase):
                          ln_compare_features(f1, f2))
         self.assertEqual(LnFeatures.OPTION_DATA_LOSS_PROTECT_REQ | LnFeatures.OPTION_DATA_LOSS_PROTECT_OPT,
                          ln_compare_features(f2, f1))
-        # note that the args are not commutative; if we (first arg) REQ a feature, OPT will get auto-set
+                                                                                                        
         f1 = LnFeatures.OPTION_DATA_LOSS_PROTECT_OPT
         f2 = LnFeatures.OPTION_DATA_LOSS_PROTECT_REQ
         self.assertEqual(LnFeatures.OPTION_DATA_LOSS_PROTECT_OPT,
@@ -1036,14 +1036,14 @@ class TestLNUtil(ElectrumTestCase):
 
     def test_lnworker_decode_channel_update_msg(self):
         msg_without_prefix = bytes.fromhex("439b71c8ddeff63004e4ff1f9764a57dcf20232b79d9d669aef0e31c42be8e44208f7d868d0133acb334047f30e9399dece226ccd98e5df5330adf7f356290516fe28c0ab6f1b372c1a6a246ae63f74f931e8365e15a089c68d619000000000008762700054a00005ef2cf9c0101009000000000000003e80000000000000001000000002367b880")
-        # good messages
+                       
         self.assertNotEqual(
             None,
             LNWallet._decode_channel_update_msg(msg_without_prefix))
         self.assertNotEqual(
             None,
             LNWallet._decode_channel_update_msg(bytes.fromhex("0102") + msg_without_prefix))
-        # bad messages
+                      
         self.assertEqual(
             None,
             LNWallet._decode_channel_update_msg(bytes.fromhex("0102030405")))
@@ -1055,14 +1055,14 @@ class TestLNUtil(ElectrumTestCase):
             LNWallet._decode_channel_update_msg(bytes.fromhex("0101") + msg_without_prefix))
 
     def test_channel_type(self):
-        # test compliance and non compliance with LN features
+                                                             
         features = LnFeatures(LnFeatures.BASIC_MPP_OPT | LnFeatures.OPTION_STATIC_REMOTEKEY_OPT)
         self.assertTrue(ChannelType.OPTION_STATIC_REMOTEKEY.complies_with_features(features))
 
         features = LnFeatures(LnFeatures.BASIC_MPP_OPT | LnFeatures.OPTION_TRAMPOLINE_ROUTING_OPT_ELECTRUM)
         self.assertFalse(ChannelType.OPTION_STATIC_REMOTEKEY.complies_with_features(features))
 
-        # ignore unknown channel types
+                                      
         channel_type = ChannelType(0b10000000001000000000010).discard_unknown_and_check()
         self.assertEqual(ChannelType(0b10000000001000000000000), channel_type)
 
@@ -1071,7 +1071,7 @@ class TestLNUtil(ElectrumTestCase):
         encrypted_cb = "channel_backup:Adn87xcGIs9H2kfp4VpsOaNKWCHX08wBoqq37l1cLYKGlJamTeoaLEwpJA81l1BXF3GP/mRxqkY+whZG9l51G8izIY/kmMSvnh0DOiZEdwaaT/1/MwEHfsEomruFqs+iW24SFJPHbMM7f80bDtIxcLfZkKmgcKBAOlcqtq+dL3U3yH74S8BDDe2L4snaxxpCjF0JjDMBx1UR/28D+QlIi+lbvv1JMaCGXf+AF1+3jLQf8+lVI+rvFdyArws6Ocsvjf+ANQeSGUwW6Nb2xICQcMRgr1DO7bO4pgGu408eYRr2v3ayJBVtnKwSwd49gF5SDSjTDAO4CCM0uj9H5RxyzH7fqotkd9J80MBr84RiBXAeXKz+Ap8608/FVqgQ9BOcn6LhuAQdE5zXpmbQyw5jUGkPvHuseR+rzthzncy01odUceqTNg=="
         config = SimpleConfig({'electrum_path': self.electrum_path})
         d = restore_wallet_from_text__for_unittest("9dk", path=None, config=config)
-        wallet1 = d['wallet']  # type: Standard_Wallet
+        wallet1 = d['wallet']                         
         decoded_cb = ImportedChannelBackupStorage.from_encrypted_str(encrypted_cb, password=wallet1.get_fingerprint())
         self.assertEqual(
             ImportedChannelBackupStorage(
@@ -1099,7 +1099,7 @@ class TestLNUtil(ElectrumTestCase):
         encrypted_cb = "channel_backup:AVYIedu0qSLfY2M2bBxF6dA4RAxcmobp+3h9mxALWWsv5X7hhNg0XYOKNd11FE6BJOZgZnIZ4CCAlHtLNj0/9S5GbNhbNZiQXxeHMwC1lHvtjawkwSejIJyOI52DkDFHBAGZRd4fJjaPJRHnUizWfySVR4zjd08lTinpoIeL7C7tXBW1N6YqceqV7RpeoywlBXJtFfCCuw0hnUKgq3SMlBKapkNAIgGrg15aIHNcYeENxCxr5FD1s7DIwFSECqsBVnu/Ogx2oii8BfuxqJq8vuGq4Ib/BVaSVtdb2E1wklAor/CG0p9Fg9mFWND98JD+64nz9n/knPFFyHxTXErn+ct3ZcStsLYynWKUIocgu38PtzCJ7r5ivqOw4O49fbbzdjcgMUGklPYxjuinETneCo+dCPa1uepOGTqeOYmnjVYtYZYXOlWV1F5OtNoM7MwwJjAbz84="
         config = SimpleConfig({'electrum_path': self.electrum_path})
         d = restore_wallet_from_text__for_unittest("9dk", path=None, config=config)
-        wallet1 = d['wallet']  # type: Standard_Wallet
+        wallet1 = d['wallet']                         
         decoded_cb = ImportedChannelBackupStorage.from_encrypted_str(encrypted_cb, password=wallet1.get_fingerprint())
         self.assertEqual(
             ImportedChannelBackupStorage(

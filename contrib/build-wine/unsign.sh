@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# exit if command fails
+
 set -e
 
 PROJECT_ROOT="$(dirname "$(readlink -e "$0")")/../.."
@@ -32,12 +32,12 @@ for mine in $(ls dist/*.exe); do
         wget -q "https://download.electrum.org/$version/$f" -O "signed/$f"
     fi
     out="signed/stripped/$f"
-    # Remove PE signature from signed binary
+
     osslsigncode remove-signature -in "signed/$f" -out "$out" > /dev/null 2>&1
     chmod +x "$out"
     if cmp -s "$out" "$mine"; then
         echo "Success: $f"
-        #gpg --sign --armor --detach signed/$f
+
     else
         echo "Failure: $f"
         exit 1

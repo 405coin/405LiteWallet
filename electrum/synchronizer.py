@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2014 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import asyncio
 import hashlib
 from typing import Dict, List, TYPE_CHECKING, Tuple, Set, Optional, Sequence
@@ -69,8 +69,8 @@ class SynchronizerBase(NetworkJobOnDefaultServer):
         self.requested_addrs = set()
         self._handling_addr_statuses = set()
         self.scripthash_to_address = {}
-        self._processed_some_notifications = False  # so that we don't miss them
-        # Queues
+        self._processed_some_notifications = False                              
+                
         self.status_queue = asyncio.Queue()
 
     async def _run_tasks(self, *, taskgroup):
@@ -80,12 +80,12 @@ class SynchronizerBase(NetworkJobOnDefaultServer):
                 await group.spawn(self.handle_status())
                 await group.spawn(self.main())
         finally:
-            # we are being cancelled now
+                                        
             self.session.unsubscribe(self.status_queue)
 
     def add(self, addr: str) -> None:
         if not is_address(addr): raise ValueError(f"invalid bitcoin address {addr}")
-        self._adding_addrs.add(addr)  # this lets is_up_to_date already know about addr
+        self._adding_addrs.add(addr)                                                   
 
     async def _add_address(self, addr: str):
         try:
@@ -94,13 +94,13 @@ class SynchronizerBase(NetworkJobOnDefaultServer):
             self.requested_addrs.add(addr)
             await self.taskgroup.spawn(self._subscribe_to_address, addr)
         finally:
-            self._adding_addrs.discard(addr)  # ok for addr not to be present
+            self._adding_addrs.discard(addr)                                 
 
     async def _on_address_status(self, addr: str, status: Optional[str]):
         """Handle the change of the status of an address.
         Should remove addr from self._handling_addr_statuses when done.
         """
-        raise NotImplementedError()  # implemented by subclasses
+        raise NotImplementedError()                             
 
     async def _subscribe_to_address(self, addr):
         h = address_to_scripthash(addr)
@@ -110,7 +110,7 @@ class SynchronizerBase(NetworkJobOnDefaultServer):
             async with self._network_request_semaphore:
                 await self.session.subscribe('blockchain.scripthash.subscribe', [h], self.status_queue)
         except RPCError as e:
-            if e.message == 'history too large':  # no unique error code
+            if e.message == 'history too large':                        
                 raise GracefulDisconnect(e, log_level=logging.ERROR) from e
             raise
         self._requests_answered += 1
@@ -120,12 +120,12 @@ class SynchronizerBase(NetworkJobOnDefaultServer):
             h, status = await self.status_queue.get()
             addr = self.scripthash_to_address[h]
             self._handling_addr_statuses.add(addr)
-            self.requested_addrs.discard(addr)  # ok for addr not to be present
+            self.requested_addrs.discard(addr)                                 
             await self.taskgroup.spawn(self._on_address_status, addr, status)
             self._processed_some_notifications = True
 
     async def main(self):
-        raise NotImplementedError()  # implemented by subclasses
+        raise NotImplementedError()                             
 
 
 class Synchronizer(SynchronizerBase):
@@ -143,9 +143,9 @@ class Synchronizer(SynchronizerBase):
     def _reset(self):
         super()._reset()
         self._init_done = False
-        self.requested_tx = set()  # type: Set[str]
+        self.requested_tx = set()                  
         self.requested_histories = set()
-        self._stale_histories = dict()  # type: Dict[str, asyncio.Task]
+        self._stale_histories = dict()                                 
 
     def diagnostic_name(self):
         return self.adb.diagnostic_name()
@@ -161,17 +161,17 @@ class Synchronizer(SynchronizerBase):
                 and self.status_queue.empty())
 
     async def _maybe_request_history_for_addr(self, addr: str, *, ann_status: Optional[str]) -> List[dict]:
-        # First opportunistically try to guess the addr history. Might save us network requests.
+                                                                                                
         old_history = self.adb.db.get_addr_history(addr)
         def guess_height(old_height: int) -> int:
             if old_height in (0, -1,):
-                return self.interface.tip  # maybe mempool tx got mined just now
+                return self.interface.tip                                       
             return old_height
         guessed_history = [(txid, guess_height(old_height)) for (txid, old_height) in old_history]
         if history_status(guessed_history) == ann_status:
             self.logger.debug(f"managed to guess new history for {addr}. won't call 'blockchain.scripthash.get_history'.")
             return [{"height": height, "tx_hash": txid} for (txid, height) in guessed_history]
-        # request addr history from server
+                                          
         sh = address_to_scripthash(addr)
         self._requests_sent += 1
         async with self._network_request_semaphore:
@@ -185,26 +185,26 @@ class Synchronizer(SynchronizerBase):
             old_history = self.adb.db.get_addr_history(addr)
             if history_status(old_history) == status:
                 return
-            # No point in requesting history twice for the same announced status.
-            # However if we got announced a new status, we should request history again:
+                                                                                 
+                                                                                        
             if (addr, status) in self.requested_histories:
                 return
-            # request address history
+                                     
             self.requested_histories.add((addr, status))
             self._stale_histories.pop(addr, asyncio.Future()).cancel()
         finally:
             self._handling_addr_statuses.discard(addr)
         result = await self._maybe_request_history_for_addr(addr, ann_status=status)
         hist = list(map(lambda item: (item['tx_hash'], item['height']), result))
-        # tx_fees
+                 
         tx_fees = [(item['tx_hash'], item.get('fee')) for item in result]
         tx_fees = dict(filter(lambda x:x[1] is not None, tx_fees))
-        # Check that the status corresponds to what was announced
+                                                                 
         if history_status(hist) != status:
-            # could happen naturally if history changed between getting status and history (race)
+                                                                                                 
             self.logger.info(f"error: status mismatch: {addr}. we'll wait a bit for status update.")
-            # The server is supposed to send a new status notification, which will trigger a new
-            # get_history. We shall wait a bit for this to happen, otherwise we disconnect.
+                                                                                                
+                                                                                           
             async def disconnect_if_still_stale():
                 timeout = self.network.get_network_timeout_seconds(NetworkTimeout.Generic)
                 await asyncio.sleep(timeout)
@@ -212,25 +212,25 @@ class Synchronizer(SynchronizerBase):
             self._stale_histories[addr] = await self.taskgroup.spawn(disconnect_if_still_stale)
         else:
             self._stale_histories.pop(addr, asyncio.Future()).cancel()
-            # Store received history
+                                    
             self.adb.receive_history_callback(addr, hist, tx_fees)
-            # Request transactions we don't have
+                                                
             await self._request_missing_txs(hist)
 
-        # Remove request; this allows up_to_date to be True
+                                                           
         self.requested_histories.discard((addr, status))
 
     async def _request_missing_txs(self, hist, *, allow_server_not_finding_tx=False):
-        # "hist" is a list of [tx_hash, tx_height] lists
+                                                        
         transaction_hashes = []
         for tx_hash, _tx_height in hist:
             if tx_hash in self.requested_tx:
                 continue
             tx = self.adb.db.get_transaction(tx_hash)
             if tx and not isinstance(tx, PartialTransaction):
-                continue  # already have complete tx
+                continue                            
             transaction_hashes.append(tx_hash)
-            # note: tx_height might change by the time we get the raw_tx
+                                                                        
             self.requested_tx.add(tx_hash)
 
         if not transaction_hashes: return
@@ -244,7 +244,7 @@ class Synchronizer(SynchronizerBase):
             async with self._network_request_semaphore:
                 raw_tx = await self.interface.get_transaction(tx_hash)
         except RPCError as e:
-            # most likely, "No such mempool or blockchain transaction"
+                                                                      
             if allow_server_not_finding_tx:
                 self.requested_tx.remove(tx_hash)
                 return
@@ -261,25 +261,25 @@ class Synchronizer(SynchronizerBase):
 
     async def main(self):
         self.adb.up_to_date_changed()
-        # request missing txns, if any
+                                      
         for addr in random_shuffled_copy(self.adb.db.get_history()):
             history = self.adb.db.get_addr_history(addr)
-            # Old electrum servers returned ['*'] when all history for the address
-            # was pruned. This no longer happens but may remain in old wallets.
+                                                                                  
+                                                                               
             if history == ['*']: continue
             await self._request_missing_txs(history, allow_server_not_finding_tx=True)
-        # add addresses to bootstrap
+                                    
         for addr in random_shuffled_copy(self.adb.get_addresses()):
             await self._add_address(addr)
-        # main loop
+                   
         self._init_done = True
         prev_uptodate = False
         while True:
             await asyncio.sleep(0.1)
-            for addr in self._adding_addrs.copy(): # copy set to ensure iterator stability
+            for addr in self._adding_addrs.copy():                                        
                 await self._add_address(addr)
             up_to_date = self.adb.is_up_to_date()
-            # see if status changed
+                                   
             if (up_to_date != prev_uptodate
                     or up_to_date and self._processed_some_notifications):
                 self._processed_some_notifications = False
@@ -293,14 +293,14 @@ class Notifier(SynchronizerBase):
     """
     def __init__(self, network):
         SynchronizerBase.__init__(self, network)
-        self.watched_addresses = defaultdict(list)  # type: Dict[str, List[str]]
-        self._start_watching_queue = asyncio.Queue()  # type: asyncio.Queue[Tuple[str, str]]
+        self.watched_addresses = defaultdict(list)                              
+        self._start_watching_queue = asyncio.Queue()                                        
 
     async def main(self):
-        # resend existing subscriptions if we were restarted
+                                                            
         for addr in self.watched_addresses:
             await self._add_address(addr)
-        # main loop
+                   
         while True:
             addr, url = await self._start_watching_queue.get()
             self.watched_addresses[addr].append(url)
@@ -311,7 +311,7 @@ class Notifier(SynchronizerBase):
 
     async def stop_watching_addr(self, addr: str):
         self.watched_addresses.pop(addr, None)
-        # TODO blockchain.scripthash.unsubscribe
+                                                
 
     async def _on_address_status(self, addr, status):
         if addr not in self.watched_addresses:

@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2011 thomasv@gitorious
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                      
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 import io
 import sys
 import datetime
@@ -87,7 +87,7 @@ if TYPE_CHECKING:
     from electrum.lnworker import PaymentInfo
 
 
-known_commands = {}  # type: Dict[str, Command]
+known_commands = {}                            
 
 
 class NotSynchronizedException(UserFacingException):
@@ -99,7 +99,7 @@ def satoshis_or_max(amount):
 
 
 def satoshis(amount):
-    # satoshi conversion must not be performed by the parser
+                                                            
     return int(COIN*to_decimal(amount)) if amount is not None else None
 
 
@@ -116,7 +116,7 @@ def format_satoshis(x: Union[float, int, Decimal, None]) -> Optional[str]:
 class Command:
     def __init__(self, func, name, s):
         self.name = name
-        self.requires_network = 'n' in s  # better name would be "requires daemon"
+        self.requires_network = 'n' in s                                          
         self.requires_wallet = 'w' in s
         self.requires_password = 'p' in s
         self.requires_lightning = 'l' in s
@@ -132,7 +132,7 @@ class Command:
             self.options = []
             self.defaults = []
 
-        # sanity checks
+                       
         if self.requires_password:
             assert self.requires_wallet
         for varname in ('wallet_path', 'wallet'):
@@ -158,26 +158,26 @@ class Command:
 def command(s):
     def decorator(func):
         if hasattr(func, '__wrapped__'):
-            # plugin command function
+                                     
             name = func.plugin_name + '_' + func.__name__
             known_commands[name] = Command(func.__wrapped__, name, s)
         else:
-            # regular command function
+                                      
             name = func.__name__
             known_commands[name] = Command(func, name, s)
 
         @wraps(func)
         async def func_wrapper(*args, **kwargs):
-            cmd_runner = args[0]  # type: Commands
-            cmd = known_commands[name]  # type: Command
+            cmd_runner = args[0]                  
+            cmd = known_commands[name]                 
             password = kwargs.get('password')
             daemon = cmd_runner.daemon
             if daemon:
                 if 'wallet_path' in cmd.options or cmd.requires_wallet:
                     kwargs['wallet_path'] = daemon.config.maybe_complete_wallet_path(kwargs.get('wallet_path'))
                 if 'wallet' in cmd.options:
-                    wallet_path = kwargs.pop('wallet_path', None) # unit tests may set wallet and not wallet_path
-                    wallet = kwargs.get('wallet', None)           # run_offline_command sets both
+                    wallet_path = kwargs.pop('wallet_path', None)                                                
+                    wallet = kwargs.get('wallet', None)                                          
                     if wallet is None and wallet_path is not None:
                         wallet = daemon.get_wallet(wallet_path)
                         if wallet is None:
@@ -189,7 +189,7 @@ def command(s):
                             kwargs['password'] = password
                         else:
                             raise UserFacingException('Password required. Unlock the wallet, or add a --password option to your command')
-            wallet = kwargs.get('wallet')  # type: Optional[Abstract_Wallet]
+            wallet = kwargs.get('wallet')                                   
             if cmd.requires_wallet and not wallet:
                 raise UserFacingException('wallet not loaded')
             if cmd.requires_password and wallet.has_password():
@@ -330,7 +330,7 @@ class Commands(Logger):
         arg:str:passphrase:Seed extension
         arg:bool:encrypt_file:Whether the file on disk should be encrypted with the provided password
         """
-        # TODO create a separate command that blocks until wallet is synced
+                                                                           
         d = restore_wallet_from_text(
             text,
             path=wallet_path,
@@ -355,7 +355,7 @@ class Commands(Logger):
             raise UserFacingException("Can't change the password of a wallet encrypted with a hw device.")
         if encrypt_file is None:
             if not password and new_password:
-                # currently no password, setting one now: we encrypt by default
+                                                                               
                 encrypt_file = True
             else:
                 encrypt_file = wallet.storage.is_encrypted()
@@ -388,7 +388,7 @@ class Commands(Logger):
     def _setconfig_normalize_value(cls, key, value):
         if key not in (SimpleConfig.RPC_USERNAME.key(), SimpleConfig.RPC_PASSWORD.key()):
             value = json_decode(value)
-            # call literal_eval for backward compatibility (see #4225)
+                                                                      
             try:
                 value = ast.literal_eval(value)
             except Exception:
@@ -515,7 +515,7 @@ class Commands(Logger):
         arg:json:jsontx:Transaction in json
         """
         keypairs = {}
-        inputs = []  # type: List[PartialTxInput]
+        inputs = []                              
         locktime = jsontx.get('locktime', 0)
         for txin_idx, txin_dict in enumerate(jsontx.get('inputs')):
             if txin_dict.get('prevout_hash') is not None and txin_dict.get('prevout_n') is not None:
@@ -541,7 +541,7 @@ class Commands(Logger):
                 txin.script_descriptor = desc
             inputs.append(txin)
 
-        outputs = []  # type: List[PartialTxOutput]
+        outputs = []                               
         for txout_idx, txout_dict in enumerate(jsontx.get('outputs')):
             try:
                 txout_addr = txout_dict['address']
@@ -779,25 +779,25 @@ class Commands(Logger):
             "python.version": sys.version,
             "python.path": sys.executable,
         }
-        # add currently running GUI
+                                   
         if self.daemon and self.daemon.gui_object:
             ret.update(self.daemon.gui_object.version_info())
-        # always add Qt GUI, so we get info even when running this from CLI
+                                                                           
         try:
             from .gui.qt import ElectrumGui as QtElectrumGui
             ret.update(QtElectrumGui.version_info())
         except GuiImportError:
             pass
-        # Add shared libs (.so/.dll), and non-pure-python dependencies.
-        # Such deps can be installed in various ways - often via the Linux distro's pkg manager,
-        # instead of using pip, hence it is useful to list them for debugging.
+                                                                       
+                                                                                                
+                                                                              
         from electrum_ecc import ecc_fast
         ret.update(ecc_fast.version_info())
         from . import qrscanner
         ret.update(qrscanner.version_info())
         ret.update(DeviceMgr.version_info())
         ret.update(crypto.version_info())
-        # add some special cases
+                                
         import aiohttp
         ret["aiohttp.version"] = aiohttp.__version__
         import aiorpcx
@@ -880,8 +880,8 @@ class Commands(Logger):
 
         arg:str:privkey:Private key. Type \'?\' to get a prompt.
         arg:str:destination:Bitcoin address, contact or alias
-        arg:decimal:fee:Transaction fee (absolute, in BTC)
-        arg:decimal:feerate:Transaction fee rate (in sat/vbyte)
+        arg:str:fee:Transaction fee (absolute, in BTC)
+        arg:str:feerate:Transaction fee rate (in sat/vbyte)
         arg:int:imax:Maximum number of inputs
         arg:bool:nocheck:Do not verify aliases
         """
@@ -889,7 +889,7 @@ class Commands(Logger):
         fee_policy = self._get_fee_policy(fee, feerate)
         privkeys = privkey.split()
         self.nocheck = nocheck
-        #dest = self._resolver(destination)
+                                           
         tx = await sweep(
             privkeys,
             network=self.network,
@@ -925,15 +925,15 @@ class Commands(Logger):
         message = util.to_bytes(message)
         return bitcoin.verify_usermessage_with_address(address, sig, message)
 
-    def _get_fee_policy(self, fee: str, feerate: str):
+    def _get_fee_policy(self, fee, feerate):
         if fee is not None and feerate is not None:
             raise Exception('Cannot set both fee and feerate')
         if fee is not None:
             fee_sats = satoshis(fee)
             fee_policy = FeePolicy(f'fixed:{fee_sats}')
         elif feerate is not None:
-            sat_per_kvbyte = int(1000 * to_decimal(feerate))
-            fee_policy = FeePolicy(f'feerate:{sat_per_kvbyte}')
+            feerate_per_byte = 1000 * feerate
+            fee_policy = FeePolicy(f'feerate:{feerate_per_byte}')
         else:
             fee_policy = FeePolicy(self.config.FEE_POLICY)
         return fee_policy
@@ -946,7 +946,7 @@ class Commands(Logger):
         arg:str:destination:Bitcoin address, contact or alias
         arg:decimal_or_max:amount:Amount to be sent (in BTC). Type '!' to send the maximum available.
         arg:decimal:fee:Transaction fee (absolute, in BTC)
-        arg:decimal:feerate:Transaction fee rate (in sat/vbyte)
+        arg:float:feerate:Transaction fee rate (in sat/vbyte)
         arg:str:from_addr:Source address (must be a wallet address; use sweep to spend from non-wallet address)
         arg:str:change_addr:Change address. Default is a spare address, or the source address if it's not in the wallet
         arg:bool:rbf:Whether to signal opt-in Replace-By-Fee in the transaction (true/false)
@@ -979,8 +979,8 @@ class Commands(Logger):
 
         arg:json:outputs:json list of ["address", "amount in BTC"]
         arg:bool:rbf:Whether to signal opt-in Replace-By-Fee in the transaction (true/false)
-        arg:decimal:fee:Transaction fee (absolute, in BTC)
-        arg:decimal:feerate:Transaction fee rate (in sat/vbyte)
+        arg:str:fee:Transaction fee (absolute, in BTC)
+        arg:str:feerate:Transaction fee rate (in sat/vbyte)
         arg:str:from_addr:Source address (must be a wallet address; use sweep to spend from non-wallet address)
         arg:str:change_addr:Change address. Default is a spare address, or the source address if it's not in the wallet
         arg:bool:addtransaction:Whether transaction is to be used for broadcasting afterwards. Adds transaction to the wallet
@@ -1054,11 +1054,11 @@ class Commands(Logger):
         arg:bool:unsigned:Do not sign transaction
         arg:json:from_coins:Coins that may be used to inncrease the fee (must be in wallet)
         """
-        if is_hash256_str(tx):  # txid
+        if is_hash256_str(tx):        
             tx = wallet.db.get_transaction(tx)
             if tx is None:
                 raise UserFacingException("Transaction not in wallet.")
-        else:  # raw tx
+        else:          
             try:
                 tx = Transaction(tx)
                 tx.deserialize()
@@ -1093,7 +1093,7 @@ class Commands(Logger):
         arg:int:from_height:Only show transactions that confirmed after(inclusive) given block height
         arg:int:to_height:Only show transactions that confirmed before(exclusive) given block height
         """
-        # trigger lnwatcher callbacks for their side effects: setting labels and accounting_addresses
+                                                                                                     
         if not self.network and wallet.lnworker:
             await wallet.lnworker.lnwatcher.trigger_callbacks(requires_synchronizer=False)
 
@@ -1402,9 +1402,9 @@ class Commands(Logger):
         assert payment_hash not in wallet.lnworker.dont_settle_htlcs, "Payment hash already used!"
         assert wallet.lnworker.get_preimage(bfh(payment_hash)) is None, "Already got a preimage for this payment hash!"
         assert MIN_FINAL_CLTV_DELTA_ACCEPTED < min_final_cltv_expiry_delta < 576, "Use a sane min_final_cltv_expiry_delta value"
-        amount = amount if amount and satoshis(amount) > 0 else None  # make amount either >0 or None
+        amount = amount if amount and satoshis(amount) > 0 else None                                 
         inbound_capacity = wallet.lnworker.num_sats_can_receive()
-        assert inbound_capacity > satoshis(amount or 0), \
+        assert inbound_capacity > satoshis(amount or 0),\
             f"Not enough inbound capacity [{inbound_capacity} sat] to receive this payment"
 
         wallet.lnworker.add_payment_info_for_hold_invoice(
@@ -1437,10 +1437,10 @@ class Commands(Logger):
         assert len(preimage) == 64, f"Invalid payment_hash length: {len(preimage)} != 64"
         payment_hash: str = crypto.sha256(bfh(preimage)).hex()
         assert payment_hash not in wallet.lnworker._preimages, f"Invoice {payment_hash=} already settled"
-        assert payment_hash in wallet.lnworker.payment_info, \
+        assert payment_hash in wallet.lnworker.payment_info,\
             f"Couldn't find lightning invoice for {payment_hash=}"
         assert payment_hash in wallet.lnworker.dont_settle_htlcs, f"Invoice {payment_hash=} not a hold invoice?"
-        assert wallet.lnworker.is_complete_mpp(bfh(payment_hash)), \
+        assert wallet.lnworker.is_complete_mpp(bfh(payment_hash)),\
             f"MPP incomplete, cannot settle hold invoice {payment_hash} yet"
         info: Optional['PaymentInfo'] = wallet.lnworker.get_payment_info(bfh(payment_hash))
         assert (wallet.lnworker.get_payment_mpp_amount_msat(bfh(payment_hash)) or 0) >= (info.amount_msat or 0)
@@ -1459,16 +1459,16 @@ class Commands(Logger):
 
         arg:str:payment_hash:Payment hash in hex of the hold invoice
         """
-        assert payment_hash in wallet.lnworker.payment_info, \
+        assert payment_hash in wallet.lnworker.payment_info,\
             f"Couldn't find lightning invoice for payment hash {payment_hash}"
         assert payment_hash not in wallet.lnworker._preimages, "Cannot cancel anymore, preimage already given."
         assert payment_hash in wallet.lnworker.dont_settle_htlcs, f"{payment_hash=} not a hold invoice?"
-        # set to PR_UNPAID so it can get deleted
+                                                
         wallet.lnworker.set_payment_status(bfh(payment_hash), PR_UNPAID)
         wallet.lnworker.delete_payment_info(payment_hash)
         wallet.set_label(payment_hash, None)
         while wallet.lnworker.is_complete_mpp(bfh(payment_hash)):
-            # wait until the htlcs got failed so the payment won't get settled accidentally in a race
+                                                                                                     
             await asyncio.sleep(0.1)
         del wallet.lnworker.dont_settle_htlcs[payment_hash]
         result = {
@@ -1501,7 +1501,7 @@ class Commands(Logger):
         if info is None:
             pass
         elif not is_complete_mpp and not wallet.lnworker.get_preimage_hex(payment_hash):
-            # is_complete_mpp is False for settled payments
+                                                           
             result["status"] = "unpaid"
         elif is_complete_mpp and payment_hash in wallet.lnworker.dont_settle_htlcs:
             result["status"] = "paid"
@@ -1510,7 +1510,7 @@ class Commands(Logger):
             result["closest_htlc_expiry_height"] = min(
                 htlc.cltv_abs for _, htlc in htlc_status.htlc_set
             )
-        elif wallet.lnworker.get_preimage_hex(payment_hash) is not None \
+        elif wallet.lnworker.get_preimage_hex(payment_hash) is not None\
                 and payment_hash not in wallet.lnworker.dont_settle_htlcs:
             result["status"] = "settled"
             plist = wallet.lnworker.get_payments(status='settled')[bfh(payment_hash)]
@@ -1633,8 +1633,8 @@ class Commands(Logger):
         if not isinstance(fee_est, dict):
             fee_est = ast.literal_eval(fee_est)
         assert isinstance(fee_est, dict), f"unexpected type for fee_est. got {repr(fee_est)}"
-        # populate missing high-block-number estimates using default relay fee.
-        # e.g. {"25": 2222} -> {"25": 2222, "144": 1000, "1008": 1000}
+                                                                               
+                                                                      
         furthest_estimate = max(fee_est.keys()) if fee_est else 0
         further_fee_est = {
             eta_target: FEERATE_DEFAULT_RELAY for eta_target in FEE_ETA_TARGETS
@@ -1674,10 +1674,10 @@ class Commands(Logger):
     @command('')
     async def help(self):
         """Show help about a command"""
-        # for the python console
+                                
         return sorted(known_commands.keys())
 
-    # lightning network commands
+                                
     @command('wnl')
     async def add_peer(self, connection_string, timeout=20, gossip=False, wallet: Abstract_Wallet = None):
         """
@@ -1692,7 +1692,7 @@ class Commands(Logger):
         try:
             await util.wait_for2(peer.initialized, timeout=LN_P2P_NETWORK_TIMEOUT)
         except (CancelledError, Exception) as e:
-            #  FIXME often simply CancelledError and real cause (e.g. timeout) remains hidden
+                                                                                             
             raise UserFacingException(f"Connection failed: {repr(e)}")
         return True
 
@@ -1789,22 +1789,22 @@ class Commands(Logger):
         arg:int:max_cltv:Maximum total time lock for the route (default=4032+invoice_final_cltv_delta)
         arg:int:max_fee_msat:Maximum absolute fee budget for the payment (if unset, the default is a percentage fee based on config.LIGHTNING_PAYMENT_FEE_MAX_MILLIONTHS)
         """
-        # note: The "timeout" param works via black magic.
-        #       The CLI-parser stores it in the config, and the argname matches config.cv.CLI_TIMEOUT.key().
-        #       - it works when calling the CLI and there is also a daemon (online command)
-        #       - FIXME it does NOT work when calling an offline command (-o)
-        #       - FIXME it does NOT work when calling RPC directly (e.g. curl)
+                                                          
+                                                                                                            
+                                                                                           
+                                                                             
+                                                                              
         lnworker = wallet.lnworker
-        lnaddr = lnworker._check_bolt11_invoice(invoice)  # also checks if amount is given
+        lnaddr = lnworker._check_bolt11_invoice(invoice)                                  
         payment_hash = lnaddr.paymenthash
         invoice_obj = Invoice.from_bech32(invoice)
-        assert not max_fee_msat or max_fee_msat < max(invoice_obj.amount_msat // 2, 1_000_000), \
+        assert not max_fee_msat or max_fee_msat < max(invoice_obj.amount_msat // 2, 1_000_000),\
                                     f"{max_fee_msat=} > max(invoice amount msat / 2, 1_000_000)"
         wallet.save_invoice(invoice_obj)
         if max_cltv is not None:
-            # The cltv budget excludes the final cltv delta which is why it is deducted here
-            # so the whole used cltv is <= max_cltv
-            assert max_cltv <= NBLOCK_CLTV_DELTA_TOO_FAR_INTO_FUTURE, \
+                                                                                            
+                                                   
+            assert max_cltv <= NBLOCK_CLTV_DELTA_TOO_FAR_INTO_FUTURE,\
                     f"{max_cltv=} > {NBLOCK_CLTV_DELTA_TOO_FAR_INTO_FUTURE=}"
             max_cltv_remaining = max_cltv - lnaddr.get_min_final_cltv_delta()
             assert max_cltv_remaining > 0, f"{max_cltv=} - {lnaddr.get_min_final_cltv_delta()=} < 1"
@@ -1832,7 +1832,7 @@ class Commands(Logger):
     @command('wl')
     async def list_channels(self, wallet: Abstract_Wallet = None):
         """Return the list of Lightning channels in a wallet"""
-        # FIXME: we need to be online to display capacity of backups
+                                                                    
         from .lnutil import LOCAL, REMOTE, format_short_channel_id
         channels = list(wallet.lnworker.channels.items())
         backups = list(wallet.lnworker.channel_backups.items())
@@ -1850,7 +1850,7 @@ class Commands(Logger):
                 'remote_balance': chan.balance(REMOTE)//1000,
                 'local_ctn': chan.get_latest_ctn(LOCAL),
                 'remote_ctn': chan.get_latest_ctn(REMOTE),
-                'local_reserve': chan.config[REMOTE].reserve_sat,  # their config has our reserve
+                'local_reserve': chan.config[REMOTE].reserve_sat,                                
                 'remote_reserve': chan.config[LOCAL].reserve_sat,
                 'local_unsettled_sent': chan.balance_tied_up_in_htlcs_by_direction(LOCAL, direction=SENT) // 1000,
                 'remote_unsettled_sent': chan.balance_tied_up_in_htlcs_by_direction(REMOTE, direction=SENT) // 1000,
@@ -2029,7 +2029,7 @@ class Commands(Logger):
         arg:decimal_or_dryrun:onchain_amount:Amount to be sent, in BTC. Set it to 'dryrun' to receive a value
         """
         sm = wallet.lnworker.swap_manager
-        assert self.config.SWAPSERVER_NPUB or self.config.SWAPSERVER_URL, \
+        assert self.config.SWAPSERVER_NPUB or self.config.SWAPSERVER_URL,\
             "Configure swap provider first. See 'get_submarine_swap_providers'."
         async with sm.create_transport() as transport:
             try:
@@ -2072,7 +2072,7 @@ class Commands(Logger):
         arg:decimal_or_dryrun:prepayment:Lightning payment required by the swap provider in order to cover their mining fees. This is included in lightning_amount. However, this part of the operation is not trustless; the provider is trusted to fail this payment if the swap fails.
         """
         sm = wallet.lnworker.swap_manager
-        assert self.config.SWAPSERVER_NPUB or self.config.SWAPSERVER_URL, \
+        assert self.config.SWAPSERVER_NPUB or self.config.SWAPSERVER_URL,\
             "Configure swap provider first. See 'get_submarine_swap_providers'."
         async with sm.create_transport() as transport:
             try:
@@ -2122,23 +2122,23 @@ class Commands(Logger):
         """
         if not self.daemon.fx.is_enabled():
             raise UserFacingException("FX is disabled. To enable, run: 'electrum setconfig use_exchange_rate true'")
-        # Currency codes are uppercase
+                                      
         from_ccy = from_ccy.upper()
         to_ccy = to_ccy.upper()
-        # Default currencies
+                            
         if from_ccy == '':
             from_ccy = "BTC" if to_ccy != "BTC" else self.daemon.fx.ccy
         if to_ccy == '':
             to_ccy = "BTC" if from_ccy != "BTC" else self.daemon.fx.ccy
-        # Get current rates
+                           
         rate_from = self.daemon.fx.exchange.get_cached_spot_quote(from_ccy)
         rate_to = self.daemon.fx.exchange.get_cached_spot_quote(to_ccy)
-        # Test if currencies exist
+                                  
         if rate_from.is_nan():
             raise UserFacingException(f'Currency to convert from ({from_ccy}) is unknown or rate is unavailable')
         if rate_to.is_nan():
             raise UserFacingException(f'Currency to convert to ({to_ccy}) is unknown or rate is unavailable')
-        # Conversion
+                    
         try:
             from_amount = to_decimal(from_amount)
             to_amount = from_amount / rate_from * rate_to
@@ -2191,7 +2191,7 @@ class Commands(Logger):
         arg:str:node_id:Node pubkey in hex format
         arg:int:dummy_hops:Number of dummy hops to add
         """
-        # TODO: allow introduction_point to not be a direct peer and construct a route
+                                                                                      
         assert wallet
         assert node_id
 
@@ -2219,7 +2219,7 @@ class Commands(Logger):
 def plugin_command(s, plugin_name):
     """Decorator to register a cli command inside a plugin. To be used within a commands.py file
     in the plugins root."""
-    # atm all plugin commands require a daemon, cannot be run in 'offline' mode:
+                                                                                
     if 'n' not in s:
         s += 'n'
     def decorator(func):
@@ -2233,7 +2233,7 @@ def plugin_command(s, plugin_name):
         @command(s)
         @wraps(func)
         async def func_wrapper(*args, **kwargs):
-            cmd_runner = args[0]  # type: Commands
+            cmd_runner = args[0]                  
             daemon = cmd_runner.daemon
             assert daemon is not None
             kwargs['plugin'] = daemon._plugins.get_plugin(plugin_name)
@@ -2249,11 +2249,11 @@ def eval_bool(x: str) -> bool:
         return False
     if x == 'true':
         return True
-    # assume python, raise if malformed
+                                       
     return bool(ast.literal_eval(x))
 
 
-# don't use floats because of rounding errors
+                                             
 json_loads = lambda x: json.loads(x, parse_float=lambda x: str(to_decimal(x)))
 
 
@@ -2291,7 +2291,7 @@ def set_default_subparser(self, name, args=None):
     """see http://stackoverflow.com/questions/5176691/argparse-how-to-specify-a-default-subcommand"""
     subparser_found = False
     for arg in sys.argv[1:]:
-        if arg in ['-h', '--help', '--version']:  # global help/version if no subparser
+        if arg in ['-h', '--help', '--version']:                                       
             break
     else:
         for x in self._subparsers._actions:
@@ -2301,8 +2301,8 @@ def set_default_subparser(self, name, args=None):
                 if sp_name in sys.argv[1:]:
                     subparser_found = True
         if not subparser_found:
-            # insert default in first position, this implies no
-            # global options without a sub_parsers specified
+                                                               
+                                                            
             if args is None:
                 sys.argv.insert(1, name)
             else:
@@ -2312,26 +2312,26 @@ def set_default_subparser(self, name, args=None):
 argparse.ArgumentParser.set_default_subparser = set_default_subparser
 
 
-# workaround https://bugs.python.org/issue23058
-# see https://github.com/nickstenning/honcho/pull/121
+                                               
+                                                     
 
 def subparser_call(self, parser, namespace, values, option_string=None):
     from argparse import ArgumentError, SUPPRESS, _UNRECOGNIZED_ARGS_ATTR
     parser_name = values[0]
     arg_strings = values[1:]
-    # set the parser name if requested
+                                      
     if self.dest is not SUPPRESS:
         setattr(namespace, self.dest, parser_name)
-    # select the parser
+                       
     try:
         parser = self._name_parser_map[parser_name]
     except KeyError:
         tup = parser_name, ', '.join(self._name_parser_map)
         msg = _('unknown parser {!r} (choices: {})').format(*tup)
         raise ArgumentError(self, msg)
-    # parse all the remaining options into the namespace
-    # store any unrecognized options on the object, so that the top
-    # level parser can decide what to do with them
+                                                        
+                                                                   
+                                                  
     namespace, arg_strings = parser.parse_known_args(arg_strings, namespace)
     if arg_strings:
         vars(namespace).setdefault(_UNRECOGNIZED_ARGS_ATTR, [])
@@ -2407,7 +2407,7 @@ def get_simple_parser():
     from optparse import OptionParser, BadOptionError, AmbiguousOptionError
 
     class PassThroughOptionParser(OptionParser):
-        # see https://stackoverflow.com/questions/1885161/how-can-i-get-optparses-optionparser-to-ignore-invalid-options
+                                                                                                                        
         def _process_args(self, largs, rargs, values):
             while rargs:
                 try:
@@ -2424,13 +2424,13 @@ def get_simple_parser():
 
 
 def get_parser():
-    # create main parser
+                        
     parser = argparse.ArgumentParser(
         epilog="Run 'electrum help <command>' to see the help for a command")
     parser.add_argument("--version", dest="cmd", action='store_const', const='version', help="Return the version of Electrum.")
     add_global_options(parser)
     subparsers = parser.add_subparsers(dest='cmd', metavar='<command>')
-    # gui
+         
     parser_gui = subparsers.add_parser('gui', description="Run Electrum's Graphical User Interface.", help="Run GUI (default)")
     parser_gui.add_argument("url", nargs='?', default=None, help="bitcoin URI (or bip70 file)")
     parser_gui.add_argument("-g", "--gui", dest=SimpleConfig.GUI_NAME.key(), help="select graphical user interface", choices=['qt', 'text', 'stdio', 'qml'])
@@ -2440,18 +2440,18 @@ def get_parser():
     parser_gui.add_argument("--nosegwit", action="store_true", dest=SimpleConfig.WIZARD_DONT_CREATE_SEGWIT.key(), default=False, help="Do not create segwit wallets")
     add_network_options(parser_gui)
     add_global_options(parser_gui)
-    # daemon
+            
     parser_daemon = subparsers.add_parser('daemon', help="Run Daemon")
     parser_daemon.add_argument("-d", "--detached", action="store_true", dest="detach", default=False, help="run daemon in detached mode")
-    # FIXME: all these options are rpc-server-side. The CLI client-side cannot use e.g. --rpcport,
-    #        instead it reads it from the daemon lockfile.
+                                                                                                  
+                                                          
     parser_daemon.add_argument("--rpchost", dest=SimpleConfig.RPC_HOST.key(), default=argparse.SUPPRESS, help="RPC host")
     parser_daemon.add_argument("--rpcport", dest=SimpleConfig.RPC_PORT.key(), type=int, default=argparse.SUPPRESS, help="RPC port")
     parser_daemon.add_argument("--rpcsock", dest=SimpleConfig.RPC_SOCKET_TYPE.key(), default=None, help="what socket type to which to bind RPC daemon", choices=['unix', 'tcp', 'auto'])
     parser_daemon.add_argument("--rpcsockpath", dest=SimpleConfig.RPC_SOCKET_FILEPATH.key(), help="where to place RPC file socket")
     add_network_options(parser_daemon)
     add_global_options(parser_daemon)
-    # commands
+              
     for cmdname in sorted(known_commands.keys()):
         cmd = known_commands[cmdname]
         p = subparsers.add_parser(
@@ -2497,7 +2497,7 @@ def get_parser():
             for k, v in cvh.items():
                 group.add_argument(k, nargs='?', help=v)
 
-    # 'gui' is the default command
-    # note: set_default_subparser modifies sys.argv
+                                  
+                                                   
     parser.set_default_subparser('gui')
     return parser

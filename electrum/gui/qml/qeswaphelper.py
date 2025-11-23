@@ -34,7 +34,7 @@ class InvalidSwapParameters(Exception): pass
 class QESwapServerNPubListModel(QAbstractListModel):
     _logger = get_logger(__name__)
 
-    # define listmodel rolemap
+                              
     _ROLE_NAMES= ('npub', 'server_pubkey', 'timestamp', 'percentage_fee', 'mining_fee',
                   'min_amount', 'max_forward_amount', 'max_reverse_amount', 'pow_bits', 'color')
     _ROLE_KEYS = range(Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + len(_ROLE_NAMES))
@@ -48,7 +48,7 @@ class QESwapServerNPubListModel(QAbstractListModel):
     def rowCount(self, index):
         return len(self._services)
 
-    # also expose rowCount as a property
+                                        
     countChanged = pyqtSignal()
     @pyqtProperty(int, notify=countChanged)
     def count(self):
@@ -91,28 +91,28 @@ class QESwapServerNPubListModel(QAbstractListModel):
 
         for i, x in enumerate(self._services):
             if matches := list(filter(lambda offer: offer.server_npub == x['npub'], offers)):
-                # update
+                        
                 self._services[i] = self.offer_to_model(matches[0])
                 index = self.index(i, 0)
                 self.dataChanged.emit(index, index, self._ROLE_KEYS)
                 offers.remove(matches[0])
             else:
-                # add offer to remove items
+                                           
                 remove.append(i)
 
-        # # remove offers from model
+                                    
         for ri in reversed(remove):
             self.beginRemoveRows(QModelIndex(), ri, ri)
             self._services.pop(ri)
             self.endRemoveRows()
 
-        # add new offers
+                        
         if offers:
             for offer in offers:
-                # offers are sorted by pow_bits
+                                               
                 insertion_index = bisect.bisect_left(
                     self._services,
-                    -offer.pow_bits,  # negate the values to get ascending order
+                    -offer.pow_bits,                                            
                     key=lambda service: -service['pow_bits'],
                 )
                 self.beginInsertRows(QModelIndex(), insertion_index, insertion_index)
@@ -158,7 +158,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._sliderPos = 0
         self._rangeMin = -1
         self._rangeMax = 1
@@ -382,7 +382,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
 
     @pyqtSlot(result=bool)
     def isNostr(self):
-        return True  # TODO
+        return True        
 
     def run_swap_manager(self):
         self._logger.debug('run_swap_manager')
@@ -392,10 +392,10 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
 
         assert not swap_manager.is_server, 'running as swap server not supported'
 
-        # if not self._wallet.wallet.config.SWAPSERVER_URL and not self._wallet.wallet.config.SWAPSERVER_NPUB:  # TODO enable nostr
-        #     self._logger.debug('nostr is preferred but swapserver npub still undefined')
+                                                                                                                                   
+                                                                                          
 
-        # FIXME: clearing is_initialized, we might be called because the npub was changed
+                                                                                         
         swap_manager.is_initialized.clear()
         self.state = QESwapHelper.State.Initialized if swap_manager.is_initialized.is_set() else QESwapHelper.State.Initializing
 
@@ -407,16 +407,16 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                 if not swap_manager.is_initialized.is_set():
                     self.userinfo = _('Initializing...')
                     try:
-                        # is_initialized is set if we receive the event of our configured SWAPSERVER_NPUB
-                        # This will timeout if no server is configured, or our server didn't publish recently.
+                                                                                                         
+                                                                                                              
                         timeout = transport.connect_timeout + 1
                         await wait_for2(swap_manager.is_initialized.wait(), timeout=timeout)
                         self._logger.debug('swapmanager initialized')
                         self.state = QESwapHelper.State.Initialized
                     except asyncio.TimeoutError:
-                        # only fail if we didn't get any offers or couldn't connect at all
-                        # otherwise the timeout just means that no offer of the selected npub has
-                        # been found (or that there is no npub selected at all), so the prompt should open
+                                                                                          
+                                                                                                 
+                                                                                                          
                         if isinstance(transport, NostrTransport) and not transport.is_connected.is_set():
                             self.userinfo = _('Error') + ': ' + '\n'.join([
                                 _('Could not connect to a Nostr relay.'),
@@ -430,7 +430,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                             self.state = QESwapHelper.State.NoService
                             return
                     except Exception as e:
-                        try:  # swaphelper might be destroyed at this point
+                        try:                                               
                             self.userinfo = _('Error') + ': ' + str(e)
                             self.state = QESwapHelper.State.NoService
                             self._logger.error(str(e))
@@ -439,8 +439,8 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                         return
 
                 if isinstance(transport, NostrTransport) and not swap_manager.is_initialized.is_set():
-                    # not is_initialized.is_set() = configured provider was not found (or no provider configured)
-                    # prompt user to select a swapserver
+                                                                                                                 
+                                                        
                     self.recent_offers = transport.get_recent_offers()
                     self.offersUpdated.emit()
                     self.undefinedNPub.emit()
@@ -448,8 +448,8 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                     self.setReadyState()
 
                 while True:
-                    # keep fetching new incoming offer events
-                    # the slider range will not get updated continuously as it would irritate the user
+                                                             
+                                                                                                      
                     if isinstance(transport, NostrTransport):
                         if (recent_offers := transport.get_recent_offers()) != self.recent_offers:
                             self._logger.debug(f"received new swap offer")
@@ -484,7 +484,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
 
     @pyqtSlot()
     def setReadyState(self):
-        if self._wallet.wallet.config.SWAPSERVER_NPUB \
+        if self._wallet.wallet.config.SWAPSERVER_NPUB\
                 or not isinstance(self.swap_transport, NostrTransport):
             self.state = QESwapHelper.State.ServiceReady
             self.userinfo = QESwapHelper.MESSAGE_SWAP_HOWTO
@@ -502,32 +502,32 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
     def initSwapSliderRange(self):
         lnworker = self._wallet.wallet.lnworker
         swap_manager = lnworker.swap_manager
-        # update the swap_manager pair so the newest available data is used below
+                                                                                 
         self.update_swap_manager_pair()
 
         """Sets the minimal and maximal amount that can be swapped for the swap
         slider."""
-        # tx is updated again afterwards with send_amount in case of normal swap
-        # this is just to estimate the maximal spendable onchain amount for HTLC
+                                                                                
+                                                                                
         self.update_tx('!')
         try:
             max_onchain_spend = self._tx.output_value_for_address(DummyAddress.SWAP)
-        except AttributeError:  # happens if there are no utxos
+        except AttributeError:                                 
             max_onchain_spend = 0
         reverse = int(min(lnworker.num_sats_can_send(),
                           swap_manager.get_provider_max_forward_amount()))
         max_recv_amt_ln = min(swap_manager.get_provider_max_reverse_amount(), int(lnworker.num_sats_can_receive()))
         max_recv_amt_oc = swap_manager.get_send_amount(max_recv_amt_ln, is_reverse=False) or 0
         forward = int(min(max_recv_amt_oc,
-                          # maximally supported swap amount by provider
+                                                                       
                           swap_manager.get_provider_max_reverse_amount(),
                           max_onchain_spend))
-        # we expect range to adjust the value of the swap slider to be in the
-        # correct range, i.e., to correct an overflow when reducing the limits
+                                                                             
+                                                                              
         self._logger.debug(f'Slider range {-reverse} - {forward}. Pos {self._sliderPos}')
         self.rangeMin = -reverse
         self.rangeMax = forward
-        # percentage of void, right or left
+                                           
         if reverse < forward:
             self._leftVoid = 0.5 * (forward - reverse) / forward
             self._rightVoid = 0
@@ -541,7 +541,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
         self.rightVoidChanged.emit()
 
         if not self.rangeMin <= self._sliderPos <= self.rangeMax:
-            # clamp the slider pos into the given limits
+                                                        
             if abs(self._sliderPos - self.rangeMin) < abs(self._sliderPos - self.rangeMax):
                 self._sliderPos = self.rangeMin
             else:
@@ -583,14 +583,14 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
 
         swap_manager = self._wallet.wallet.lnworker.swap_manager
 
-        # pay_amount and receive_amounts are always with fees already included
-        # so they reflect the net balance change after the swap
+                                                                              
+                                                               
         self.isReverse = (position < 0)
         self._send_amount = abs(position)
         self.tosend = QEAmount(amount_sat=self._send_amount)
         self._receive_amount = swap_manager.get_recv_amount(send_amount=self._send_amount, is_reverse=self.isReverse)
         self.toreceive = QEAmount(amount_sat=self._receive_amount)
-        # fee breakdown
+                       
         self.serverfeeperc = f'{swap_manager.percentage:0.2f}%'
         server_miningfee = swap_manager.mining_fee
         self.serverMiningfee = QEAmount(amount_sat=server_miningfee)
@@ -598,9 +598,9 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
             self.miningfee = QEAmount(amount_sat=swap_manager.get_fee_for_txbatcher())
             self.check_valid(self._send_amount, self._receive_amount)
         else:
-            # update tx only if slider isn't moved for a while
+                                                              
             self.valid = False
-            # trigger tx_update_pushback_timer through signal, as this might be called from other thread
+                                                                                                        
             self.requestTxUpdate.emit()
 
     def tx_update_pushback_timer(self):
@@ -610,15 +610,15 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
         if send_amount and receive_amount:
             self.valid = True
         else:
-            # add more nuanced error reporting?
+                                               
             self.valid = False
 
     def fwd_swap_updatetx(self):
-        # if slider is on reverse swap side when timer hits, ignore
+                                                                   
         if self.isReverse:
             return
         self.update_tx(self._send_amount)
-        # add lockup fees, but the swap amount is position
+                                                          
         pay_amount = self._send_amount + self._tx.get_fee() if self._tx else 0
         self.miningfee = QEAmount(amount_sat=self._tx.get_fee()) if self._tx else QEAmount()
         self.check_valid(pay_amount, self._receive_amount)
@@ -647,7 +647,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
 
                 self.canCancel = True
                 txid = await fut
-                try:  # swaphelper might be destroyed at this point
+                try:                                               
                     if txid:
                         self.userinfo = _('Success!')
                         self.state = QESwapHelper.State.Success
@@ -661,14 +661,14 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                 self.userinfo = _('Swap cancelled')
                 self.state = QESwapHelper.State.Cancelled
             except Exception as e:
-                try:  # swaphelper might be destroyed at this point
+                try:                                               
                     self.state = QESwapHelper.State.Failed
                     self.userinfo = _('Error') + ': ' + str(e)
                     self._logger.error(str(e))
                 except RuntimeError:
                     pass
             finally:
-                try:  # swaphelper might be destroyed at this point
+                try:                                               
                     self.canCancel = False
                     self._swap = None
                     self._fut_htlc_wait = None
@@ -678,11 +678,11 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
         asyncio.run_coroutine_threadsafe(swap_task(), get_asyncio_loop())
 
     def _create_tx(self, onchain_amount: Union[int, str, None]) -> PartialTransaction:
-        # TODO: func taken from qt GUI, this should be common code
+                                                                  
         assert not self.isReverse
         if onchain_amount is None:
             raise InvalidSwapParameters("onchain_amount is None")
-        # coins = self.window.get_coins()
+                                         
         coins = self._wallet.wallet.get_spendable_coins()
         if onchain_amount == '!':
             max_amount = sum(c.value_sats() for c in coins)
@@ -721,7 +721,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                     expected_onchain_amount_sat=onchain_amount + swap_manager.get_fee_for_txbatcher(),
                     prepayment_sat=2 * self.serverMiningfee.satsInt,
                 )
-                try:  # swaphelper might be destroyed at this point
+                try:                                               
                     if txid:
                         self.userinfo = _('Success!')
                         self.state = QESwapHelper.State.Success
@@ -731,7 +731,7 @@ class QESwapHelper(AuthMixin, QObject, QtEventListener):
                 except RuntimeError:
                     pass
             except Exception as e:
-                try:  # swaphelper might be destroyed at this point
+                try:                                               
                     self.state = QESwapHelper.State.Failed
                     msg = _('Timeout') if isinstance(e, TimeoutError) else str(e)
                     self.userinfo = _('Error') + ': ' + msg

@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - Lightweight Bitcoin Client
-# Copyright (C) 2022 The Electrum Developers
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                            
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import os
 import asyncio
@@ -57,7 +57,7 @@ class PayServerPlugin(BasePlugin):
 
     @hook
     def daemon_wallet_loaded(self, daemon: 'Daemon', wallet: 'Abstract_Wallet'):
-        # we use the first wallet loaded
+                                        
         if self.server is not None:
             return
         if self.config.NETWORK_OFFLINE:
@@ -108,9 +108,9 @@ class PayServer(Logger, EventListener):
         app.add_routes([web.get('/api/get_invoice', self.get_request)])
         app.add_routes([web.get('/api/get_status', self.get_status)])
         app.add_routes([web.get('/bip70/{key}.bip70', self.get_bip70_request)])
-        # 'follow_symlinks=True' allows symlinks to traverse out the parent directory.
-        # This was requested by distro packagers for vendored libs, and we restrict it to only those
-        # to minimise attack surface. note: "add_routes" call order matters (inner path goes first)
+                                                                                      
+                                                                                                    
+                                                                                                   
         app.add_routes([web.static(f"{self.root}/vendor", os.path.join(self.WWW_DIR, 'vendor'), follow_symlinks=True)])
         app.add_routes([web.static(self.root, self.WWW_DIR)])
         if self.config.PAYSERVER_ALLOW_CREATE_INVOICE:
@@ -179,7 +179,7 @@ class PayServer(Logger, EventListener):
                 await util.wait_for2(self.pending[key].wait(), 1)
                 break
             except asyncio.TimeoutError:
-                # send data on the websocket, to keep it alive
+                                                              
                 await ws.send_str('waiting')
         await ws.send_str('paid')
         await ws.close()

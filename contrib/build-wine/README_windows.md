@@ -61,6 +61,5 @@ for discussion)
 ### 3. Run electrum:
 
 ```
-> python3 ./run_electrum
+> python3 ./run_405litewallet
 ```
-

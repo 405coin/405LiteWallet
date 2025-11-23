@@ -10,14 +10,15 @@ ElComboBox {
 
     textRole: 'text'
     valueRole: 'value'
+    readonly property bool hasOptions: model.length > 1
 
     model: [
-        { text: qsTr('ETA'), value: FeeSlider.FSMethod.ETA },
-        { text: qsTr('Mempool'), value: FeeSlider.FSMethod.MEMPOOL },
         { text: qsTr('Feerate'), value: FeeSlider.FSMethod.FEERATE }
     ]
+    visible: hasOptions
+    enabled: hasOptions
     onCurrentValueChanged: {
-        if (activeFocus)
+        if (activeFocus && hasOptions)
             feeslider.method = currentValue
     }
     Component.onCompleted: {

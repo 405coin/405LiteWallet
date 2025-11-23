@@ -21,7 +21,7 @@ ElDialog {
     title: qsTr('Transaction Fee')
     iconSource: Qt.resolvedUrl('../../icons/question.png')
 
-    // copy these to finalizer
+    
     onAddressChanged: finalizer.address = address
     onSatoshisChanged: finalizer.amount = satoshis
 

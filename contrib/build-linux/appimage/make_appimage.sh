@@ -19,9 +19,9 @@ git -C "$PROJECT_ROOT" rev-parse 2>/dev/null || fail "Building outside a git clo
 
 export GCC_STRIP_BINARIES="1"
 
-# pinned versions
+
 PYTHON_VERSION=3.12.11
-PY_VER_MAJOR="3.12"  # as it appears in fs paths
+PY_VER_MAJOR="3.12"
 PKG2APPIMAGE_COMMIT="a9c85b7e61a3a883f4a35c41c5decb5af88b6b5d"
 
 VERSION=$(git describe --tags --dirty --always)
@@ -30,7 +30,7 @@ APPIMAGE="$DISTDIR/electrum-$VERSION-x86_64.AppImage"
 rm -rf "$BUILDDIR"
 mkdir -p "$APPDIR" "$CACHEDIR" "$PIP_CACHE_DIR" "$DISTDIR" "$DLL_TARGET_DIR"
 
-# potential leftover from setuptools that might make pip put garbage in binary
+
 rm -rf "$PROJECT_ROOT/build"
 
 
@@ -40,8 +40,8 @@ verify_hash "$CACHEDIR/functions.sh" "8f67711a28635b07ce539a9b083b8c12d5488c0000
 
 download_if_not_exist "$CACHEDIR/appimagetool" "https://github.com/AppImage/appimagetool/releases/download/1.9.0/appimagetool-x86_64.AppImage"
 verify_hash "$CACHEDIR/appimagetool" "46fdd785094c7f6e545b61afcfb0f3d98d8eab243f644b4b17698c01d06083d1"
-# note: desktop-file-utils in the docker image is needed to run desktop-file-validate for appimagetool <= 1.9.0, so it can be removed once
-# appimagetool tags a new release (see https://github.com/AppImage/appimagetool/pull/47)
+
+
 
 download_if_not_exist "$CACHEDIR/Python-$PYTHON_VERSION.tar.xz" "https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tar.xz"
 verify_hash "$CACHEDIR/Python-$PYTHON_VERSION.tar.xz" "c30bb24b7f1e9a19b11b55a546434f74e739bb4c271a3e3a80ff4380d49f7adb"
@@ -58,7 +58,7 @@ tar xf "$CACHEDIR/Python-$PYTHON_VERSION.tar.xz" -C "$CACHEDIR"
     cd "$CACHEDIR/Python-$PYTHON_VERSION"
     LC_ALL=C export BUILD_DATE=$(date -u -d "@$SOURCE_DATE_EPOCH" "+%b %d %Y")
     LC_ALL=C export BUILD_TIME=$(date -u -d "@$SOURCE_DATE_EPOCH" "+%H:%M:%S")
-    # Patches taken from Ubuntu http://archive.ubuntu.com/ubuntu/pool/main/p/python3.11/python3.11_3.11.6-3.debian.tar.xz
+
     patch -p1 < "$CONTRIB_APPIMAGE/patches/python-3.11-reproducible-buildinfo.diff"
     ./configure \
         --cache-file="$CACHEDIR/python.config.cache" \
@@ -72,11 +72,11 @@ info "installing python."
 (
     cd "$CACHEDIR/Python-$PYTHON_VERSION"
     make -s install > /dev/null || fail "Could not install Python"
-    # When building in docker on macOS, python builds with .exe extension because the
-    # case insensitive file system of macOS leaks into docker. This causes the build
-    # to result in a different output on macOS compared to Linux. We simply patch
-    # sysconfigdata to remove the extension.
-    # Some more info: https://bugs.python.org/issue27631
+
+
+
+
+
     sed -i -e 's/\.exe//g' "${APPDIR}/usr/lib/python${PY_VER_MAJOR}"/_sysconfigdata*
 )
 
@@ -92,7 +92,7 @@ cp -f "$DLL_TARGET_DIR"/libsecp256k1.so.* "$APPDIR/usr/lib/" || fail "Could not 
 if [ -f "$DLL_TARGET_DIR/libzbar.so.0" ]; then
     info "libzbar already built, skipping"
 else
-    # note: could instead just use the libzbar0 pkg from debian/apt, but that is too old and missing fixes for CVE-2023-40889
+
     "$CONTRIB"/make_zbar.sh || fail "Could not build zbar"
 fi
 cp -f "$DLL_TARGET_DIR/libzbar.so.0" "$APPDIR/usr/lib/" || fail "Could not copy libzbar to its destination"
@@ -117,27 +117,27 @@ break_legacy_easy_install
 info "preparing electrum-locale."
 (
     "$CONTRIB/locale/build_cleanlocale.sh"
-    # we want the binary to have only compiled (.mo) locale files; not source (.po) files
+
     rm -r "$PROJECT_ROOT/electrum/locale/locale"/*/electrum.po
 )
 
 
 info "Installing build dependencies."
-# note: re pip installing from PyPI,
-#       we prefer compiling C extensions ourselves, instead of using binary wheels,
-#       hence "--no-binary :all:" flags. However, we specifically allow
-#       - PyQt6, as it's harder to build from source
-#       - cryptography, as it's harder to build from source
-#       - the whole of "requirements-build-base.txt", which includes pip and friends, as it also includes "wheel",
-#         and I am not quite sure how to break the circular dependence there (I guess we could introduce
-#         "requirements-build-base-base.txt" with just wheel in it...)
+
+
+
+
+
+
+
+
 "$python" -m pip install --no-build-isolation --no-dependencies --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-build-base.txt"
 "$python" -m pip install --no-build-isolation --no-dependencies --no-binary :all: --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" -r "$CONTRIB/deterministic-build/requirements-build-appimage.txt"
 
 
-# opt out of compiling C extensions
+
 export YARL_NO_EXTENSIONS=1
 export FROZENLIST_NO_EXTENSIONS=1
 
@@ -154,16 +154,16 @@ info "installing electrum and its dependencies."
 "$python" -m pip install --no-build-isolation --no-dependencies --no-warn-script-location \
     --cache-dir "$PIP_CACHE_DIR" "$PROJECT_ROOT"
 
-# was only needed during build time, not runtime
+
 "$python" -m pip uninstall -y Cython
 
 
 info "desktop integration."
-cp "$PROJECT_ROOT/electrum.desktop" "$APPDIR/electrum.desktop"
-cp "$PROJECT_ROOT/electrum/gui/icons/electrum.png" "$APPDIR/electrum.png"
+cp "$PROJECT_ROOT/405litewallet.desktop" "$APPDIR/405litewallet.desktop"
+cp "$PROJECT_ROOT/electrum/gui/icons/405litewallet.png" "$APPDIR/405litewallet.png"
 
 
-# add launcher
+
 cp "$CONTRIB_APPIMAGE/apprun.sh" "$APPDIR/AppRun"
 
 info "finalizing AppDir."
@@ -172,12 +172,12 @@ info "finalizing AppDir."
     . "$CACHEDIR/functions.sh"
 
     cd "$APPDIR"
-    # copy system dependencies
+
     copy_deps; copy_deps; copy_deps
     move_lib
 
-    # apply global appimage blacklist to exclude stuff
-    # move usr/include out of the way to preserve usr/include/python${PY_VER_MAJOR}.
+
+
     mv usr/include usr/include.tmp
     delete_blacklisted
     mv usr/include.tmp usr/include
@@ -185,17 +185,17 @@ info "finalizing AppDir."
 
 info "Copying additional libraries"
 (
-    # On some systems it can cause problems to use the system libusb (on AppImage excludelist)
+
     cp -f /usr/lib/x86_64-linux-gnu/libusb-1.0.so "$APPDIR/usr/lib/libusb-1.0.so" || fail "Could not copy libusb"
-    # some distros lack libxkbcommon-x11
+
     cp -f /usr/lib/x86_64-linux-gnu/libxkbcommon-x11.so.0 "$APPDIR"/usr/lib/x86_64-linux-gnu || fail "Could not copy libxkbcommon-x11"
-    # some distros lack some libxcb libraries (see https://github.com/Electron-Cash/Electron-Cash/issues/2196)
+
     cp -f /usr/lib/x86_64-linux-gnu/libxcb-* "$APPDIR"/usr/lib/x86_64-linux-gnu || fail "Could not copy libxcb"
 )
 
 info "stripping binaries from debug symbols."
-# "-R .note.gnu.build-id" also strips the build id
-# "-R .comment" also strips the GCC version information
+
+
 strip_binaries()
 {
     chmod u+w -R "$APPDIR"
@@ -223,7 +223,7 @@ rm -rf "$PYDIR"/config-3.*-x86_64-linux-gnu
 rm -rf "$PYDIR"/site-packages/{opt,pip,setuptools,wheel}
 rm -rf "$PYDIR"/site-packages/Cryptodome/SelfTest
 rm -rf "$PYDIR"/site-packages/{psutil,qrcode,websocket}/tests
-# rm lots of unused parts of Qt/PyQt. (assuming PyQt 6 layout)
+
 for component in connectivity declarative help location multimedia quickcontrols2 serialport webengine websockets xmlpatterns ; do
     rm -rf "$PYDIR"/site-packages/PyQt6/Qt6/translations/qt${component}_*
     rm -rf "$PYDIR"/site-packages/PyQt6/Qt6/resources/qt${component}_*
@@ -241,10 +241,10 @@ for component in Qml Quick ; do
 done
 rm -rf "$PYDIR"/site-packages/PyQt6/Qt.so
 
-# these are deleted as they were not deterministic; and are not needed anyway
+
 find "$APPDIR" -path '*/__pycache__*' -delete
-# although note that *.dist-info might be needed by certain packages...
-# e.g. slip10 uses importlib that needs it
+
+
 for f in "$PYDIR"/site-packages/slip10-*.dist-info; do mv "$f" "$(echo "$f" | sed s/\.dist-info/\.dist-info2/)"; done
 rm -rf "$PYDIR"/site-packages/*.dist-info/
 rm -rf "$PYDIR"/site-packages/*.egg-info/
@@ -258,15 +258,15 @@ info "creating the AppImage."
 (
     cd "$BUILDDIR"
     cp "$CACHEDIR/appimagetool" "$CACHEDIR/appimagetool_copy"
-    # zero out "appimage" magic bytes, as on some systems they confuse the linker
+
     sed -i 's|AI\x02|\x00\x00\x00|' "$CACHEDIR/appimagetool_copy"
     chmod +x "$CACHEDIR/appimagetool_copy"
     "$CACHEDIR/appimagetool_copy" --appimage-extract
-    # We build a small wrapper for mksquashfs that removes the -mkfs-time option
-    # as it conflicts with SOURCE_DATE_EPOCH.
+
+
     mv "$BUILDDIR/squashfs-root/usr/bin/mksquashfs" "$BUILDDIR/squashfs-root/usr/bin/mksquashfs_orig"
     cat > "$BUILDDIR/squashfs-root/usr/bin/mksquashfs" << EOF
-#!/bin/sh
+
 args=\$(echo "\$@" | sed -e 's/-mkfs-time 0//')
 "$BUILDDIR/squashfs-root/usr/bin/mksquashfs_orig" \$args
 EOF

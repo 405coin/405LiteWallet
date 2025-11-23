@@ -1,22 +1,22 @@
-# Copyright (c) 2018 Andrew R. Kozlik
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of
-# this software and associated documentation files (the "Software"), to deal in
-# the Software without restriction, including without limitation the rights to
-# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-# of the Software, and to permit persons to whom the Software is furnished to do
-# so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#
+                                     
+ 
+                                                                                 
+                                                                               
+                                                                              
+                                                                               
+                                                                                
+                                          
+ 
+                                                                                
+                                                 
+ 
+                                                                            
+                                                                          
+                                                                             
+                                                                                   
+                                                                                 
+                                                                            
+ 
 
 """
 This implements the high-level functions for SLIP-39, also called "Shamir Backup".
@@ -218,7 +218,7 @@ def recover_ems(mnemonics: List[str]) -> EncryptedSeed:
         groups,
     ) = _decode_mnemonics(mnemonics)
 
-    # Use only groups that have at least the threshold number of shares.
+                                                                        
     groups = {group_index: group for group_index, group in groups.items() if len(group[1]) >= group[0]}
 
     if len(groups) < group_threshold:
@@ -311,7 +311,7 @@ def get_wordlist() -> Wordlist:
 
 
 def process_mnemonics(mnemonics: List[str]) -> Tuple[Optional[EncryptedSeed], str]:
-    # Collect valid shares.
+                           
     shares = []
     for i, mnemonic in enumerate(mnemonics):
         try:
@@ -324,8 +324,8 @@ def process_mnemonics(mnemonics: List[str]) -> Tuple[Optional[EncryptedSeed], st
     if not shares:
         return None, _('No valid shares.')
 
-    # Sort shares into groups.
-    groups: Dict[int, Set[Share]] = defaultdict(set)  # group idx : shares
+                              
+    groups: Dict[int, Set[Share]] = defaultdict(set)                      
     common_params = shares[0].common_parameters()
     for share in shares:
         if share.common_parameters() != common_params:
@@ -337,7 +337,7 @@ def process_mnemonics(mnemonics: List[str]) -> Tuple[Optional[EncryptedSeed], st
                 return None, _ERROR_STYLE % error_text
         groups[share.group_index].add(share)
 
-    # Compile information about groups.
+                                       
     groups_completed = 0
     for i, group in groups.items():
         if group:
@@ -515,10 +515,10 @@ def _precompute_exp_log() -> Tuple[List[int], List[int]]:
         exp[i] = poly
         log[poly] = i
 
-        # Multiply poly by the polynomial x + 1.
+                                                
         poly = (poly << 1) ^ poly
 
-        # Reduce poly by x^8 + x^4 + x^3 + x + 1.
+                                                 
         if poly & 0x100:
             poly ^= 0x11B
 
@@ -555,12 +555,12 @@ def _interpolate(shares, x) -> bytes:
             if share[0] == x:
                 return share[1]
 
-    # Logarithm of the product of (x_i - x) for i = 1, ... , k.
+                                                               
     log_prod = sum(_LOG_TABLE[share[0] ^ x] for share in shares)
 
     result = bytes(share_value_lengths.pop())
     for share in shares:
-        # The logarithm of the Lagrange basis polynomial evaluated at x.
+                                                                        
         log_basis_eval = (
             log_prod
             - _LOG_TABLE[share[0] ^ x]
@@ -605,7 +605,7 @@ def _create_digest(random_data: bytes, shared_secret: bytes) -> bytes:
 
 
 def _recover_secret(threshold: int, shares: List[Tuple[int, bytes]]) -> bytes:
-    # If the threshold is 1, then the digest of the shared secret is not used.
+                                                                              
     if threshold == 1:
         return shares[0][1]
 
@@ -629,8 +629,8 @@ def _decode_mnemonics(
     group_thresholds = set()
     group_counts = set()
 
-    # { group_index : [threshold, set_of_member_shares] }
-    groups = {}  # type: MnemonicGroups
+                                                         
+    groups = {}                        
     for mnemonic in mnemonics:
         share = decode_mnemonic(mnemonic)
         identifiers.add(share.identifier)

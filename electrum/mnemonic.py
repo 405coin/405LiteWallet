@@ -1,27 +1,27 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2014 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import math
 import hashlib
@@ -36,7 +36,7 @@ from . import version
 from .logging import Logger
 
 
-# http://www.asahi-net.or.jp/~ax2s-kmtn/ref/unicode/e_asia.html
+                                                               
 CJK_INTERVALS = [
     (0x4E00, 0x9FFF, 'CJK Unified Ideographs'),
     (0x3400, 0x4DBF, 'CJK Unified Ideographs Extension A'),
@@ -78,15 +78,15 @@ def is_CJK(c: str) -> bool:
 
 
 def normalize_text(seed: str) -> str:
-    # normalize
+               
     seed = unicodedata.normalize('NFKD', seed)
-    # lower
+           
     seed = seed.lower()
-    # remove accents
+                    
     seed = u''.join([c for c in seed if not unicodedata.combining(c)])
-    # normalize whitespaces
+                           
     seed = u' '.join(seed.split())
-    # remove whitespaces between CJK
+                                    
     seed = u''.join([seed[i] for i in range(len(seed)) if not (seed[i] in string.whitespace and is_CJK(seed[i-1]) and is_CJK(seed[i+1]))])
     return seed
 
@@ -101,7 +101,7 @@ def is_matching_seed(*, seed: str, seed_again: str) -> bool:
     return seed == seed_again
 
 
-_WORDLIST_CACHE = {}  # type: Dict[str, Wordlist]
+_WORDLIST_CACHE = {}                             
 
 
 class Wordlist(tuple):
@@ -109,7 +109,7 @@ class Wordlist(tuple):
     def __init__(self, words: Sequence[str]):
         super().__init__()
         index_from_word = {w: i for i, w in enumerate(words)}
-        self._index_from_word = MappingProxyType(index_from_word)  # no mutation
+        self._index_from_word = MappingProxyType(index_from_word)               
 
     def index(self, word: str, start=None, stop=None) -> int:
         try:
@@ -155,8 +155,8 @@ filenames = {
 
 
 class Mnemonic(Logger):
-    # Seed derivation does not follow BIP39
-    # Mnemonic phrase uses a hash based checksum, instead of a wordlist-dependent checksum
+                                           
+                                                                                          
 
     def __init__(self, lang: str = None):
         Logger.__init__(self)
@@ -205,15 +205,15 @@ class Mnemonic(Logger):
         if num_bits is None:
             num_bits = 132
         prefix = version.seed_prefix(seed_type)
-        # increase num_bits in order to obtain a uniform distribution for the last word
+                                                                                       
         bpw = math.log(len(self.wordlist), 2)
         num_bits = int(math.ceil(num_bits/bpw) * bpw)
         self.logger.info(f"make_seed. prefix: '{prefix}', entropy: {num_bits} bits")
-        # generate random
+                         
         entropy = 1
-        while entropy < pow(2, num_bits - bpw):  # try again if seed would not contain enough words
+        while entropy < pow(2, num_bits - bpw):                                                    
             entropy = randrange(pow(2, num_bits))
-        # brute-force seed that has correct "version number"
+                                                            
         nonce = 0
         while True:
             nonce += 1
@@ -223,9 +223,9 @@ class Mnemonic(Logger):
                 raise Exception('Cannot extract same entropy from mnemonic!')
             if is_old_seed(seed):
                 continue
-            # Make sure the mnemonic we generate is not also a valid bip39 seed
-            # by accident. Note that this test has not always been done historically,
-            # so it cannot be relied upon.
+                                                                               
+                                                                                     
+                                          
             if bip39_is_checksum_valid(seed, wordlist=self.wordlist) == (True, True):
                 continue
             if is_new_seed(seed, prefix):
@@ -233,7 +233,7 @@ class Mnemonic(Logger):
         num_words = len(seed.split())
         self.logger.info(f'{num_words} words')
         if (final_seed_type := calc_seed_type(seed)) != seed_type:
-            # note: I guess this can probabilistically happen for old "2fa" seeds that depend on the word count
+                                                                                                               
             raise Exception(f"{final_seed_type=!r} does not match requested {seed_type=!r}. have {num_words=!r}")
         return seed
 
@@ -249,7 +249,7 @@ def is_old_seed(seed: str) -> bool:
     seed = normalize_text(seed)
     words = seed.split()
     try:
-        # checks here are deliberately left weak for legacy reasons, see #3149
+                                                                              
         old_mnemonic.mn_decode(words)
         uses_electrum_words = True
     except Exception:
@@ -271,9 +271,9 @@ def calc_seed_type(x: str) -> str:
     elif is_new_seed(x, version.SEED_PREFIX_SW):
         return 'segwit'
     elif is_new_seed(x, version.SEED_PREFIX_2FA) and (num_words == 12 or num_words >= 20):
-        # Note: in Electrum 2.7, there was a breaking change in key derivation
-        #       for this seed type. Unfortunately the seed version/prefix was reused,
-        #       and now we can only distinguish them based on number of words. :(
+                                                                              
+                                                                                     
+                                                                                 
         return '2fa'
     elif is_new_seed(x, version.SEED_PREFIX_2FA_SW):
         return '2fa_segwit'
@@ -287,13 +287,13 @@ def can_seed_have_passphrase(seed: str) -> bool:
     if stype == 'old':
         return False
     if stype == '2fa':
-        # post-version-2.7 2fa seeds can have passphrase, but older ones cannot
+                                                                               
         num_words = len(seed.split())
         if num_words == 12:
             return True
         else:
             return False
-    # all other types can have a seed extension/passphrase
+                                                          
     return True
 
 

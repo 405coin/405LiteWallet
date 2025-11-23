@@ -1,5 +1,5 @@
-# loosely based on
-# http://trevorius.com/scrapbook/uncategorized/pyqt-custom-abstractitemmodel/
+
+
 
 from PyQt6 import QtCore
 
@@ -17,7 +17,7 @@ class CustomNode:
         return self._data
 
     def get_data_for_role(self, index, role):
-        # define in child class
+
         raise NotImplementedError()
 
     def childCount(self):
@@ -62,17 +62,17 @@ class CustomModel(QtCore.QAbstractItemModel):
         parent.addChild(self, node)
 
     def index(self, row, column, _parent=None):
-        # Performance-critical function
+
 
         if not _parent or not _parent.isValid():
             parent = self._root
         else:
             parent = _parent.internalPointer()
 
-        # Open-coded
-        #   if not QtCore.QAbstractItemModel.hasIndex(self, row, column, _parent):
-        # the implementation is equivalent but it's in C++,
-        # so VM entries take up inordinate amounts of time (up to 25% of refresh()):
+
+
+
+
         if row < 0 or column < 0 or row >= self.rowCount(_parent) or column >= self._columncount:
             return QtCore.QModelIndex()
 

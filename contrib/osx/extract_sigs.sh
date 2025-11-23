@@ -1,9 +1,9 @@
 #!/bin/sh
-# Copyright (c) 2014-2019 The Bitcoin Core developers
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#
-# This script is based on https://github.com/bitcoin/bitcoin/blob/194b9b8792d9b0798fdb570b79fa51f1d1f5ebaf/contrib/macdeploy/detached-sig-create.sh
+
+
+
+
+
 
 export LC_ALL=C
 set -e
@@ -34,7 +34,7 @@ MAYBE_SIGNED_FILES=$(
 )
 
 echo "${MAYBE_SIGNED_FILES}" | while read i; do
-    # skip files where pagestuff errors; these probably do not need signing:
+
     pagestuff "$i" -p 1>/dev/null 2>/dev/null || continue
     TARGETFILE="${BUNDLE_BASENAME}/$(echo "${i}" | sed "s|.*${BUNDLE}/||")"
     SIZE=$(pagestuff "$i" -p | tail -2 | grep size | sed 's/[^0-9]*//g')
@@ -48,7 +48,7 @@ echo "${MAYBE_SIGNED_FILES}" | while read i; do
     dd if="$i" of="${SIGNFILE}" bs=1 skip=${OFFSET} count=${SIZE} 2>/dev/null
 done
 
-# note: "$BUNDLE/Contents/CodeResources" is the "notarization staple id"
+
 FILES_TO_COPY=$(cat << EOF
 $BUNDLE/Contents/_CodeSignature/CodeResources
 $([ "${IS_NOTARIZED:-true}" != "false" ] && echo "$BUNDLE/Contents/CodeResources")

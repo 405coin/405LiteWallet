@@ -1,5 +1,5 @@
 .git/
-####-*.patch
+
 **/*.pyc
 *.swp
 build/
@@ -22,13 +22,13 @@ electrum_data
 contrib/trigger_website
 contrib/trigger_binaries
 
-# tests/tox
+
 .tox/
 .cache/
 .coverage
 .pytest_cache
 
-# build workspaces
+
 contrib/build-wine/tmp/
 contrib/build-wine/build/
 contrib/build-wine/.cache/
@@ -45,7 +45,7 @@ contrib/zbar/
 contrib/libusb/
 contrib/.venv_make_packages/
 
-# shared objects
+
 electrum/*.so
 electrum/*.so.*
 electrum/*.dll

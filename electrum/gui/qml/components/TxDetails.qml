@@ -421,7 +421,7 @@ Pane {
             FlatButton {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                icon.source: '../../icons/tab_send.png'
+                icon.source: '../../icons/tab_send.svg'
                 text: qsTr('Broadcast')
                 visible: txdetails.canBroadcast
                 enabled: !txdetails.lockDelay
@@ -437,12 +437,12 @@ Pane {
                 onClicked: {
                     var msg = ''
                     if (txdetails.isComplete) {
-                        if (!txdetails.isMined && !txdetails.mempoolDepth) // local
+                        if (!txdetails.isMined && !txdetails.mempoolDepth) 
                             if (txdetails.lockDelay) {
                                 msg = qsTr('This transaction is fully signed, but can only be broadcast after %1 blocks.').arg(txdetails.lockDelay)
                             } else {
-                                // TODO: iff offline wallet?
-                                // TODO: or also if just temporarily offline?
+                                
+                                
                                 msg = qsTr('This transaction is fully signed, but has not been broadcast yet.')
                             }
                     } else if (txdetails.wallet.isWatchOnly) {
@@ -572,7 +572,7 @@ Pane {
             }
 
             onAccepted: {
-                // replaces parent tx with cpfp tx
+                
                 txdetails.rawtx = cpfpfeebumper.getNewTx()
                 if (txdetails.wallet.canSignWithoutCosigner) {
                     txdetails.signAndBroadcast()

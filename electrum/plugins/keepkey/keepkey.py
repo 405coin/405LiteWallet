@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from electrum.wizard import NewWalletWizard
 
 
-# TREZOR initialization methods
+                               
 TIM_NEW, TIM_RECOVER, TIM_MNEMONIC, TIM_PRIVKEY = range(0, 4)
 
 
@@ -44,7 +44,7 @@ class KeepKey_KeyStore(Hardware_KeyStore):
     def sign_transaction(self, tx, password):
         if tx.is_complete():
             return
-        # previous transactions used as inputs
+                                              
         prev_tx = {}
         for txin in tx.inputs():
             tx_hash = txin.prevout.txid.hex()
@@ -56,11 +56,11 @@ class KeepKey_KeyStore(Hardware_KeyStore):
 
 
 class KeepKeyPlugin(HW_PluginBase):
-    # Derived classes provide:
-    #
-    #  class-static variables: client_class, firmware_URL, handler_class,
-    #     libraries_available, libraries_URL, minimum_firmware,
-    #     wallet_class, ckd_public, types, HidTransport
+                              
+     
+                                                                         
+                                                               
+                                                       
 
     firmware_URL = 'https://www.keepkey.com'
     libraries_URL = 'https://github.com/keepkey/python-keepkey'
@@ -82,9 +82,9 @@ class KeepKeyPlugin(HW_PluginBase):
             self.types = keepkeylib.client.types
             self.DEVICE_IDS = (keepkeylib.transport_hid.DEVICE_IDS +
                                keepkeylib.transport_webusb.DEVICE_IDS)
-            # only "register" hid device id:
+                                            
             self.device_manager().register_devices(keepkeylib.transport_hid.DEVICE_IDS, plugin=self)
-            # for webusb transport, use custom enumerate function:
+                                                                  
             self.device_manager().register_enumerate_func(self.enumerate)
             self.libraries_available = True
         except ImportError:
@@ -132,8 +132,8 @@ class KeepKeyPlugin(HW_PluginBase):
         try:
             return self.hid_transport(pair)
         except BaseException as e:
-            # see fdb810ba622dc7dbe1259cbafb5b28e19d2ab114
-            # raise
+                                                          
+                   
             self.logger.info(f"cannot connect at {device.path} {e}")
             return None
 
@@ -161,7 +161,7 @@ class KeepKeyPlugin(HW_PluginBase):
 
         client = self.client_class(transport, handler, self)
 
-        # Try a ping for device sanity
+                                      
         try:
             client.ping('t')
         except BaseException as e:
@@ -187,7 +187,7 @@ class KeepKeyPlugin(HW_PluginBase):
         client = super().get_client(keystore, force_pair,
                                     devices=devices,
                                     allow_user_interaction=allow_user_interaction)
-        # returns the client for a given keystore. can use xpub
+                                                               
         if client:
             client.used()
         return client
@@ -206,21 +206,21 @@ class KeepKeyPlugin(HW_PluginBase):
             raise Exception(_("The device was disconnected."))
 
         if method == TIM_NEW:
-            strength = 64 * (item + 2)  # 128, 192 or 256
+            strength = 64 * (item + 2)                   
             client.reset_device(True, strength, passphrase_protection,
                                 pin_protection, label, language)
         elif method == TIM_RECOVER:
-            word_count = 24  # looks like this value is ignored by the device, but it has to be one of {12,18,24}
+            word_count = 24                                                                                      
             client.step = 0
             client.recovery_device(word_count, passphrase_protection,
                                        pin_protection, label, language)
         elif method == TIM_MNEMONIC:
-            pin = pin_protection  # It's the pin, not a boolean
+            pin = pin_protection                               
             client.load_device_by_mnemonic(str(item), pin,
                                            passphrase_protection,
                                            label, language)
         else:
-            pin = pin_protection  # It's the pin, not a boolean
+            pin = pin_protection                               
             client.load_device_by_xprv(item, pin, passphrase_protection,
                                        label, language)
 
@@ -285,7 +285,7 @@ class KeepKeyPlugin(HW_PluginBase):
         address_n = client.expand_path(address_path)
         script_type = self.get_keepkey_input_script_type(wallet.txin_type)
 
-        # prepare multisig, if available:
+                                         
         desc = wallet.get_script_descriptor_for_address(address)
         if multi := desc.get_simple_multisig():
             multisig = self._make_multisig(multi)
@@ -300,7 +300,7 @@ class KeepKeyPlugin(HW_PluginBase):
             txinputtype = self.types.TxInputType()
             if txin.is_coinbase_input():
                 prev_hash = b"\x00"*32
-                prev_index = 0xffffffff  # signed int -1
+                prev_index = 0xffffffff                 
             else:
                 if for_sig:
                     assert isinstance(tx, PartialTransaction)
@@ -389,8 +389,8 @@ class KeepKeyPlugin(HW_PluginBase):
             use_create_by_derivation = False
 
             if txout.is_mine and not has_change:
-                # prioritise hiding outputs on the 'change' branch from user
-                # because no more than one change address allowed
+                                                                            
+                                                                 
                 if txout.is_change == any_output_on_change_branch:
                     use_create_by_derivation = True
                     has_change = True
@@ -406,7 +406,7 @@ class KeepKeyPlugin(HW_PluginBase):
     def electrum_tx_to_txtype(self, tx: Optional[Transaction]):
         t = self.types.TransactionType()
         if tx is None:
-            # probably for segwit input and we don't need this prev txn
+                                                                       
             return t
         tx.deserialize()
         t.version = tx.version
@@ -419,7 +419,7 @@ class KeepKeyPlugin(HW_PluginBase):
             o.script_pubkey = out.scriptpubkey
         return t
 
-    # This function is called from the TREZOR libraries (via tx_api)
+                                                                    
     def get_tx(self, tx_hash):
         tx = self.prev_tx[tx_hash]
         return self.electrum_tx_to_txtype(tx)
@@ -430,7 +430,7 @@ class KeepKeyPlugin(HW_PluginBase):
         else:
             return 'keepkey_unlock'
 
-    # insert keepkey pages in new wallet wizard
+                                               
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         views = {
             'keepkey_start': {

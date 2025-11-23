@@ -14,7 +14,7 @@ Pane {
 
     function emitKeyEvent() {
         if (keycode == -1) {
-            keycode = parseInt(key, 36) - 9 + 0x40 // map a-z char to key code
+            keycode = parseInt(key, 36) - 9 + 0x40 
         }
         kbd.keyEvent(keycode, key)
     }
@@ -32,7 +32,7 @@ Pane {
             emitKeyEvent()
         }
 
-        // send keyevent again, otherwise it is ignored
+        
         onDoubleClicked: {
             emitKeyEvent()
         }

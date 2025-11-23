@@ -18,7 +18,7 @@ def get_font_id(filename: str) -> int:
     font_id = _cached_font_ids.get(filename)
     if font_id is not None:
         return font_id
-    # font_id will be negative on error
+                                       
     font_id = QFontDatabase.addApplicationFont(
         os.path.join(os.path.dirname(__file__), '..', 'fonts', filename)
     )
@@ -29,9 +29,9 @@ def get_font_id(filename: str) -> int:
 def draw_qr(
     *,
     qr: Optional[qrcode.main.QRCode],
-    paint_device: QPaintDevice,  # target to paint on
+    paint_device: QPaintDevice,                      
     is_enabled: bool = True,
-    min_boxsize: int = 2,  # min size in pixels of single black/white unit box of the qr code
+    min_boxsize: int = 2,                                                                    
 ) -> None:
     """Draw 'qr' onto 'paint_device'.
     - qr.box_size is ignored. We will calculate our own boxsize to fill the whole size of paint_device.
@@ -53,8 +53,8 @@ def draw_qr(
         qp.end()
         return
 
-    # note: next line can raise qrcode.exceptions.DataOverflowError (or ValueError)
-    matrix = qr.get_matrix()  # includes qr.border
+                                                                                   
+    matrix = qr.get_matrix()                      
     k = len(matrix)
     qp = QtGui.QPainter()
     qp.begin(paint_device)
@@ -62,8 +62,8 @@ def draw_qr(
     framesize = min(r.width(), r.height())
     boxsize = int(framesize / k)
     if boxsize < min_boxsize:
-        # The amount of data is still within what can fit into a QR code,
-        # however we don't have enough pixels to draw it.
+                                                                         
+                                                         
         qp.setBrush(white)
         qp.setPen(white)
         qp.drawRect(0, 0, r.width(), r.height())
@@ -76,11 +76,11 @@ def draw_qr(
     size = k * boxsize
     left = (framesize - size) / 2
     top = (framesize - size) / 2
-    # Draw white background with margin
+                                       
     qp.setBrush(white)
     qp.setPen(white)
     qp.drawRect(0, 0, framesize, framesize)
-    # Draw qr code
+                  
     qp.setBrush(black if is_enabled else grey)
     qp.setPen(black_pen)
     for r in range(k):
@@ -96,20 +96,20 @@ def paintQR(data) -> Optional[QImage]:
     if not data:
         return None
 
-    # Create QR code
+                    
     qr = qrcode.QRCode()
     qr.add_data(data)
 
-    # Create a QImage to draw on
+                                
     matrix = qr.get_matrix()
     k = len(matrix)
     boxsize = 5
     size = k * boxsize
 
-    # Create the image with appropriate size
+                                            
     base_img = QImage(size, size, QImage.Format.Format_ARGB32)
 
-    # Use draw_qr to paint on the image
+                                       
     draw_qr(
         qr=qr,
         paint_device=base_img,
@@ -138,7 +138,7 @@ class TaskThread(QThread, Logger):
         Logger.__init__(self)
         self.on_error = on_error
         self.tasks = queue.Queue()
-        self._cur_task = None  # type: Optional[TaskThread.Task]
+        self._cur_task = None                                   
         self._stopping = False
         self.doneSig.connect(self.on_done)
         self.start()
@@ -155,7 +155,7 @@ class TaskThread(QThread, Logger):
         while True:
             if self._stopping:
                 break
-            task = self.tasks.get()  # type: TaskThread.Task
+            task = self.tasks.get()                         
             self._cur_task = task
             if not task or self._stopping:
                 break
@@ -166,7 +166,7 @@ class TaskThread(QThread, Logger):
                 self.doneSig.emit(sys.exc_info(), task.cb_done, task.cb_error)
 
     def on_done(self, result, cb_done, cb_result):
-        # This runs in the parent's thread.
+                                           
         if cb_done:
             cb_done()
         if cb_result:
@@ -174,12 +174,12 @@ class TaskThread(QThread, Logger):
 
     def stop(self):
         self._stopping = True
-        # try to cancel currently running task now.
-        # if the task does not implement "cancel", we will have to wait until it finishes.
+                                                   
+                                                                                          
         task = self._cur_task
         if task and task.cancel:
             task.cancel()
-        # cancel the remaining tasks in the queue
+                                                 
         while True:
             try:
                 task = self.tasks.get_nowait()
@@ -187,6 +187,6 @@ class TaskThread(QThread, Logger):
                 break
             if task and task.cancel:
                 task.cancel()
-        self.tasks.put(None)  # in case the thread is still waiting on the queue
+        self.tasks.put(None)                                                    
         self.exit()
         self.wait()

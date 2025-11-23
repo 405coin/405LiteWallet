@@ -1,4 +1,4 @@
-# based on https://github.com/kivy/python-for-android/blob/master/Dockerfile
+
 
 FROM debian:bookworm@sha256:d568e251e460295a8743e9d5ef7de673c5a8f9027db11f4e666e96fb5bed708e
 
@@ -6,15 +6,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV ANDROID_HOME="/opt/android"
 
-# need ca-certificates before using snapshot packages
+
 RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends \
     ca-certificates
 
-# pin the distro packages.
+
 COPY contrib/android/apt.sources.list /etc/apt/sources.list
 COPY contrib/android/apt.preferences /etc/apt/preferences.d/snapshot
 
-# configure locale
+
 RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends --allow-downgrades \
     locales && \
     locale-gen en_US.UTF-8
@@ -33,31 +33,31 @@ RUN apt -y update -qq \
 
 
 ENV ANDROID_NDK_HOME="${ANDROID_HOME}/android-ndk"
-#ENV ANDROID_NDK_VERSION="23b"
-#ENV ANDROID_NDK_HASH="c6e97f9c8cfe5b7be0a9e6c15af8e7a179475b7ded23e2d1c1fa0945d6fb4382"
-#ENV ANDROID_NDK_VERSION="27d"
-#ENV ANDROID_NDK_HASH="601246087a682d1944e1e16dd85bc6e49560fe8b6d61255be2829178c8ed15d9"
+
+
+
+
 ENV ANDROID_NDK_VERSION="23d-canary"
 ENV ANDROID_NDK_HASH="6944ffc20ab018ff4ef6a403048d0a99d50a0630c3eae690c8f803c452f46f3e"
 ENV ANDROID_NDK_HOME_V="${ANDROID_NDK_HOME}-r${ANDROID_NDK_VERSION}"
 
-# get the latest version from https://developer.android.com/ndk/downloads/index.html
+
 ENV ANDROID_NDK_ARCHIVE="android-ndk-r${ANDROID_NDK_VERSION}-linux.zip"
 ENV ANDROID_NDK_DL_URL="https://dl.google.com/android/repository/${ANDROID_NDK_ARCHIVE}"
 
-# below disabled in favor of CI build download
 
-# download and install Android NDK
-#RUN curl --location --progress-bar \
-#        "${ANDROID_NDK_DL_URL}" \
-#        --output "${ANDROID_NDK_ARCHIVE}" \
-#    && echo "${ANDROID_NDK_HASH} ${ANDROID_NDK_ARCHIVE}" | sha256sum -c - \
-#    && mkdir --parents "${ANDROID_NDK_HOME_V}" \
-#    && unzip -q "${ANDROID_NDK_ARCHIVE}" -d "${ANDROID_HOME}" \
-#    && ln -sfn "${ANDROID_NDK_HOME_V}" "${ANDROID_NDK_HOME}" \
-#    && rm -rf "${ANDROID_NDK_ARCHIVE}"
 
-# temporary build using NDK from CI
+
+
+
+
+
+
+
+
+
+
+
 ENV CI_REV="12186248"
 ENV CI_NDK_FILE="android-ndk-${CI_REV}-linux-x86_64.zip"
 COPY contrib/android/dl-ndk-ci.sh /tmp/
@@ -70,14 +70,14 @@ RUN /tmp/dl-ndk-ci.sh https://ci.android.com/builds/submitted/${CI_REV}/linux/la
 
 ENV ANDROID_SDK_HOME="${ANDROID_HOME}/android-sdk"
 
-# get the latest version from https://developer.android.com/studio/index.html
+
 ENV ANDROID_SDK_TOOLS_VERSION="9477386"
 ENV ANDROID_SDK_HASH="bd1aa17c7ef10066949c88dc6c9c8d536be27f992a1f3b5a584f9bd2ba5646a0"
 ENV ANDROID_SDK_TOOLS_ARCHIVE="commandlinetools-linux-${ANDROID_SDK_TOOLS_VERSION}_latest.zip"
 ENV ANDROID_SDK_TOOLS_DL_URL="https://dl.google.com/android/repository/${ANDROID_SDK_TOOLS_ARCHIVE}"
 ENV ANDROID_SDK_MANAGER="${ANDROID_SDK_HOME}/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_HOME}"
 
-# download and install Android SDK
+
 RUN curl --location --progress-bar \
         "${ANDROID_SDK_TOOLS_DL_URL}" \
         --output "${ANDROID_SDK_TOOLS_ARCHIVE}" \
@@ -86,12 +86,12 @@ RUN curl --location --progress-bar \
     && unzip -q "${ANDROID_SDK_TOOLS_ARCHIVE}" -d "${ANDROID_SDK_HOME}" \
     && rm -rf "${ANDROID_SDK_TOOLS_ARCHIVE}"
 
-# update Android SDK, install Android API, Build Tools...
+
 RUN mkdir --parents "${ANDROID_SDK_HOME}/.android/" \
     && echo '### User Sources for Android SDK Manager' \
         > "${ANDROID_SDK_HOME}/.android/repositories.cfg"
 
-# accept Android licenses (JDK necessary!)
+
 RUN apt -y update -qq \
     && apt -y install -qq --no-install-recommends --allow-downgrades \
         openjdk-17-jdk-headless \
@@ -102,13 +102,13 @@ RUN yes | ${ANDROID_SDK_MANAGER} --licenses > /dev/null
 ENV ANDROID_SDK_BUILD_TOOLS_MAJOR_V="31"
 ENV ANDROID_SDK_BUILD_TOOLS_VERSION="31.0.0"
 
-# download platforms, API, build tools
+
 RUN ${ANDROID_SDK_MANAGER} "platforms;android-${ANDROID_SDK_BUILD_TOOLS_MAJOR_V}" > /dev/null && \
     ${ANDROID_SDK_MANAGER} "build-tools;${ANDROID_SDK_BUILD_TOOLS_VERSION}" > /dev/null && \
     ${ANDROID_SDK_MANAGER} "extras;android;m2repository" > /dev/null && \
     chmod +x "${ANDROID_SDK_HOME}/cmdline-tools/bin/avdmanager"
 
-# download ANT
+
 ENV APACHE_ANT_VERSION="1.10.13"
 ENV APACHE_ANT_HASH="776be4a5704158f00ef3f23c0327546e38159389bc8f39abbfe114913f88bab1"
 ENV APACHE_ANT_ARCHIVE="apache-ant-${APACHE_ANT_VERSION}-bin.tar.gz"
@@ -125,8 +125,8 @@ RUN curl --location --progress-bar \
     && rm -rf "${APACHE_ANT_ARCHIVE}"
 
 
-# install system/build dependencies
-# https://github.com/kivy/buildozer/blob/master/docs/source/installation.rst#android-on-ubuntu-2004-64bit
+
+
 RUN apt -y update -q \
     && apt -y install -q --no-install-recommends --allow-downgrades \
         python3 \
@@ -162,7 +162,7 @@ RUN apt -y update -q \
     && apt -y autoremove \
     && apt -y clean
 
-# cross compile deps for Qt6
+
 RUN apt -y update -qq \
     && apt -y install -qq --no-install-recommends --allow-downgrades \
         libopengl-dev \
@@ -172,7 +172,7 @@ RUN apt -y update -qq \
     && apt -y clean
 
 
-# create new user to avoid using root; but with sudo access and no password for convenience.
+
 ARG UID=1000
 RUN if [ "$UID" != "0" ] ; then useradd --uid $UID --create-home --shell /bin/bash "user" ; fi
 RUN usermod -append --groups sudo $(id -nu $UID || echo "user")
@@ -185,7 +185,7 @@ RUN chown --recursive ${UID} ${WORK_DIR} ${ANDROID_SDK_HOME}
 RUN chown ${UID} /opt
 USER ${UID}
 
-# venv, VIRTUAL_ENV is used by buildozer to indicate a venv environment
+
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
@@ -197,25 +197,25 @@ RUN /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies 
 RUN /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies --no-binary :all: \
     -r /opt/deterministic-build/requirements-build-android.txt
 
-# install buildozer
+
 ENV BUILDOZER_CHECKOUT_COMMIT="4403ecf445f10b5fbf7c74f4621bf2b922ad35b5"
-# ^ from branch electrum_20240930 (note: careful with force-pushing! see #8162)
+
 RUN cd /opt \
     && git clone https://github.com/spesmilo/buildozer \
     && cd buildozer \
     && git checkout "${BUILDOZER_CHECKOUT_COMMIT}^{commit}" \
     && /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies -e .
 
-# install python-for-android
+
 ENV P4A_CHECKOUT_COMMIT="003451604321deb1f10d879b63450ec76db4a758"
-# ^ from branch electrum_20240930_android_16kb_page_alignment (note: careful with force-pushing! see #8162)
+
 RUN cd /opt \
     && git clone https://github.com/spesmilo/python-for-android \
     && cd python-for-android \
     && git checkout "${P4A_CHECKOUT_COMMIT}^{commit}" \
     && /opt/venv/bin/python3 -m pip install --no-build-isolation --no-dependencies -e .
 
-# build env vars
+
 ENV USE_SDK_WRAPPER=1
 ENV GRADLE_OPTS="-Xmx1536M -Dorg.gradle.jvmargs='-Xmx1536M'"
-#ENV P4A_FULL_DEBUG=1
+

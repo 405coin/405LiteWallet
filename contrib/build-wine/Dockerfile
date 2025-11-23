@@ -1,10 +1,10 @@
 FROM debian:bookworm@sha256:b37bc259c67238d814516548c17ad912f26c3eed48dd9bb54893eafec8739c89
 
-# need ca-certificates before using snapshot packages
+
 RUN apt update -qq > /dev/null && apt install -qq --yes --no-install-recommends \
     ca-certificates
 
-# pin the distro packages.
+
 COPY apt.sources.list /etc/apt/sources.list
 COPY apt.preferences /etc/apt/preferences.d/snapshot
 
@@ -56,7 +56,7 @@ RUN DEBIAN_CODENAME=$(lsb_release --codename --short) && \
     apt-get autoremove -y && \
     apt-get clean
 
-# create new user to avoid using root; but with sudo access and no password for convenience.
+
 ARG UID=1000
 RUN if [ "$UID" != "0" ] ; then useradd --uid $UID --create-home --shell /bin/bash "user" ; fi
 RUN usermod -append --groups sudo $(id -nu $UID || echo "user")

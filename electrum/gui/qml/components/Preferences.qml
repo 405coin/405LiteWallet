@@ -179,7 +179,7 @@ Pane {
                                     } else {
                                         focus = false
                                         Config.pinCode = ''
-                                        // re-add binding, pincode still set if auth failed
+                                        
                                         checked = Qt.binding(function () { return Config.pinCode })
                                     }
                                 }
@@ -365,7 +365,7 @@ Pane {
                                             Config.useGossip = true
                                         })
                                         dialog.rejected.connect(function() {
-                                            checked = true // revert
+                                            checked = true 
                                         })
                                         dialog.open()
                                     } else {
@@ -400,7 +400,7 @@ Pane {
                                             Config.useRecoverableChannels = false
                                         })
                                         dialog.rejected.connect(function() {
-                                            checked = true // revert
+                                            checked = true 
                                         })
                                         dialog.open()
                                     } else {

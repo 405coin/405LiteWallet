@@ -1,43 +1,43 @@
-## ripemd.py - pure Python implementation of the RIPEMD-160 algorithm.
-## Bjorn Edstrom <be@bjrn.se> 16 december 2007.
-##
-## Copyrights
-## ==========
-##
-## This code is a derived from an implementation by Markus Friedl which is
-## subject to the following license. This Python implementation is not
-## subject to any other license.
-##
-##/*
-## * Copyright (c) 2001 Markus Friedl.  All rights reserved.
-## *
-## * Redistribution and use in source and binary forms, with or without
-## * modification, are permitted provided that the following conditions
-## * are met:
-## * 1. Redistributions of source code must retain the above copyright
-## *    notice, this list of conditions and the following disclaimer.
-## * 2. Redistributions in binary form must reproduce the above copyright
-## *    notice, this list of conditions and the following disclaimer in the
-## *    documentation and/or other materials provided with the distribution.
-## *
-## * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
-## * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-## * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-## * IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
-## * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-## * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-## * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-## * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-## * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-## */
-##/*
-## * Preneel, Bosselaers, Dobbertin, "The Cryptographic Hash Function RIPEMD-160",
-## * RSA Laboratories, CryptoBytes, Volume 3, Number 2, Autumn 1997,
-## * ftp://ftp.rsasecurity.com/pub/cryptobytes/crypto3n2.pdf
-## */
+                                                                      
+                                               
+  
+             
+             
+  
+                                                                          
+                                                                      
+                                
+  
+    
+                                                            
+    
+                                                                       
+                                                                       
+             
+                                                                      
+                                                                     
+                                                                         
+                                                                           
+                                                                            
+    
+                                                                         
+                                                                              
+                                                                            
+                                                                     
+                                                                             
+                                                                              
+                                                                          
+                                                                        
+                                                                             
+                                                                      
+     
+    
+                                                                                  
+                                                                    
+                                                            
+     
 
-#block_size = 1
+               
 digest_size = 20
 digestsize = 20
 
@@ -89,16 +89,16 @@ def new(arg=None):
 
 
 
-#
-# Private.
-#
+ 
+          
+ 
 
 class RMDContext:
     def __init__(self):
         self.state = [0x67452301, 0xEFCDAB89, 0x98BADCFE,
-                      0x10325476, 0xC3D2E1F0] # uint32
-        self.count = 0 # uint64
-        self.buffer = [0]*64 # uchar
+                      0x10325476, 0xC3D2E1F0]         
+        self.count = 0         
+        self.buffer = [0]*64        
     def copy(self):
         ctx = RMDContext()
         ctx.state = self.state[:]
@@ -146,7 +146,7 @@ PADDING = [0x80] + [0]*63
 import sys
 import struct
 
-def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
+def RMD160Transform(state, block):                                  
     x = [0]*16
     if sys.byteorder == 'little':
         x = struct.unpack('<16L', bytes([x for x in block[0:64]]))
@@ -158,7 +158,7 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     d = state[3]
     e = state[4]
 
-    #/* Round 1 */
+                  
     a, c = R(a, b, c, d, e, F0, K0, 11,  0, x)
     e, b = R(e, a, b, c, d, F0, K0, 14,  1, x)
     d, a = R(d, e, a, b, c, F0, K0, 15,  2, x)
@@ -174,8 +174,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     d, a = R(d, e, a, b, c, F0, K0,  6, 12, x)
     c, e = R(c, d, e, a, b, F0, K0,  7, 13, x)
     b, d = R(b, c, d, e, a, F0, K0,  9, 14, x)
-    a, c = R(a, b, c, d, e, F0, K0,  8, 15, x)  #/* #15 */
-    #/* Round 2 */
+    a, c = R(a, b, c, d, e, F0, K0,  8, 15, x)            
+                  
     e, b = R(e, a, b, c, d, F1, K1,  7,  7, x)
     d, a = R(d, e, a, b, c, F1, K1,  6,  4, x)
     c, e = R(c, d, e, a, b, F1, K1,  8, 13, x)
@@ -191,8 +191,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     c, e = R(c, d, e, a, b, F1, K1, 11,  2, x)
     b, d = R(b, c, d, e, a, F1, K1,  7, 14, x)
     a, c = R(a, b, c, d, e, F1, K1, 13, 11, x)
-    e, b = R(e, a, b, c, d, F1, K1, 12,  8, x)  #/* #31 */
-    #/* Round 3 */
+    e, b = R(e, a, b, c, d, F1, K1, 12,  8, x)            
+                  
     d, a = R(d, e, a, b, c, F2, K2, 11,  3, x)
     c, e = R(c, d, e, a, b, F2, K2, 13, 10, x)
     b, d = R(b, c, d, e, a, F2, K2,  6, 14, x)
@@ -208,8 +208,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     b, d = R(b, c, d, e, a, F2, K2,  5, 13, x)
     a, c = R(a, b, c, d, e, F2, K2, 12, 11, x)
     e, b = R(e, a, b, c, d, F2, K2,  7,  5, x)
-    d, a = R(d, e, a, b, c, F2, K2,  5, 12, x)  #/* #47 */
-    #/* Round 4 */
+    d, a = R(d, e, a, b, c, F2, K2,  5, 12, x)            
+                  
     c, e = R(c, d, e, a, b, F3, K3, 11,  1, x)
     b, d = R(b, c, d, e, a, F3, K3, 12,  9, x)
     a, c = R(a, b, c, d, e, F3, K3, 14, 11, x)
@@ -225,8 +225,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     a, c = R(a, b, c, d, e, F3, K3,  8, 14, x)
     e, b = R(e, a, b, c, d, F3, K3,  6,  5, x)
     d, a = R(d, e, a, b, c, F3, K3,  5,  6, x)
-    c, e = R(c, d, e, a, b, F3, K3, 12,  2, x)  #/* #63 */
-    #/* Round 5 */
+    c, e = R(c, d, e, a, b, F3, K3, 12,  2, x)            
+                  
     b, d = R(b, c, d, e, a, F4, K4,  9,  4, x)
     a, c = R(a, b, c, d, e, F4, K4, 15,  0, x)
     e, b = R(e, a, b, c, d, F4, K4,  5,  5, x)
@@ -242,7 +242,7 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     e, b = R(e, a, b, c, d, F4, K4, 11, 11, x)
     d, a = R(d, e, a, b, c, F4, K4,  8,  6, x)
     c, e = R(c, d, e, a, b, F4, K4,  5, 15, x)
-    b, d = R(b, c, d, e, a, F4, K4,  6, 13, x)  #/* #79 */
+    b, d = R(b, c, d, e, a, F4, K4,  6, 13, x)            
 
     aa = a
     bb = b
@@ -256,7 +256,7 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     d = state[3]
     e = state[4]
 
-    #/* Parallel round 1 */
+                           
     a, c = R(a, b, c, d, e, F4, KK0,  8,  5, x)
     e, b = R(e, a, b, c, d, F4, KK0,  9, 14, x)
     d, a = R(d, e, a, b, c, F4, KK0,  9,  7, x)
@@ -272,8 +272,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     d, a = R(d, e, a, b, c, F4, KK0, 14,  1, x)
     c, e = R(c, d, e, a, b, F4, KK0, 14, 10, x)
     b, d = R(b, c, d, e, a, F4, KK0, 12,  3, x)
-    a, c = R(a, b, c, d, e, F4, KK0,  6, 12, x) #/* #15 */
-    #/* Parallel round 2 */
+    a, c = R(a, b, c, d, e, F4, KK0,  6, 12, x)           
+                           
     e, b = R(e, a, b, c, d, F3, KK1,  9,  6, x)
     d, a = R(d, e, a, b, c, F3, KK1, 13, 11, x)
     c, e = R(c, d, e, a, b, F3, KK1, 15,  3, x)
@@ -289,8 +289,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     c, e = R(c, d, e, a, b, F3, KK1,  6,  4, x)
     b, d = R(b, c, d, e, a, F3, KK1, 15,  9, x)
     a, c = R(a, b, c, d, e, F3, KK1, 13,  1, x)
-    e, b = R(e, a, b, c, d, F3, KK1, 11,  2, x) #/* #31 */
-    #/* Parallel round 3 */
+    e, b = R(e, a, b, c, d, F3, KK1, 11,  2, x)           
+                           
     d, a = R(d, e, a, b, c, F2, KK2,  9, 15, x)
     c, e = R(c, d, e, a, b, F2, KK2,  7,  5, x)
     b, d = R(b, c, d, e, a, F2, KK2, 15,  1, x)
@@ -306,8 +306,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     b, d = R(b, c, d, e, a, F2, KK2, 13, 10, x)
     a, c = R(a, b, c, d, e, F2, KK2, 13,  0, x)
     e, b = R(e, a, b, c, d, F2, KK2,  7,  4, x)
-    d, a = R(d, e, a, b, c, F2, KK2,  5, 13, x) #/* #47 */
-    #/* Parallel round 4 */
+    d, a = R(d, e, a, b, c, F2, KK2,  5, 13, x)           
+                           
     c, e = R(c, d, e, a, b, F1, KK3, 15,  8, x)
     b, d = R(b, c, d, e, a, F1, KK3,  5,  6, x)
     a, c = R(a, b, c, d, e, F1, KK3,  8,  4, x)
@@ -323,8 +323,8 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     a, c = R(a, b, c, d, e, F1, KK3, 12,  9, x)
     e, b = R(e, a, b, c, d, F1, KK3,  5,  7, x)
     d, a = R(d, e, a, b, c, F1, KK3, 15, 10, x)
-    c, e = R(c, d, e, a, b, F1, KK3,  8, 14, x) #/* #63 */
-    #/* Parallel round 5 */
+    c, e = R(c, d, e, a, b, F1, KK3,  8, 14, x)           
+                           
     b, d = R(b, c, d, e, a, F0, KK4,  8, 12, x)
     a, c = R(a, b, c, d, e, F0, KK4,  5, 15, x)
     e, b = R(e, a, b, c, d, F0, KK4, 12, 10, x)
@@ -340,7 +340,7 @@ def RMD160Transform(state, block): #uint32 state[5], uchar block[64]
     e, b = R(e, a, b, c, d, F0, KK4, 15,  0, x)
     d, a = R(d, e, a, b, c, F0, KK4, 13,  3, x)
     c, e = R(c, d, e, a, b, F0, KK4, 11,  9, x)
-    b, d = R(b, c, d, e, a, F0, KK4, 11, 11, x) #/* #79 */
+    b, d = R(b, c, d, e, a, F0, KK4, 11, 11, x)           
 
     t = (state[1] + cc + d) % 0x100000000
     state[1] = (state[2] + dd + e) % 0x100000000
@@ -368,10 +368,10 @@ def RMD160Update(ctx, inp, inplen):
             off = need
             have = 0
         while off + 64 <= inplen:
-            RMD160Transform(ctx.state, inp[off:]) #<---
+            RMD160Transform(ctx.state, inp[off:])      
             off += 64
     if off < inplen:
-        # memcpy(ctx->buffer + have, input+off, len-off);
+                                                         
         for i in range(inplen - off):
             ctx.buffer[have+i] = inp[off+i]
 
@@ -385,9 +385,9 @@ def RMD160Final(ctx):
     return struct.pack("<5L", *ctx.state)
 
 
-assert '37f332f68db77bd9d7edd4969571ad671cf9dd3b' == \
+assert '37f332f68db77bd9d7edd4969571ad671cf9dd3b' ==\
        new(b'The quick brown fox jumps over the lazy dog').hexdigest()
-assert '132072df690933835eb8b6ad0b77e7b6f14acad7' == \
+assert '132072df690933835eb8b6ad0b77e7b6f14acad7' ==\
        new(b'The quick brown fox jumps over the lazy cog').hexdigest()
-assert '9c1185a5c5e9fc54612808977ee8f548b2258d31' == \
+assert '9c1185a5c5e9fc54612808977ee8f548b2258d31' ==\
        new('').hexdigest()

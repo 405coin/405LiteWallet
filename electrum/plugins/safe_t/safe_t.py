@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from electrum.plugin import DeviceInfo
     from electrum.wizard import NewWalletWizard
 
-# Safe-T mini initialization methods
+                                    
 TIM_NEW, TIM_RECOVER, TIM_MNEMONIC, TIM_PRIVKEY = range(0, 4)
 
 
@@ -42,7 +42,7 @@ class SafeTKeyStore(Hardware_KeyStore):
     def sign_transaction(self, tx, password):
         if tx.is_complete():
             return
-        # previous transactions used as inputs
+                                              
         prev_tx = {}
         for txin in tx.inputs():
             tx_hash = txin.prevout.txid.hex()
@@ -54,11 +54,11 @@ class SafeTKeyStore(Hardware_KeyStore):
 
 
 class SafeTPlugin(HW_PluginBase):
-    # Derived classes provide:
-    #
-    #  class-static variables: client_class, firmware_URL, handler_class,
-    #     libraries_available, libraries_URL, minimum_firmware,
-    #     wallet_class, types
+                              
+     
+                                                                         
+                                                               
+                             
 
     firmware_URL = 'https://safe-t.io'
     libraries_URL = 'https://github.com/archos-safe-t/python-safet'
@@ -120,7 +120,7 @@ class SafeTPlugin(HW_PluginBase):
         self.logger.info(f"connected to device at {device.path}")
         client = self.client_class(transport, handler, self)
 
-        # Try a ping for device sanity
+                                      
         try:
             client.ping('t')
         except BaseException as e:
@@ -146,7 +146,7 @@ class SafeTPlugin(HW_PluginBase):
         client = super().get_client(keystore, force_pair,
                                     devices=devices,
                                     allow_user_interaction=allow_user_interaction)
-        # returns the client for a given keystore. can use xpub
+                                                               
         if client:
             client.used()
         return client
@@ -174,24 +174,24 @@ class SafeTPlugin(HW_PluginBase):
             raise Exception(_("The device was disconnected."))
 
         if method == TIM_NEW:
-            strength = 64 * (item + 2)  # 128, 192 or 256
+            strength = 64 * (item + 2)                   
             u2f_counter = 0
             skip_backup = False
             client.reset_device(True, strength, passphrase_protection,
                                 pin_protection, label, language,
                                 u2f_counter, skip_backup)
         elif method == TIM_RECOVER:
-            word_count = 6 * (item + 2)  # 12, 18 or 24
+            word_count = 6 * (item + 2)                
             client.step = 0
             client.recovery_device(word_count, passphrase_protection,
                                        pin_protection, label, language)
         elif method == TIM_MNEMONIC:
-            pin = pin_protection  # It's the pin, not a boolean
+            pin = pin_protection                               
             client.load_device_by_mnemonic(str(item), pin,
                                            passphrase_protection,
                                            label, language)
         else:
-            pin = pin_protection  # It's the pin, not a boolean
+            pin = pin_protection                               
             client.load_device_by_xprv(item, pin, passphrase_protection,
                                        label, language)
 
@@ -256,7 +256,7 @@ class SafeTPlugin(HW_PluginBase):
         address_n = client.expand_path(address_path)
         script_type = self.get_safet_input_script_type(wallet.txin_type)
 
-        # prepare multisig, if available:
+                                         
         desc = wallet.get_script_descriptor_for_address(address)
         if multi := desc.get_simple_multisig():
             multisig = self._make_multisig(multi)
@@ -271,7 +271,7 @@ class SafeTPlugin(HW_PluginBase):
             txinputtype = self.types.TxInputType()
             if txin.is_coinbase_input():
                 prev_hash = b"\x00"*32
-                prev_index = 0xffffffff  # signed int -1
+                prev_index = 0xffffffff                 
             else:
                 if for_sig:
                     assert isinstance(tx, PartialTransaction)
@@ -360,10 +360,10 @@ class SafeTPlugin(HW_PluginBase):
             use_create_by_derivation = False
 
             if txout.is_mine and not has_change:
-                # prioritise hiding outputs on the 'change' branch from user
-                # because no more than one change address allowed
-                # note: ^ restriction can be removed once we require fw
-                # that has https://github.com/trezor/trezor-mcu/pull/306
+                                                                            
+                                                                 
+                                                                       
+                                                                        
                 if txout.is_change == any_output_on_change_branch:
                     use_create_by_derivation = True
                     has_change = True
@@ -379,7 +379,7 @@ class SafeTPlugin(HW_PluginBase):
     def electrum_tx_to_txtype(self, tx: Optional[Transaction]):
         t = self.types.TransactionType()
         if tx is None:
-            # probably for segwit input and we don't need this prev txn
+                                                                       
             return t
         tx.deserialize()
         t.version = tx.version
@@ -392,7 +392,7 @@ class SafeTPlugin(HW_PluginBase):
             o.script_pubkey = out.scriptpubkey
         return t
 
-    # This function is called from the TREZOR libraries (via tx_api)
+                                                                    
     def get_tx(self, tx_hash):
         tx = self.prev_tx[tx_hash]
         return self.electrum_tx_to_txtype(tx)
@@ -403,7 +403,7 @@ class SafeTPlugin(HW_PluginBase):
         else:
             return 'safet_unlock'
 
-    # insert safe_t pages in new wallet wizard
+                                              
     def extend_wizard(self, wizard: 'NewWalletWizard'):
         views = {
             'safet_start': {

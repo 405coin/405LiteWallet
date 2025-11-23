@@ -3,7 +3,7 @@ from functools import partial
 import shutil
 import os
 
-from PyQt6.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton, QWidget, QScrollArea, \
+from PyQt6.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton, QWidget, QScrollArea,\
     QFormLayout, QFileDialog, QMenu, QApplication, QMessageBox
 from PyQt6.QtCore import QTimer
 
@@ -40,7 +40,7 @@ class PluginDialog(WindowModalDialog):
         self.plugins = self.window.plugins
         self.name = name
         self.status_button = status_button
-        p = self.plugins.get(name)  # is enabled
+        p = self.plugins.get(name)
         vbox = QVBoxLayout(self)
         name_label = IconLabel(text=display_name, reverse=True)
         if icon_path:
@@ -72,7 +72,7 @@ class PluginDialog(WindowModalDialog):
         if is_external:
             is_authorized = self.plugins.is_authorized(name)
             if status_button is not None:
-                # status_button is None when called from add_external_plugin
+
                 remove_button = QPushButton('')
                 remove_button.clicked.connect(self.do_remove)
                 remove_button.setText(_('Remove'))
@@ -86,20 +86,20 @@ class PluginDialog(WindowModalDialog):
             toggle_button.setText(_('Disable') if is_enabled else _('Enable'))
             toggle_button.clicked.connect(self.do_toggle)
             buttons.insert(0, toggle_button)
-        # add settings button
+
         if p and p.requires_settings() and p.is_enabled():
             settings_button = EnterButton(
                 _('Settings'),
                 partial(p.settings_dialog, self))
             buttons.insert(1, settings_button)
-        # add buttons
+
         vbox.addLayout(Buttons(*buttons))
 
     def do_toggle(self):
         if not self.plugins.is_available(self.name):
             msg = "\n".join([
                 _('This plugin requires installation of additional dependencies.'),
-                _('For Electrum to recognize external packages, you need to run it from source.')
+                _('For 405LiteWallet to recognize external packages, you need to run it from source.')
             ])
             self.window.show_message(msg)
             return
@@ -160,7 +160,7 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
     _logger = get_logger(__name__)
 
     def __init__(self, config: 'SimpleConfig', plugins: 'Plugins', *, gui_object: Optional['ElectrumGui'] = None):
-        WindowModalDialog.__init__(self, None, _('Electrum Plugins'))
+        WindowModalDialog.__init__(self, None, _('405LiteWallet Plugins'))
         self.gui_object = gui_object
         self.config = config
         self.plugins = plugins
@@ -176,7 +176,7 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
         scroll_w.setLayout(self.grid)
         vbox.addWidget(scroll)
         add_button = QPushButton(_('Add'))
-        add_button.setMinimumWidth(40)  # looks better on windows, no difference on linux
+        add_button.setMinimumWidth(40)
         add_button.clicked.connect(self.add_plugin_dialog)
         vbox.addLayout(Buttons(add_button, CloseButton(self)))
         self.show_list()
@@ -186,7 +186,7 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
         if not pubkey:
             self.init_plugins_password()
             return None
-        # ask for url and password, same window
+
         pw = self.password_dialog(msg=messages.MSG_THIRD_PARTY_PLUGIN_WARNING)
         if not pw:
             return None
@@ -248,7 +248,7 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
 
         while True:
             exit_dialog = True
-            # the button has to be recreated inside the loop, as qt destroys it when the dialog is closed
+
             auto_setup_btn = QPushButton(_('Try Auto-Setup'))
             def on_auto_setup_clicked():
                 nonlocal exit_dialog
@@ -259,8 +259,8 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
                     self.show_message(_("Auto-Setup successful. You can now install plugins."))
             auto_setup_btn.clicked.connect(on_auto_setup_clicked)
 
-            # on windows, the auto-setup button is shown right of the ok button,
-            # apparently due to OS conventions
+
+
             buttons = [
                 (auto_setup_btn, QMessageBox.ButtonRole.ActionRole, 0),
                 QMessageBox.StandardButton.Ok,
@@ -322,10 +322,10 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
         descriptions = self.plugins.descriptions
         descriptions = sorted(descriptions.items())
         grid = self.grid
-        # clear existing items
+
         for i in reversed(range(grid.count())):
             grid.itemAt(i).widget().setParent(None)
-        # populate
+
         i = 0
         for name, metadata in descriptions:
             i += 1
@@ -342,7 +342,7 @@ class PluginsDialog(WindowModalDialog, MessageBoxMixin):
             label.status_button = PluginStatusButton(self, name)
             grid.addWidget(label, i, 0)
             grid.addWidget(label.status_button, i, 1)
-        # add stretch
+
         grid.setRowStretch(i + 1, 1)
 
     def do_toggle(self, name, status_button):

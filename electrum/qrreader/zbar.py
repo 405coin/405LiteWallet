@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
-#
-# Electron Cash - lightweight Bitcoin client
-# Copyright (C) 2019 Axel Gembe <derago@gmail.com>
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                            
+                                                  
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
 import sys
 import ctypes
@@ -75,8 +75,8 @@ try:
     LIBZBAR.zbar_image_scanner_destroy.argtypes = [ctypes.c_void_p]
     LIBZBAR.zbar_image_destroy.argtypes = [ctypes.c_void_p]
 
-    #if is_verbose:
-        #LIBZBAR.zbar_set_verbosity(100)
+                   
+                                        
 except OSError:
     _logger.exception("Failed to load zbar")
     LIBZBAR = None
@@ -127,15 +127,15 @@ class ZbarQrCodeReader(AbstractQrCodeReader):
     def __init__(self):
         if not LIBZBAR:
             raise MissingLib('Zbar library not found')
-        # Set up zbar
+                     
         self.zbar_scanner = LIBZBAR.zbar_image_scanner_create()
         self.zbar_image = LIBZBAR.zbar_image_create()
 
-        # Disable all symbols
+                             
         for sym_type in ZbarSymbolType:
             LIBZBAR.zbar_image_scanner_set_config(self.zbar_scanner, sym_type, ZbarConfig.ENABLE, 0)
 
-        # Enable only QR codes
+                              
         LIBZBAR.zbar_image_scanner_set_config(self.zbar_scanner, ZbarSymbolType.QRCODE,
                                               ZbarConfig.ENABLE, 1)
 
@@ -145,7 +145,7 @@ class ZbarQrCodeReader(AbstractQrCodeReader):
             LIBZBAR.zbar_image_destroy(self.zbar_image)
 
     def read_qr_code(self, buffer: ctypes.c_void_p, buffer_size: int,
-                     rowlen_bytes: int,  # this param is ignored in this implementation
+                     rowlen_bytes: int,                                                
                      width: int, height: int, frame_id: int = -1) -> List[QrCodeResult]:
         LIBZBAR.zbar_image_set_sequence(self.zbar_image, frame_id)
         LIBZBAR.zbar_image_set_size(self.zbar_image, width, height)
@@ -167,12 +167,12 @@ class ZbarQrCodeReader(AbstractQrCodeReader):
             symbol_loc = []
             symbol_loc_len = LIBZBAR.zbar_symbol_get_loc_size(symbol)
             for i in range(0, symbol_loc_len):
-                # Normalize the coordinates into 0..1 range by dividing by width / height
+                                                                                         
                 symbol_loc_x = LIBZBAR.zbar_symbol_get_loc_x(symbol, i)
                 symbol_loc_y = LIBZBAR.zbar_symbol_get_loc_y(symbol, i)
                 symbol_loc.append((symbol_loc_x, symbol_loc_y))
 
-            # Find the center by getting the average values of the corners x and y coordinates
+                                                                                              
             symbol_loc_sum_x = sum([l[0] for l in symbol_loc])
             symbol_loc_sum_y = sum([l[1] for l in symbol_loc])
             symbol_loc_center = (int(symbol_loc_sum_x / symbol_loc_len), int(symbol_loc_sum_y / symbol_loc_len))

@@ -6,10 +6,10 @@ ComboBox {
 
     property int implicitChildrenWidth: 64
 
-    // make combobox implicit width a multiple of 32, so it aligns with others
+    
     implicitWidth: Math.ceil(implicitChildrenWidth/32)*32 + 2 * constants.paddingXLarge
 
-    // redefine contentItem, as the default crops the text easily
+    
     contentItem: Label {
         id: contentLabel
         text: cb.currentText
@@ -18,7 +18,7 @@ ComboBox {
         font.pixelSize: constants.fontSizeMedium
     }
 
-    // determine widest element and store in implicitChildrenWidth
+    
     function updateImplicitWidth() {
         for (let i = 0; i < cb.count; i++) {
             var txt = cb.textAt(i)

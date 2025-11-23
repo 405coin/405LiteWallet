@@ -54,7 +54,7 @@ class WizardTestCase(ElectrumTestCase):
         self.wallet_path = os.path.join(self.electrum_path, "somewallet")
         self.plugins = Plugins(self.config, gui_name='cmdline')
         self.plugins.load_plugin_by_name('trustedcoin')
-        # note: hw plugins are loaded on-demand
+                                               
 
     def tearDown(self):
         self.plugins.stop()
@@ -459,7 +459,7 @@ class WalletWizardTestCase(WizardTestCase):
         *,
         v: WizardViewState,
         w: NewWalletWizard,
-        recv_addr: str | None,  # "first addr" only makes sense for HD wallets
+        recv_addr: str | None,                                                
         password: str | None = None,
         encrypt_file: bool = False,
     ) -> Abstract_Wallet:
@@ -622,9 +622,9 @@ class WalletWizardTestCase(WizardTestCase):
             'seed': 'powerful random nobody notice nothing important anyway look away hidden message over',
             'seed_type': 'old', 'seed_extend': True, 'seed_variant': 'electrum'})
         v = w.resolve_next(v.view, d)
-        # FIXME this diverges from the actual GUIs :(
-        #  the GUIs do validation using wizard.validate_seed() and don't go to 'have_ext' for next view.
-        #  the validation should be moved to the base impl!
+                                                     
+                                                                                                        
+                                                           
         self.assertEqual('have_ext', v.view)
 
         d.update({'seed_extra_words': UNICODE_HORROR})
@@ -732,7 +732,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('have_seed', v.view)
 
-        # SLIP39 shares (128 bits, 2 groups from 1 of 1, 1 of 1, 3 of 5, 2 of 6)
+                                                                                
         mnemonics = [
             "fact else acrobat romp analysis usher havoc vitamins analysis garden prevent romantic silent dramatic adjust priority mailman plains vintage else",
             "fact else ceramic round craft lips snake faint adorn square bucket deadline violence guitar greatest academic stadium snake frequent memory",
@@ -761,7 +761,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('have_seed', v.view)
 
-        # SLIP39 shares (128 bits, 2 groups from 1 of 1, 1 of 1, 3 of 5, 2 of 6)
+                                                                                
         mnemonics = [
             "fact else acrobat romp analysis usher havoc vitamins analysis garden prevent romantic silent dramatic adjust priority mailman plains vintage else",
             "fact else ceramic round craft lips snake faint adorn square bucket deadline violence guitar greatest academic stadium snake frequent memory",
@@ -896,7 +896,7 @@ class WalletWizardTestCase(WizardTestCase):
         self._set_password_and_check_address(v=v, w=w, recv_addr="bc1qcnu9ay4v3w0tawuxe6wlh6mh33rrpauqnufdgkxx7we8vpx3e6wqa25qud")
 
     async def test_create_standard_wallet_trezor(self):
-        # bip39 seed for trezor: "history six okay anchor sheriff flock atom tomorrow foster aerobic eternal foam"
+                                                                                                                  
         w = self._wizard_for(wallet_type='standard')
         v = w._current
         d = v.wizard_data
@@ -940,7 +940,7 @@ class WalletWizardTestCase(WizardTestCase):
         self.assertTrue(wallet.has_storage_encryption())
 
     async def test_unlock_hw_trezor(self):
-        # bip39 seed for trezor: "history six okay anchor sheriff flock atom tomorrow foster aerobic eternal foam"
+                                                                                                                  
         w = NewWalletWizard(DaemonMock(self.config), self.plugins)
         v = w.start()
         self.assertEqual('wallet_name', v.view)
@@ -988,7 +988,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 2nd cosigner uses Zpub from "9dk" seed
+                                                
         d['multisig_cosigner_data']['2'] = {'keystore_type': 'masterkey'}
         d.update({
             'multisig_current_cosigner': 2, 'cosigner_keystore_type': 'masterkey'})
@@ -1025,7 +1025,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 2nd cosigner
+                      
         d['multisig_cosigner_data']['2'] = {'keystore_type': 'haveseed'}
         d.update({
             'multisig_current_cosigner': 2, 'cosigner_keystore_type': 'haveseed'})
@@ -1043,7 +1043,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 3rd cosigner uses Zpub from "9dk" seed
+                                                
         d['multisig_cosigner_data']['3'] = {'keystore_type': 'masterkey'}
         d.update({
             'multisig_current_cosigner': 3, 'cosigner_keystore_type': 'masterkey'})
@@ -1055,7 +1055,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 4th cosigner
+                      
         d['multisig_cosigner_data']['4'] = {'keystore_type': 'hardware'}
         d.update({
             'multisig_current_cosigner': 4, 'cosigner_keystore_type': 'hardware'})
@@ -1082,7 +1082,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 5th cosigner
+                      
         d['multisig_cosigner_data']['5'] = {'keystore_type': 'haveseed'}
         d.update({
             'multisig_current_cosigner': 5, 'cosigner_keystore_type': 'haveseed'})
@@ -1100,7 +1100,7 @@ class WalletWizardTestCase(WizardTestCase):
         v = w.resolve_next(v.view, d)
         self.assertEqual('multisig_cosigner_keystore', v.view)
 
-        # 6th cosigner uses Zprv from "abandon bike" seed
+                                                         
         d['multisig_cosigner_data']['6'] = {'keystore_type': 'masterkey'}
         d.update({
             'multisig_current_cosigner': 6, 'cosigner_keystore_type': 'masterkey'})
@@ -1131,7 +1131,7 @@ class WalletWizardTestCase(WizardTestCase):
             {
                 "14gcRovpkCoGkCNBivQBvw7eso7eiNAbxG",
                 "35ZqQJcBQMZ1rsv8aSuJ2wkC7ohUCQMJbT",
-                "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",  # TODO normalize to lowercase?
+                "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",                                
                 "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kt5nd6y",
             },
         )

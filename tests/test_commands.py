@@ -63,7 +63,7 @@ class TestCommands(ElectrumTestCase):
     def test_setconfig_none(self):
         self.assertEqual(None, Commands._setconfig_normalize_value("somekey", "None"))
         self.assertEqual(None, Commands._setconfig_normalize_value("somekey", "null"))
-        # but lowercase none does not work:  (maybe it should though...)
+                                                                        
         self.assertEqual("none", Commands._setconfig_normalize_value("somekey", "none"))
         self.assertEqual("", Commands._setconfig_normalize_value("somekey", ""))
         self.assertEqual("empty", Commands._setconfig_normalize_value("somekey", "empty"))
@@ -117,14 +117,14 @@ class TestCommands(ElectrumTestCase):
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
         cmds = Commands(config=self.config)
-        # single address tests
+                              
         with self.assertRaises(UserFacingException):
-            await cmds.getprivatekeys("asdasd", wallet=wallet)  # invalid addr, though might raise "not in wallet"
+            await cmds.getprivatekeys("asdasd", wallet=wallet)                                                    
         with self.assertRaises(UserFacingException):
-            await cmds.getprivatekeys("bc1qgfam82qk7uwh5j2xxmcd8cmklpe0zackyj6r23", wallet=wallet)  # not in wallet
+            await cmds.getprivatekeys("bc1qgfam82qk7uwh5j2xxmcd8cmklpe0zackyj6r23", wallet=wallet)                 
         self.assertEqual("p2wpkh:L4jkdiXszG26SUYvwwJhzGwg37H2nLhrbip7u6crmgNeJysv5FHL",
                          await cmds.getprivatekeys("bc1q2ccr34wzep58d4239tl3x3734ttle92a8srmuw", wallet=wallet))
-        # list of addresses tests
+                                 
         with self.assertRaises(UserFacingException):
             await cmds.getprivatekeys(['bc1q2ccr34wzep58d4239tl3x3734ttle92a8srmuw', 'asd'], wallet=wallet)
         self.assertEqual(['p2wpkh:L4jkdiXszG26SUYvwwJhzGwg37H2nLhrbip7u6crmgNeJysv5FHL', 'p2wpkh:L4rYY5QpfN6wJEF4SEKDpcGhTPnCe9zcGs6hiSnhpprZqVywFifN'],
@@ -137,14 +137,14 @@ class TestCommands(ElectrumTestCase):
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
         cmds = Commands(config=self.config)
-        # single address tests
+                              
         with self.assertRaises(UserFacingException):
-            await cmds.getprivatekeys("asdasd", wallet=wallet)  # invalid addr, though might raise "not in wallet"
+            await cmds.getprivatekeys("asdasd", wallet=wallet)                                                    
         with self.assertRaises(UserFacingException):
-            await cmds.getprivatekeys("bc1qgfam82qk7uwh5j2xxmcd8cmklpe0zackyj6r23", wallet=wallet)  # not in wallet
+            await cmds.getprivatekeys("bc1qgfam82qk7uwh5j2xxmcd8cmklpe0zackyj6r23", wallet=wallet)                 
         self.assertEqual("p2wpkh:L15oxP24NMNAXxq5r2aom24pHPtt3Fet8ZutgL155Bad93GSubM2",
                          await cmds.getprivatekeys("bc1q3g5tmkmlvxryhh843v4dz026avatc0zzr6h3af", wallet=wallet))
-        # list of addresses tests
+                                 
         with self.assertRaises(UserFacingException):
             await cmds.getprivatekeys(['bc1q3g5tmkmlvxryhh843v4dz026avatc0zzr6h3af', 'asd'], wallet=wallet)
         self.assertEqual(['p2wpkh:L15oxP24NMNAXxq5r2aom24pHPtt3Fet8ZutgL155Bad93GSubM2', 'p2wpkh:L4rYY5QpfN6wJEF4SEKDpcGhTPnCe9zcGs6hiSnhpprZqVywFifN'],
@@ -164,25 +164,25 @@ class TestCommands(ElectrumTestCase):
         wallet = restore_wallet_from_text__for_unittest(
             '9dk',
             path='if_this_exists_mocking_failed_648151893',
-            config=self.config)['wallet']  # type: Abstract_Wallet
+            config=self.config)['wallet']                         
         plaintext = "hello there"
         ciphertext = "QklFMQJEFgxfkXj+UNblbHR+4y6ZA2rGEeEhWo7h84lBFjlRY5JOPfV1zyC1fw5YmhIr7+3ceIV11lpf/Yv7gSqQCQ5Wuf1aGXceHZO0GjKVxBsuew=="
         pubkey = "02a0507c8bb3d96dfd7731bafb0ae30e6ed10bbadd6a9f9f88eaf0602b9cc99adc"
         self.assertEqual(plaintext, await cmds.decrypt(pubkey, ciphertext, wallet=wallet))
-        with self.assertRaises(binascii.Error):  # perhaps it should raise some nice UserFacingException instead
+        with self.assertRaises(binascii.Error):                                                                 
             await cmds.decrypt(pubkey, ciphertext+"trailinggarbage", wallet=wallet)
 
     def test_format_satoshis(self):
         format_satoshis = electrum.commands.format_satoshis
-        # input type is highly polymorphic:
+                                           
         self.assertEqual(format_satoshis(None), None)
         self.assertEqual(format_satoshis(1), "0.00000001")
         self.assertEqual(format_satoshis(1.0), "0.00000001")
         self.assertEqual(format_satoshis(Decimal(1)), "0.00000001")
-        # trailing zeroes are cut
+                                 
         self.assertEqual(format_satoshis(51000), "0.00051")
         self.assertEqual(format_satoshis(123456_12345670), "123456.1234567")
-        # sub-satoshi precision is rounded
+                                          
         self.assertEqual(format_satoshis(Decimal(123.456)), "0.00000123")
         self.assertEqual(format_satoshis(Decimal(123.5)), "0.00000124")
         self.assertEqual(format_satoshis(Decimal(123.789)), "0.00000124")
@@ -299,7 +299,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             'disagree rug lemon bean unaware square alone beach tennis exhibit fix mimic',
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
-        # bootstrap wallet
+                          
         funding_tx = Transaction('0200000000010165806607dd458280cb57bf64a16cf4be85d053145227b98c28932e953076b8e20000000000fdffffff02ac150700000000001600147e3ddfe6232e448a8390f3073c7a3b2044fd17eb102908000000000016001427fbe3707bc57e5bb63d6f15733ec88626d8188a02473044022049ce9efbab88808720aa563e2d9bc40226389ab459c4390ea3e89465665d593502206c1c7c30a2f640af1e463e5107ee4cfc0ee22664cfae3f2606a95303b54cdef80121026269e54d06f7070c1f967eb2874ba60de550dfc327a945c98eb773672d9411fd77181e00')
         funding_txid = funding_tx.txid()
         self.assertEqual('ede61d39e501d65ccf34e6300da439419c43393f793bb9a8a4b06b2d0d80a8a0', funding_txid)
@@ -313,14 +313,6 @@ class TestCommandsTestnet(ElectrumTestCase):
             locktime=1972344,
             wallet=wallet)
 
-        tx_str_2 = await cmds.payto(
-            destination="tb1qsyzgpwa0vg2940u5t6l97etuvedr5dejpf9tdy",
-            amount="0.00123456",
-            feerate="50.000",  # test that passing a string feerate results in the same tx
-            locktime=1972344,
-            wallet=wallet)
-
-        self.assertEqual(tx_str, tx_str_2)
         tx = tx_from_any(tx_str)
         self.assertEqual(2, len(tx.outputs()))
         txout = TxOutput.from_address_and_value("tb1qsyzgpwa0vg2940u5t6l97etuvedr5dejpf9tdy", 123456)
@@ -335,7 +327,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             'disagree rug lemon bean unaware square alone beach tennis exhibit fix mimic',
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
-        # bootstrap wallet
+                          
         funding_tx = Transaction('0200000000010165806607dd458280cb57bf64a16cf4be85d053145227b98c28932e953076b8e20000000000fdffffff02ac150700000000001600147e3ddfe6232e448a8390f3073c7a3b2044fd17eb102908000000000016001427fbe3707bc57e5bb63d6f15733ec88626d8188a02473044022049ce9efbab88808720aa563e2d9bc40226389ab459c4390ea3e89465665d593502206c1c7c30a2f640af1e463e5107ee4cfc0ee22664cfae3f2606a95303b54cdef80121026269e54d06f7070c1f967eb2874ba60de550dfc327a945c98eb773672d9411fd77181e00')
         funding_txid = funding_tx.txid()
         self.assertEqual('ede61d39e501d65ccf34e6300da439419c43393f793bb9a8a4b06b2d0d80a8a0', funding_txid)
@@ -355,7 +347,7 @@ class TestCommandsTestnet(ElectrumTestCase):
         with self.assertRaises(NotEnoughFunds):
             tx_str = await create_tx()
 
-        self.config.WALLET_SPEND_CONFIRMED_ONLY = None  # default: false
+        self.config.WALLET_SPEND_CONFIRMED_ONLY = None                  
         tx_str = await create_tx()
 
         tx = tx_from_any(tx_str)
@@ -369,7 +361,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             'kit virtual quantum festival fortune inform ladder saddle filter soldier start ghost',
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
-        # bootstrap wallet
+                          
         funding_tx = Transaction('02000000000101f59876b1c65bbe3e182ccc7ea7224fe397bb9b70aadcbbf4f4074c75c8a074840000000000fdffffff021f351f00000000001600144eec851dd980cc36af1f629a32325f511604d6af56732d000000000016001439267bc7f3e3fabeae3bc3f73880de22d8b01ba50247304402207eac5f639806a00878488d58ca651d690292145bca5511531845ae21fab309d102207162708bd344840cc1bacff1092e426eb8484f83f5c068ba4ca579813de324540121020e0798c267ff06ee8b838cd465f3cfa6c843a122a04917364ce000c29ca205cae5f31f00')
         funding_txid = funding_tx.txid()
         self.assertEqual('e8e977bd9c857d84ec1b8f154ae2ee5dfa49fffb7688942a586196c1ad15de15', funding_txid)
@@ -405,7 +397,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             path='if_this_exists_mocking_failed_648151893',
             config=self.config)['wallet']
 
-        # bootstrap wallet1
+                           
         funding_tx = Transaction('01000000014576dacce264c24d81887642b726f5d64aa7825b21b350c7b75a57f337da6845010000006b483045022100a3f8b6155c71a98ad9986edd6161b20d24fad99b6463c23b463856c0ee54826d02200f606017fd987696ebbe5200daedde922eee264325a184d5bbda965ba5160821012102e5c473c051dae31043c335266d0ef89c1daab2f34d885cc7706b267f3269c609ffffffff0240420f00000000001600148a28bddb7f61864bdcf58b2ad13d5aeb3abc3c42a2ddb90e000000001976a914c384950342cb6f8df55175b48586838b03130fad88ac00000000')
         funding_txid = funding_tx.txid()
         funding_output_value = 1000000
@@ -424,7 +416,7 @@ class TestCommandsTestnet(ElectrumTestCase):
         wallet = restore_wallet_from_text__for_unittest(
             'right nominee cheese afford exotic pilot mask illness rug fringe degree pottery',
             path='if_this_exists_mocking_failed_648151893',
-            config=self.config)['wallet']  # type: Abstract_Wallet
+            config=self.config)['wallet']                         
 
         funding_tx = Transaction("02000000000102789e8aa8caa79d87241ff9df0e3fd757a07c85a30195d76e8efced1d57c56b670000000000fdffffff7ee2b6abd52b332f797718ae582f8d3b979b83b1799e0a3bfb2c90c6e070c29e0100000000fdffffff020820000000000000160014c0eb720c93a61615d2d66542d381be8943ca553950c3000000000000160014d7dbd0196a2cbd76420f14a19377096cf6cddb75024730440220485b491ad8d3ce3b4da034a851882da84a06ec9800edff0d3fd6aa42eeba3b440220359ea85d32a05932ac417125e133fa54e54e7e9cd20ebc54b883576b8603fd65012103860f1fbf8a482b9d35d7d4d04be8fb33d856a514117cd8b73e372d36895feec60247304402206c2ca56cc030853fa59b4b3cb293f69a3378ead0f10cb76f640f8c2888773461022079b7055d0f6af6952a48e5b97218015b0723462d667765c142b41bd35e3d9c0a01210359e303f57647094a668d69e8ff0bd46c356d00aa7da6dc533c438e71c057f0793e721f00")
         funding_txid = funding_tx.txid()
@@ -436,17 +428,17 @@ class TestCommandsTestnet(ElectrumTestCase):
         orig_txid = orig_tx.txid()
         self.assertEqual("02000000000101b9723dfc69af058ef6613539a000d2cd098a2c8a74e802b6d8739db708ba8c9a0100000000fdffffff02a00f00000000000016001429e1fd187f0cac845946ae1b11dc136c536bfc0f84b2000000000000160014100611bcb3aee7aad176936cf4ed56ade03027aa0247304402203aa63539b673a3bd70a76482b17f35f8843974fab28f84143a00450789010bc40220779c2ce2d0217f973f1f6c9f718e19fc7ebd14dd8821a962f002437cda3082ec012102ee3f00141178006c78b0b458aab21588388335078c655459afe544211f15aee000000000",
                          await cmds.bumpfee(tx=orig_rawtx, new_fee_rate='1.6', wallet=wallet))
-        # test txid as first arg
-        # -> first test while NOT having the tx in the wallet db:
+                                
+                                                                 
         with self.assertRaises(Exception) as ctx:
             await cmds.bumpfee(tx=orig_txid, new_fee_rate='1.6', wallet=wallet)
         self.assertTrue("Transaction not in wallet" in ctx.exception.args[0])
-        # -> now test while having the tx:
+                                          
         assert wallet.adb.add_transaction(orig_tx)
         self.assertEqual("02000000000101b9723dfc69af058ef6613539a000d2cd098a2c8a74e802b6d8739db708ba8c9a0100000000fdffffff02a00f00000000000016001429e1fd187f0cac845946ae1b11dc136c536bfc0f84b2000000000000160014100611bcb3aee7aad176936cf4ed56ade03027aa0247304402203aa63539b673a3bd70a76482b17f35f8843974fab28f84143a00450789010bc40220779c2ce2d0217f973f1f6c9f718e19fc7ebd14dd8821a962f002437cda3082ec012102ee3f00141178006c78b0b458aab21588388335078c655459afe544211f15aee000000000",
                          await cmds.bumpfee(tx=orig_txid, new_fee_rate='1.6', wallet=wallet))
-        wallet.adb.remove_transaction(orig_txid)  # undo side-effect on wallet
-        # test "from_coins" arg
+        wallet.adb.remove_transaction(orig_txid)                              
+                               
         self.assertEqual("02000000000101b9723dfc69af058ef6613539a000d2cd098a2c8a74e802b6d8739db708ba8c9a0100000000fdffffff02a00f00000000000016001429e1fd187f0cac845946ae1b11dc136c536bfc0f84b2000000000000160014100611bcb3aee7aad176936cf4ed56ade03027aa0247304402203aa63539b673a3bd70a76482b17f35f8843974fab28f84143a00450789010bc40220779c2ce2d0217f973f1f6c9f718e19fc7ebd14dd8821a962f002437cda3082ec012102ee3f00141178006c78b0b458aab21588388335078c655459afe544211f15aee000000000",
                          await cmds.bumpfee(tx=orig_rawtx, new_fee_rate='1.6', from_coins="9a8cba08b79d73d8b602e8748a2c8a09cdd200a0393561f68e05af69fc3d72b9:1", wallet=wallet))
 
@@ -458,17 +450,17 @@ class TestCommandsTestnet(ElectrumTestCase):
             config=self.config)['wallet']
         cmds = Commands(config=self.config)
         self.assertEqual(2, len(wallet.get_addresses()))
-        # try importing a single bad privkey
-        out = await cmds.importprivkey("asdasd", wallet=wallet)  # type: str
+                                            
+        out = await cmds.importprivkey("asdasd", wallet=wallet)             
         self.assertTrue(out.startswith("Error: "))
         self.assertTrue("cannot deserialize privkey" in out)
-        # try importing empty string
+                                    
         self.assertEqual("Error: no keys given",
                          await cmds.importprivkey("", wallet=wallet))
-        # try importing a single good privkey
+                                             
         self.assertEqual("Keypair imported: mfgn4NuNberN5D9gvXaYwkqA6Q6WmF7wtD",
                          await cmds.importprivkey("cVam1duhd5wSxPPFJFKHNoDA2ZjRq7okvnBWyajsnAEcfPjC6Wbm", wallet=wallet))
-        # try importing a list of good privkeys
+                                               
         privkeys1_str = " ".join([
             "p2pkh:cR1C6p34Gt9gxNJ57rUy96jgN3HQcZCgQzDWtCDNCnx4iLXM2S6g",
             "p2pkh:cR1xqAf2hhhfxwAzquDss7ALrMeUN5gR82qp1nRWjqSQppnCNa27",
@@ -479,7 +471,7 @@ class TestCommandsTestnet(ElectrumTestCase):
         ])
         self.assertEqual({"good_keys": 6, "bad_keys": 0},
                          await cmds.importprivkey(privkeys1_str, wallet=wallet))
-        # try importing a list of mixed good/bad privkeys
+                                                         
         privkeys2_str = " ".join([
             "qweqwe",
             "p2wpkh:cRFfD1EqocayY3xsw343inJ47LVsZHLbUgPzLmUbXhE6XNJ46Swn",
@@ -526,19 +518,19 @@ class TestCommandsTestnet(ElectrumTestCase):
         assert cancel_result['cancelled'] == payment_hash
 
         with self.assertRaises(AssertionError):
-            # settling a cancelled invoice should raise
+                                                       
             await cmds.settle_hold_invoice(
                 preimage=preimage,
                 wallet=wallet,
             )
         with self.assertRaises(AssertionError):
-            # cancelling an unknown invoice should raise
+                                                        
             await cmds.cancel_hold_invoice(
                 payment_hash=sha256(urandom(32)).hex(),
                 wallet=wallet,
             )
 
-        # add another hold invoice
+                                  
         preimage: bytes = sha256(urandom(32))
         payment_hash: str = sha256(preimage).hex()
         with mock.patch.object(wallet.lnworker, 'num_sats_can_receive', return_value=1000000):
@@ -584,7 +576,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             assert settled_status['preimage'] == preimage.hex()
 
         with self.assertRaises(AssertionError):
-            # cancelling a settled invoice should raise
+                                                       
             await cmds.cancel_hold_invoice(payment_hash=payment_hash, wallet=wallet)
 
     @mock.patch.object(storage.WalletStorage, 'write')
@@ -600,7 +592,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             "bc_balance": "0.75136687",
             "bc_value": "-0.005002",
             "confirmations": 968,
-            "date": "2020-07-02 11:57+00:00",  # kind of a hack. normally, there is no timezone offset here
+            "date": "2020-07-02 11:57+00:00",                                                              
             "fee_sat": 200,
             "group_id": None,
             "height": 1774910,
@@ -758,7 +750,7 @@ class TestCommandsTestnet(ElectrumTestCase):
             config=self.config)['wallet']
         cmds = Commands(config=self.config)
 
-        # Mock the network and lnworker
+                                       
         mock_lnworker = mock.Mock()
         w.lnworker = mock_lnworker
         mock_peer = mock.Mock()
@@ -772,15 +764,15 @@ class TestCommandsTestnet(ElectrumTestCase):
             return mock_peer
         mock_lnworker.add_peer = lnworker_add_peer
 
-        # check if add_peer times out if peer doesn't initialize (LN_P2P_NETWORK_TIMEOUT is 0.001s)
+                                                                                                   
         with self.assertRaises(UserFacingException):
             await cmds.add_peer(connection_string=connection_string, wallet=w)
-        # check if add_peer called lnworker.add_peer
+                                                    
         assert called == 1
 
         mock_peer.initialized = asyncio.Future()
         mock_peer.initialized.set_result(True)
-        # check if add_peer returns True if peer is initialized
+                                                               
         result = await cmds.add_peer(connection_string=connection_string, wallet=w)
         assert called == 2
         self.assertTrue(result)

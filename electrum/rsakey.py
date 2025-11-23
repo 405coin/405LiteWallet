@@ -1,35 +1,35 @@
 #!/usr/bin/env python
-#
-# Electrum - lightweight Bitcoin client
-# Copyright (C) 2015 Thomas Voegtlin
-#
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+ 
+                                       
+                                    
+ 
+                                                             
+                                                                      
+                                                                
+                                                                      
+                                                                      
+                                                                   
+                                      
+ 
+                                                                
+                                                                 
+ 
+                                                                 
+                                                                    
+                                                       
+                                                                     
+                                                                    
+                                                                   
+                                                                  
+           
 
-# This module uses functions from TLSLite (public domain)
-#
-# TLSLite Authors:
-#   Trevor Perrin
-#   Martin von Loewis - python 3 port
-#   Yngve Pettersen (ported by Paul Sokolovsky) - TLS 1.2
-#
+                                                         
+ 
+                  
+                 
+                                     
+                                                         
+ 
 
 """Pure-Python RSA implementation."""
 
@@ -42,11 +42,11 @@ def SHA1(x):
     return hashlib.sha1(x).digest()
 
 
-# **************************************************************************
-# PRNG Functions
-# **************************************************************************
+                                                                            
+                
+                                                                            
 
-# Check that os.urandom works
+                             
 import zlib
 length = len(zlib.compress(os.urandom(1000)))
 assert length > 900
@@ -59,9 +59,9 @@ def getRandomBytes(howMany):
 prngName = "os.urandom"
 
 
-# **************************************************************************
-# Converter Functions
-# **************************************************************************
+                                                                            
+                     
+                                                                            
 
 def bytesToNumber(b):
     total = 0
@@ -87,8 +87,8 @@ def numberToByteArray(n, howManyBytes=None):
         n >>= 8
     return b
 
-def mpiToNumber(mpi): #mpi is an openssl-format bignum string
-    if (ord(mpi[4]) & 0x80) !=0: #Make sure this is a positive number
+def mpiToNumber(mpi):                                        
+    if (ord(mpi[4]) & 0x80) !=0:                                     
         raise AssertionError()
     b = bytearray(mpi[4:])
     return bytesToNumber(b)
@@ -96,8 +96,8 @@ def mpiToNumber(mpi): #mpi is an openssl-format bignum string
 def numberToMPI(n):
     b = numberToByteArray(n)
     ext = 0
-    #If the high-order bit is going to be set,
-    #add an extra byte of zeros
+                                              
+                               
     if (numBits(n) & 0x7)==0:
         ext = 1
     length = numBytes(n) + ext
@@ -109,15 +109,15 @@ def numberToMPI(n):
     return bytes(b)
 
 
-# **************************************************************************
-# Misc. Utility Functions
-# **************************************************************************
+                                                                            
+                         
+                                                                            
 
 def numBits(n):
     if n==0:
         return 0
     s = "%x" % n
-    return ((len(s)-1)*4) + \
+    return ((len(s)-1)*4) +\
     {'0':0, '1':1, '2':2, '3':2,
      '4':3, '5':3, '6':3, '7':3,
      '8':4, '9':4, 'a':4, 'b':4,
@@ -130,9 +130,9 @@ def numBytes(n):
     bits = numBits(n)
     return int(math.ceil(bits / 8.0))
 
-# **************************************************************************
-# Big Number Math
-# **************************************************************************
+                                                                            
+                 
+                                                                            
 
 def getRandomNumber(low, high):
     if low >= high:
@@ -157,8 +157,8 @@ def gcd(a,b):
 def lcm(a, b):
     return (a * b) // gcd(a, b)
 
-#Returns inverse of a mod b, zero if none
-#Uses Extended Euclidean Algorithm
+                                         
+                                  
 def invMod(a, b):
     c, d = a, b
     uc, ud = 1, 0
@@ -179,7 +179,7 @@ def powMod(base, power, modulus):
     else:
         return pow(base, power, modulus)
 
-#Pre-calculate a sieve of the ~100 primes < 1000:
+                                                 
 def makeSieve(n):
     sieve = list(range(n))
     for count in range(2, int(math.sqrt(n))+1):
@@ -195,19 +195,19 @@ def makeSieve(n):
 sieve = makeSieve(1000)
 
 def isPrime(n, iterations=5, display=False):
-    #Trial division with sieve
+                              
     for x in sieve:
         if x >= n: return True
         if n % x == 0: return False
-    #Passed trial division, proceed to Rabin-Miller
-    #Rabin-Miller implemented per Ferguson & Schneier
-    #Compute s, t for Rabin-Miller
+                                                   
+                                                     
+                                  
     if display: print("*", end=' ')
     s, t = n-1, 0
     while s % 2 == 0:
         s, t = s//2, t+1
-    #Repeat Rabin-Miller x times
-    a = 2 #Use 2 as a base for first iteration speedup, per HAC
+                                
+    a = 2                                                      
     for count in range(iterations):
         v = powMod(a, s, n)
         if v==1:
@@ -224,11 +224,11 @@ def isPrime(n, iterations=5, display=False):
 def getRandomPrime(bits, display=False):
     if bits < 10:
         raise AssertionError()
-    #The 1.5 ensures the 2 MSBs are set
-    #Thus, when used for p,q in RSA, n will have its MSB set
-    #
-    #Since 30 is lcm(2,3,5), we'll set our test numbers to
-    #29 % 30 and keep them there
+                                       
+                                                            
+     
+                                                          
+                                
     low = ((2 ** (bits-1)) * 3) // 2
     high = 2 ** bits - 30
     p = getRandomNumber(low, high)
@@ -242,15 +242,15 @@ def getRandomPrime(bits, display=False):
         if isPrime(p, display=display):
             return p
 
-#Unused at the moment...
+                        
 def getRandomSafePrime(bits, display=False):
     if bits < 10:
         raise AssertionError()
-    #The 1.5 ensures the 2 MSBs are set
-    #Thus, when used for p,q in RSA, n will have its MSB set
-    #
-    #Since 30 is lcm(2,3,5), we'll set our test numbers to
-    #29 % 30 and keep them there
+                                       
+                                                            
+     
+                                                          
+                                
     low = (2 ** (bits-2)) * 3//2
     high = (2 ** (bits-1)) - 30
     q = getRandomNumber(low, high)
@@ -261,8 +261,8 @@ def getRandomSafePrime(bits, display=False):
         if (q >= high):
             q = getRandomNumber(low, high)
             q += 29 - (q % 30)
-        #Ideas from Tom Wu's SRP code
-        #Do trial division on p and q before Rabin-Miller
+                                     
+                                                         
         if isPrime(q, 0, display=display):
             p = (2 * q) + 1
             if isPrime(p, display=display):
@@ -329,7 +329,7 @@ class RSAKey(object):
         """
         hashBytes = SHA1(bytearray(bytes))
 
-        # Try it with/without the embedded NULL
+                                               
         prefixedHashBytes1 = self._addPKCS1SHA1Prefix(hashBytes, False)
         prefixedHashBytes2 = self._addPKCS1SHA1Prefix(hashBytes, True)
         result1 = self.verify(sigBytes, prefixedHashBytes1)
@@ -423,34 +423,34 @@ class RSAKey(object):
             return None
         m = self._rawPrivateKeyOp(c)
         decBytes = numberToByteArray(m, numBytes(self.n))
-        #Check first two bytes
+                              
         if decBytes[0] != 0 or decBytes[1] != 2:
             return None
-        #Scan through for zero separator
+                                        
         for x in range(1, len(decBytes)-1):
             if decBytes[x]== 0:
                 break
         else:
             return None
-        return decBytes[x+1:] #Return everything after the separator
+        return decBytes[x+1:]                                       
 
 
 
 
-    # **************************************************************************
-    # Helper Functions for RSA Keys
-    # **************************************************************************
+                                                                                
+                                   
+                                                                                
 
     def _addPKCS1SHA1Prefix(self, bytes, withNULL=True):
-        # There is a long history of confusion over whether the SHA1
-        # algorithmIdentifier should be encoded with a NULL parameter or
-        # with the parameter omitted.  While the original intention was
-        # apparently to omit it, many toolkits went the other way.  TLS 1.2
-        # specifies the NULL should be included, and this behavior is also
-        # mandated in recent versions of PKCS #1, and is what tlslite has
-        # always implemented.  Anyways, verification code should probably
-        # accept both.  However, nothing uses this code yet, so this is
-        # all fairly moot.
+                                                                    
+                                                                        
+                                                                       
+                                                                           
+                                                                          
+                                                                         
+                                                                         
+                                                                       
+                          
         if not withNULL:
             prefixBytes = bytearray(\
             [0x30,0x1f,0x30,0x07,0x06,0x05,0x2b,0x0e,0x03,0x02,0x1a,0x04,0x14])
@@ -462,9 +462,9 @@ class RSAKey(object):
 
     def _addPKCS1Padding(self, bytes, blockType):
         padLength = (numBytes(self.n) - (len(bytes)+3))
-        if blockType == 1: #Signature padding
+        if blockType == 1:                   
             pad = [0xFF] * padLength
-        elif blockType == 2: #Encryption padding
+        elif blockType == 2:                    
             pad = bytearray(0)
             while len(pad) < padLength:
                 padBytes = getRandomBytes(padLength * 2)
@@ -481,34 +481,34 @@ class RSAKey(object):
 
 
     def _rawPrivateKeyOp(self, m):
-        #Create blinding values, on the first pass:
+                                                   
         if not self.blinder:
             self.unblinder = getRandomNumber(2, self.n)
             self.blinder = powMod(invMod(self.unblinder, self.n), self.e,
                                   self.n)
 
-        #Blind the input
+                        
         m = (m * self.blinder) % self.n
 
-        #Perform the RSA operation
+                                  
         c = self._rawPrivateKeyOpHelper(m)
 
-        #Unblind the output
+                           
         c = (c * self.unblinder) % self.n
 
-        #Update blinding values
+                               
         self.blinder = (self.blinder * self.blinder) % self.n
         self.unblinder = (self.unblinder * self.unblinder) % self.n
 
-        #Return the output
+                          
         return c
 
 
     def _rawPrivateKeyOpHelper(self, m):
-        #Non-CRT version
-        #c = powMod(m, self.d, self.n)
+                        
+                                      
 
-        #CRT version  (~3x faster)
+                                  
         s1 = powMod(m, self.dP, self.p)
         s2 = powMod(m, self.dQ, self.q)
         h = ((s1 - s2) * self.qInv) % self.p

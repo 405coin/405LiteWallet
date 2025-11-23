@@ -34,22 +34,22 @@ class QERequestDetails(QObject, QtEventListener):
 
     _logger = get_logger(__name__)
 
-    detailsChanged = pyqtSignal()  # generic request properties changed signal
+    detailsChanged = pyqtSignal()                                             
     statusChanged = pyqtSignal()
     needsLNURLUserInput = pyqtSignal()
-    lnurlError = pyqtSignal(str, str)  # code, message
+    lnurlError = pyqtSignal(str, str)                 
     busyChanged = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self._wallet = None  # type: Optional[QEWallet]
+        self._wallet = None                            
         self._key = None
         self._req = None
         self._timer = None
         self._amount = None
 
-        self._lnurlData = None  # type: Optional[dict]
+        self._lnurlData = None                        
         self._busy = False
 
         self._timer = QTimer(self)
@@ -152,8 +152,8 @@ class QERequestDetails(QObject, QtEventListener):
             bolt11 = wallet.get_bolt11_invoice(self._req)
         else:
             return ''
-        # encode lightning invoices as uppercase so QR encoding can use
-        # alphanumeric mode; resulting in smaller QR codes
+                                                                       
+                                                          
         bolt11 = bolt11.upper()
         return bolt11
 
@@ -192,7 +192,7 @@ class QERequestDetails(QObject, QtEventListener):
                 interval = status_update_timer_interval(self.expiration)
                 if interval > 0:
                     self._logger.debug(f'setting status update timer to {interval}')
-                    self._timer.setInterval(interval)  # msec
+                    self._timer.setInterval(interval)        
                     self._timer.start()
 
     @pyqtSlot()

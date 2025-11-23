@@ -10,7 +10,7 @@ ItemDelegate {
     height: item.height
     width: ListView.view.width
 
-    font.pixelSize: constants.fontSizeSmall // set default font size for child controls
+    font.pixelSize: constants.fontSizeSmall 
 
     property bool _closed: model.state_code == ChannelDetails.Closed
                             || model.state_code == ChannelDetails.Redeemed

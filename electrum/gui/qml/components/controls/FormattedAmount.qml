@@ -20,7 +20,7 @@ GridLayout {
                     : 2
 
     Item {
-        visible: !valid // empty placeholder if not valid
+        visible: !valid 
         Layout.preferredWidth: 1
         Layout.preferredHeight: 1
     }

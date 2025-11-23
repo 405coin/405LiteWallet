@@ -19,19 +19,19 @@ from .crypto import sha256d
 if TYPE_CHECKING:
     from .paymentrequest import PaymentRequest
 
-# convention: 'invoices' = outgoing , 'request' = incoming
+                                                          
 
-# status of payment requests
-PR_UNPAID   = 0     # if onchain: invoice amt not reached by txs in mempool+chain. if LN: invoice not paid.
-PR_EXPIRED  = 1     # invoice is unpaid and expiry time reached
-PR_UNKNOWN  = 2     # e.g. invoice not found
-PR_PAID     = 3     # if onchain: paid and mined (1 conf). if LN: invoice is paid.
-PR_INFLIGHT = 4     # only for LN. payment attempt in progress
-PR_FAILED   = 5     # only for LN. we attempted to pay it, but all attempts failed
-PR_ROUTING  = 6     # only for LN. *unused* atm.
-PR_UNCONFIRMED = 7  # only onchain. invoice is satisfied but tx is not mined yet.
-PR_BROADCASTING = 8    # onchain, tx is being broadcast
-PR_BROADCAST    = 9    # onchain, tx was broadcast, is not yet in our history
+                            
+PR_UNPAID   = 0                                                                                            
+PR_EXPIRED  = 1                                                
+PR_UNKNOWN  = 2                             
+PR_PAID     = 3                                                                   
+PR_INFLIGHT = 4                                               
+PR_FAILED   = 5                                                                   
+PR_ROUTING  = 6                                 
+PR_UNCONFIRMED = 7                                                               
+PR_BROADCASTING = 8                                    
+PR_BROADCAST    = 9                                                          
 
 pr_color = {
     PR_UNPAID:   (.7, .7, .7, 1),
@@ -72,7 +72,7 @@ def pr_expiration_values():
     }
 
 
-PR_DEFAULT_EXPIRATION_WHEN_CREATING = 24*60*60  # 1 day
+PR_DEFAULT_EXPIRATION_WHEN_CREATING = 0                            
 assert PR_DEFAULT_EXPIRATION_WHEN_CREATING in pr_expiration_values()
 
 
@@ -87,11 +87,11 @@ def _decode_outputs(outputs) -> Optional[List[PartialTxOutput]]:
     return ret
 
 
-# hack: BOLT-11 is not really clear on what an expiry of 0 means.
-# It probably interprets it as 0 seconds, so already expired...
-# Our higher level invoices code however uses 0 for "never".
-# Hence set some high expiration here
-LN_EXPIRY_NEVER = 100 * 365 * 24 * 60 * 60  # 100 years
+                                                                 
+                                                               
+                                                            
+                                     
+LN_EXPIRY_NEVER = 100 * 365 * 24 * 60 * 60             
 
 
 @attr.s
@@ -103,25 +103,25 @@ class BaseInvoice(StoredObject):
     TODO this class is getting too complicated for "attrs"... maybe we should rewrite it without.
     """
 
-    # mandatory fields
-    amount_msat = attr.ib(  # can be '!' or None
-        kw_only=True, on_setattr=attr.setters.validate)  # type: Optional[Union[int, str]]
+                      
+    amount_msat = attr.ib(                      
+        kw_only=True, on_setattr=attr.setters.validate)                                   
     message = attr.ib(type=str, kw_only=True)
-    time = attr.ib(  # timestamp of the invoice
+    time = attr.ib(                            
         type=int, kw_only=True, validator=attr.validators.instance_of(int), on_setattr=attr.setters.validate)
-    exp = attr.ib(  # expiration delay (relative). 0 means never
+    exp = attr.ib(                                              
         type=int, kw_only=True, validator=attr.validators.instance_of(int), on_setattr=attr.setters.validate)
 
-    # optional fields.
-    # an request (incoming) can be satisfied onchain, using lightning or using a swap
-    # an invoice (outgoing) is constructed from a source: bip21, bip70, lnaddr
+                      
+                                                                                     
+                                                                              
 
-    # onchain only
-    outputs = attr.ib(kw_only=True, converter=_decode_outputs)  # type: Optional[List[PartialTxOutput]]
-    height = attr.ib(  # only for receiving
+                  
+    outputs = attr.ib(kw_only=True, converter=_decode_outputs)                                         
+    height = attr.ib(                      
         type=int, kw_only=True, validator=attr.validators.instance_of(int), on_setattr=attr.setters.validate)
-    bip70 = attr.ib(type=str, kw_only=True)  # type: Optional[str]
-    #bip70_requestor = attr.ib(type=str, kw_only=True)  # type: Optional[str]
+    bip70 = attr.ib(type=str, kw_only=True)                       
+                                                                             
 
     def is_lightning(self) -> bool:
         raise NotImplementedError()
@@ -140,6 +140,8 @@ class BaseInvoice(StoredObject):
             if self.exp > 0 and self.exp != LN_EXPIRY_NEVER:
                 expiration = self.get_expiration_date()
                 status_str = _('Expires') + ' ' + age(expiration, include_seconds=True)
+            else:
+                status_str = _('Permanent')
         return status_str
 
     def get_outputs(self) -> Sequence[PartialTxOutput]:
@@ -152,11 +154,11 @@ class BaseInvoice(StoredObject):
         return outputs
 
     def get_expiration_date(self):
-        # 0 means never
+                       
         return self.exp + self.time if self.exp else 0
 
     @staticmethod
-    def _get_cur_time():  # for unit tests
+    def _get_cur_time():                  
         return time.time()
 
     def has_expired(self) -> bool:
@@ -189,7 +191,7 @@ class BaseInvoice(StoredObject):
         else:
             assert isinstance(amount_msat, int), f"{amount_msat=!r}"
             assert amount_msat >= 0, amount_msat
-            amount_sat = (amount_msat // 1000) + int(amount_msat % 1000 > 0)  # round up
+            amount_sat = (amount_msat // 1000) + int(amount_msat % 1000 > 0)            
         if outputs := self.outputs:
             assert len(self.outputs) == 1, len(self.outputs)
             self.outputs = [PartialTxOutput(scriptpubkey=outputs[0].scriptpubkey, value=amount_sat)]
@@ -248,7 +250,7 @@ class BaseInvoice(StoredObject):
     def get_id(self) -> str:
         if self.is_lightning():
             return self.rhash
-        else:  # on-chain
+        else:            
             return get_id_from_onchain_outputs(outputs=self.get_outputs(), timestamp=self.time)
 
     def as_dict(self, status):
@@ -271,9 +273,9 @@ class BaseInvoice(StoredObject):
 @stored_in('invoices')
 @attr.s
 class Invoice(BaseInvoice):
-    lightning_invoice = attr.ib(type=str, kw_only=True)  # type: Optional[str]
+    lightning_invoice = attr.ib(type=str, kw_only=True)                       
     __lnaddr = None
-    _broadcasting_status = None # can be None or PR_BROADCASTING or PR_BROADCAST
+    _broadcasting_status = None                                                 
 
     def is_lightning(self):
         return self.lightning_invoice is not None
@@ -303,8 +305,8 @@ class Invoice(BaseInvoice):
     @lightning_invoice.validator
     def _validate_invoice_str(self, attribute, value):
         if value is not None:
-            lnaddr = lndecode(value)  # this checks the str can be decoded
-            self.__lnaddr = lnaddr    # save it, just to avoid having to recompute later
+            lnaddr = lndecode(value)                                      
+            self.__lnaddr = lnaddr                                                      
 
     def can_be_paid_onchain(self) -> bool:
         if self.is_lightning():
@@ -321,7 +323,7 @@ class Invoice(BaseInvoice):
 @stored_in('payment_requests')
 @attr.s
 class Request(BaseInvoice):
-    payment_hash = attr.ib(type=bytes, kw_only=True, converter=hex_to_bytes)  # type: Optional[bytes]
+    payment_hash = attr.ib(type=bytes, kw_only=True, converter=hex_to_bytes)                         
 
     def is_lightning(self):
         return self.payment_hash is not None

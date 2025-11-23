@@ -8,7 +8,7 @@ syntax_check_decorator = _ensure_translation_keeps_format_string_syntax_similar
 
 
 class TestSyntaxChecks(ElectrumTestCase):
-    # convention: source strings are lowercase, dest strings are uppercase
+                                                                          
 
     def test_no_format(self):
         src, dst = ("hello there", "HELLO THEEEEERE")
@@ -51,14 +51,14 @@ class TestSyntaxChecks(ElectrumTestCase):
         src, dst = ("{1} aaa {pp} {qq} {0} bbb", "{1} AAA {pp} {qq} {0} BBB")
         self.assertEqual(dst, syntax_check_decorator(lambda x: dst)(src))
 
-    def test_allow_reordering_replacement_fields(self):  # language-flexibility
+    def test_allow_reordering_replacement_fields(self):                        
         src, dst = ("time left: {0} minutes, {1} seconds", "TIME LEFT: {1} SECONDS, {0} MINUTES")
         self.assertEqual(dst, syntax_check_decorator(lambda x: dst)(src))
         src, dst = ("{1} aaa {pp} {qq} {0} bbb", "{qq} AAA {0} {1} {pp} BBB")
         self.assertEqual(dst, syntax_check_decorator(lambda x: dst)(src))
 
     def test_replacement_field_name_cannot_change(self):
-        # rejects:
+                  
         src, dst = ("hel{}lo there", "HELLO THE{RE}")
         self.assertEqual(src, syntax_check_decorator(lambda x: dst)(src))
         src, dst = ("hel{}lo there", "HELLO THE{0}")
@@ -71,12 +71,12 @@ class TestSyntaxChecks(ElectrumTestCase):
         self.assertEqual(src, syntax_check_decorator(lambda x: dst)(src))
         src, dst = ("hel{RE}lo there", "HELLO THE{0}")
         self.assertEqual(src, syntax_check_decorator(lambda x: dst)(src))
-        # we only check the set of field_names is invariant, so this is allowed:
+                                                                                
         src, dst = ("hello there {} {} {} {p} {q}", "HELLO THERE {} {q} {q} {p} {q}")
         self.assertEqual(dst, syntax_check_decorator(lambda x: dst)(src))
 
     def test_replacement_field_count_cannot_change(self):
-        # rejects:
+                  
         src, dst = ("hello there", "HELLO THERE {}")
         self.assertEqual(src, syntax_check_decorator(lambda x: dst)(src))
         src, dst = ("hello there", "HELLO {} {} THERE")

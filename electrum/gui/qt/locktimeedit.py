@@ -1,6 +1,6 @@
-# Copyright (C) 2020 The Electrum developers
-# Distributed under the MIT software license, see the accompanying
-# file LICENCE or http://www.opensource.org/licenses/mit-license.php
+
+
+
 
 import time
 from datetime import datetime
@@ -89,7 +89,7 @@ class _LockTimeEditor:
 
     @classmethod
     def is_acceptable_locktime(cls, x: Any) -> bool:
-        if not x:  # e.g. empty string
+        if not x:
             return True
         try:
             x = int(x)
@@ -112,8 +112,8 @@ class LockTimeRawEdit(QLineEdit, _LockTimeEditor):
         pos = len(''.join([i for i in text[:pos] if i in chars]))
         s = ''.join([i for i in text if i in chars])
         self.set_locktime(s)
-        # setText sets Modified to False.  Instead we want to remember
-        # if updates were because of user modification.
+
+
         self.setModified(self.hasFocus())
         self.setCursorPosition(pos)
 
@@ -154,13 +154,13 @@ class LockTimeHeightEdit(LockTimeRawEdit):
 
 def get_max_allowed_timestamp() -> int:
     ts = NLOCKTIME_MAX
-    # Test if this value is within the valid timestamp limits (which is platform-dependent).
-    # see #6170
+
+
     try:
         datetime.fromtimestamp(ts)
     except (OSError, OverflowError):
-        ts = 2 ** 31 - 1  # INT32_MAX
-        datetime.fromtimestamp(ts)  # test if raises
+        ts = 2 ** 31 - 1
+        datetime.fromtimestamp(ts)
     return ts
 
 

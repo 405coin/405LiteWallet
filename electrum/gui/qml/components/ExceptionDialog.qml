@@ -17,14 +17,14 @@ ElDialog
 
     width: parent.width
     height: parent.height
-    z: 1000  // assure topmost of all other dialogs. note: child popups need even higher!
-    // disable padding in ElDialog as it is overwritten here and shows no effect, this dialog needs padding though
+    z: 1000  
+    
     needsSystemBarPadding: false
 
     header: null
 
     ColumnLayout {
-        anchors.topMargin: app.statusBarHeight  // edge-to-edge layout padding
+        anchors.topMargin: app.statusBarHeight  
         anchors.bottomMargin: app.navigationBarHeight
         anchors.fill: parent
         enabled: !_sending
@@ -85,7 +85,7 @@ ElDialog
                     var dialog = app.messageDialog.createObject(app, {
                         text: qsTr('Confirm to send bugreport?'),
                         yesno: true,
-                        z: 1001  // assure topmost of all other dialogs
+                        z: 1001  
                     })
                     dialog.accepted.connect(function() {
                         AppController.sendReport(user_text.text)
@@ -114,7 +114,7 @@ ElDialog
 
             width: parent.width
             height: parent.height
-            z: 1001  // above root
+            z: 1001  
             needsSystemBarPadding: false
 
             header: null
@@ -144,7 +144,7 @@ ElDialog
             var dialog = app.messageDialog.createObject(app, {
                 text: text,
                 richText: true,
-                z: 1001  // assure topmost of all other dialogs
+                z: 1001  
             })
             dialog.open()
             close()
@@ -156,7 +156,7 @@ ElDialog
                 iconSource: Qt.resolvedUrl('../../icons/warning.png'),
                 text: text,
                 richText: true,
-                z: 1001  // assure topmost of all other dialogs
+                z: 1001  
             })
             dialog.open()
         }

@@ -15,10 +15,10 @@ from electrum.transaction import PartialTxOutput
 from electrum.network import TxBroadcastError, BestEffortRequestFailed
 from electrum.fee_policy import FixedFeePolicy
 
-_ = lambda x:x  # i18n
+_ = lambda x:x        
 
-# minimal fdisk like gui for console usage
-# written by rofl0r, with some bits stolen from the text gui (ncurses)
+                                          
+                                                                      
 
 
 class ElectrumGui(BaseElectrumGui, EventListener):
@@ -47,14 +47,14 @@ class ElectrumGui(BaseElectrumGui, EventListener):
         self.str_fee = ""
 
         self.register_callbacks()
-        self.commands = [_("[h] - displays this help text"), \
-                         _("[i] - display transaction history"), \
-                         _("[o] - enter payment order"), \
-                         _("[p] - print stored payment order"), \
-                         _("[s] - send stored payment order"), \
-                         _("[r] - show own receipt addresses"), \
-                         _("[c] - display contacts"), \
-                         _("[b] - print server banner"), \
+        self.commands = [_("[h] - displays this help text"),\
+                         _("[i] - display transaction history"),\
+                         _("[o] - enter payment order"),\
+                         _("[p] - print stored payment order"),\
+                         _("[s] - send stored payment order"),\
+                         _("[r] - show own receipt addresses"),\
+                         _("[c] - display contacts"),\
+                         _("[b] - print server banner"),\
                          _("[q] - quit")]
         self.num_commands = len(self.commands)
 
@@ -99,7 +99,7 @@ class ElectrumGui(BaseElectrumGui, EventListener):
     def print_history(self):
         width = [20, 40, 14, 14]
         delta = (80 - sum(width) - 4)/3
-        format_str = "%"+"%d"%width[0]+"s"+"%"+"%d"%(width[1]+delta)+"s"+"%" \
+        format_str = "%"+"%d"%width[0]+"s"+"%"+"%d"%(width[1]+delta)+"s"+"%"\
         + "%d"%(width[2]+delta)+"s"+"%"+"%d"%(width[3]+delta)+"s"
         messages = []
         domain = self.wallet.get_addresses()
@@ -152,7 +152,7 @@ class ElectrumGui(BaseElectrumGui, EventListener):
         self.print_list(messages, "%19s  %25s "%("Address", "Label"))
 
     def print_order(self):
-        print("send order to " + self.str_recipient + ", amount: " + self.str_amount \
+        print("send order to " + self.str_recipient + ", amount: " + self.str_amount\
               + "\nfee: " + self.str_fee + ", desc: " + self.str_description)
 
     def enter_order(self):
@@ -234,8 +234,8 @@ class ElectrumGui(BaseElectrumGui, EventListener):
             print(msg)
         else:
             print(_('Payment sent.'))
-            #self.do_clear()
-            #self.update_contacts_tab()
+                            
+                                       
 
     def network_dialog(self):
         print("use 'electrum setconfig server/proxy' to change your network settings")
@@ -250,11 +250,11 @@ class ElectrumGui(BaseElectrumGui, EventListener):
         return getpass.getpass()
 
 
-#   XXX unused
+              
 
     def run_receive_tab(self, c):
-        #if c == 10:
-        #    out = self.run_popup('Address', ["Edit label", "Freeze", "Prioritize"])
+                    
+                                                                                    
         return
 
     def run_contacts_tab(self, c):

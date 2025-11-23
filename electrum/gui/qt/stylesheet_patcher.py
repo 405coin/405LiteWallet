@@ -1,6 +1,4 @@
-"""This is used to patch the QApplication style sheet.
-It reads the current stylesheet, appends our modifications and sets the new stylesheet.
-"""
+
 
 import sys
 
@@ -60,7 +58,7 @@ def patch_qt_stylesheet(use_dark_theme: bool) -> None:
     custom_patch = ""
     if use_dark_theme:
         custom_patch = CUSTOM_PATCH_FOR_DARK_THEME
-    else:  # default theme (typically light)
+    else:
         if sys.platform == 'darwin':
             custom_patch = CUSTOM_PATCH_FOR_DEFAULT_THEME_MACOS
 

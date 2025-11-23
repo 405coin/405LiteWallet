@@ -154,7 +154,7 @@ class QtHandler(QtHandlerBase):
         self.close_matrix_dialog_signal.emit()
 
     def pin_dialog(self, msg, show_strength):
-        # Needed e.g. when resetting a device
+                                             
         self.clear_dialog()
         dialog = WindowModalDialog(self.top_level_window(), _("Enter PIN"))
         matrix = self.pin_matrix_widget_class(show_strength)
@@ -174,7 +174,7 @@ class QtHandler(QtHandlerBase):
         self.done.set()
 
     def passphrase_dialog(self, msg, confirm):
-        # If confirm is true, require the user to enter the passphrase twice
+                                                                            
         parent = self.top_level_window()
         d = WindowModalDialog(parent, _('Enter Passphrase'))
 
@@ -239,9 +239,9 @@ class QtHandler(QtHandlerBase):
 
 
 class QtPlugin(QtPluginBase):
-    # Derived classes must provide the following class-static variables:
-    #   icon_file
-    #   pin_matrix_widget_class
+                                                                        
+                 
+                               
 
     @only_hook_if_libraries_available
     @hook
@@ -277,7 +277,7 @@ class InitSettingsLayout(QVBoxLayout):
         capabilities = client.client.features.capabilities
         have_shamir = Capability.Shamir in capabilities
 
-        # label
+               
         label = QLabel(_("Enter a label to name your device:"))
         self.name = QLineEdit()
         hl = QHBoxLayout()
@@ -286,7 +286,7 @@ class InitSettingsLayout(QVBoxLayout):
         hl.addStretch(1)
         self.addLayout(hl)
 
-        # Backup type
+                     
         gb_backuptype = QGroupBox()
         hbox_backuptype = QHBoxLayout()
         gb_backuptype.setLayout(hbox_backuptype)
@@ -307,7 +307,7 @@ class InitSettingsLayout(QVBoxLayout):
         self.bg_backuptype.setId(rb_shamir, BackupType.Slip39_Basic)
         hbox_backuptype.addWidget(rb_shamir)
         rb_shamir.setEnabled(Capability.Shamir in capabilities)
-        rb_shamir.setVisible(False)  # visible with "expert settings"
+        rb_shamir.setVisible(False)                                  
 
         rb_shamir_groups = QRadioButton(gb_backuptype)
         rb_shamir_groups.setText(_('Super Shamir'))
@@ -315,9 +315,9 @@ class InitSettingsLayout(QVBoxLayout):
         self.bg_backuptype.setId(rb_shamir_groups, BackupType.Slip39_Advanced)
         hbox_backuptype.addWidget(rb_shamir_groups)
         rb_shamir_groups.setEnabled(Capability.ShamirGroups in capabilities)
-        rb_shamir_groups.setVisible(False)  # visible with "expert settings"
+        rb_shamir_groups.setVisible(False)                                  
 
-        # word count
+                    
         word_count_buttons = {}
 
         gb_numwords = QGroupBox()
@@ -361,20 +361,20 @@ class InitSettingsLayout(QVBoxLayout):
         self.bg_backuptype.buttonClicked.connect(configure_word_counts)
         configure_word_counts()
 
-        # set up conditional visibility:
-        # 1. backup_type is only visible when creating new seed
+                                        
+                                                               
         gb_backuptype.setVisible(method == TIM_NEW)
-        # 2. word_count is not visible when recovering on TT
+                                                            
         if method == TIM_RECOVER and model != "1":
             gb_numwords.setVisible(False)
 
-        # PIN
+             
         self.cb_pin = QCheckBox(_('Enable PIN protection'))
         self.cb_pin.setChecked(True)
         self.addWidget(WWLabel(RECOMMEND_PIN))
         self.addWidget(self.cb_pin)
 
-        # "expert settings" button
+                                  
         expert_vbox = QVBoxLayout()
         expert_widget = QWidget()
         expert_widget.setLayout(expert_vbox)
@@ -388,7 +388,7 @@ class InitSettingsLayout(QVBoxLayout):
         expert_button.clicked.connect(show_expert_settings)
         self.addWidget(expert_button)
 
-        # passphrase
+                    
         passphrase_msg = WWLabel(PASSPHRASE_HELP_SHORT)
         passphrase_warning = WWLabel(PASSPHRASE_NOT_PIN)
         passphrase_warning.setStyleSheet("color: red")
@@ -398,7 +398,7 @@ class InitSettingsLayout(QVBoxLayout):
         expert_vbox.addWidget(passphrase_warning)
         expert_vbox.addWidget(self.cb_phrase)
 
-        # ask for recovery type (random word order OR matrix)
+                                                             
         self.bg_rectype = None
         if method == TIM_RECOVER and model == '1':
             gb_rectype = QGroupBox()
@@ -421,7 +421,7 @@ class InitSettingsLayout(QVBoxLayout):
             self.bg_rectype.setId(rb2, RecoveryDeviceInputMethod.Matrix)
             hbox_rectype.addWidget(rb2)
 
-        # no backup
+                   
         self.cb_no_backup = None
         if method == TIM_NEW:
             self.cb_no_backup = QCheckBox(_('Enable seedless mode'))
@@ -466,7 +466,7 @@ class Plugin(TrezorPlugin, QtPlugin):
     def pin_matrix_widget_class(self):
         return PinMatrixWidget
 
-    # insert trezor pages in new wallet wizard
+                                              
     def extend_wizard(self, wizard: 'QENewWalletWizard'):
         super().extend_wizard(wizard)
         views = {
@@ -576,7 +576,7 @@ class SettingsDialog(WindowModalDialog):
                 config=config,
             )
             if not filename:
-                return  # user cancelled
+                return                  
 
             if filename.endswith('.toif'):
                 img = open(filename, 'rb').read()
@@ -584,7 +584,7 @@ class SettingsDialog(WindowModalDialog):
                     handler.show_error('File is not a TOIF file with size of 144x144')
                     return
             else:
-                from PIL import Image # FIXME
+                from PIL import Image        
                 im = Image.open(filename)
                 if im.size != (128, 64):
                     handler.show_error('Image must be 128 x 64 pixels')
@@ -627,7 +627,7 @@ class SettingsDialog(WindowModalDialog):
         def slider_released():
             config.set_session_timeout(timeout_slider.sliderPosition() * 60)
 
-        # Information tab
+                         
         info_tab = QWidget()
         info_layout = QVBoxLayout(info_tab)
         info_glayout = QGridLayout()
@@ -656,12 +656,12 @@ class SettingsDialog(WindowModalDialog):
             info_glayout.addWidget(widget, row_num, 1)
         info_layout.addLayout(info_glayout)
 
-        # Settings tab
+                      
         settings_tab = QWidget()
         settings_layout = QVBoxLayout(settings_tab)
         settings_glayout = QGridLayout()
 
-        # Settings tab - Label
+                              
         label_msg = QLabel(_("Name this {}.  If you have multiple devices "
                              "their labels help distinguish them.")
                            .format(plugin.device))
@@ -678,7 +678,7 @@ class SettingsDialog(WindowModalDialog):
         settings_glayout.addWidget(label_apply, 0, 3)
         settings_glayout.addWidget(label_msg, 1, 1, 1, -1)
 
-        # Settings tab - PIN
+                            
         pin_label = QLabel(_("PIN Protection"))
         pin_button = QPushButton()
         pin_button.clicked.connect(set_pin)
@@ -692,7 +692,7 @@ class SettingsDialog(WindowModalDialog):
         pin_msg.setStyleSheet("color: red")
         settings_glayout.addWidget(pin_msg, 3, 1, 1, -1)
 
-        # Settings tab - Homescreen
+                                   
         homescreen_label = QLabel(_("Homescreen"))
         homescreen_change_button = QPushButton(_("Change..."))
         homescreen_clear_button = QPushButton(_("Reset"))
@@ -715,7 +715,7 @@ class SettingsDialog(WindowModalDialog):
         settings_glayout.addWidget(homescreen_clear_button, 4, 2)
         settings_glayout.addWidget(homescreen_msg, 5, 1, 1, -1)
 
-        # Settings tab - Session Timeout
+                                        
         timeout_label = QLabel(_("Session Timeout"))
         timeout_minutes = QLabel()
         timeout_slider = QSlider(Qt.Orientation.Horizontal)
@@ -741,12 +741,12 @@ class SettingsDialog(WindowModalDialog):
         settings_layout.addLayout(settings_glayout)
         settings_layout.addStretch(1)
 
-        # Advanced tab
+                      
         advanced_tab = QWidget()
         advanced_layout = QVBoxLayout(advanced_tab)
         advanced_glayout = QGridLayout()
 
-        # Advanced tab - clear PIN
+                                  
         clear_pin_button = QPushButton(_("Disable PIN"))
         clear_pin_button.clicked.connect(clear_pin)
         clear_pin_warning = QLabel(
@@ -757,7 +757,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(clear_pin_button, 0, 2)
         advanced_glayout.addWidget(clear_pin_warning, 1, 0, 1, 5)
 
-        # Advanced tab - toggle passphrase protection
+                                                     
         passphrase_button = QPushButton()
         passphrase_button.clicked.connect(toggle_passphrase)
         passphrase_msg = WWLabel(PASSPHRASE_HELP)
@@ -767,7 +767,7 @@ class SettingsDialog(WindowModalDialog):
         advanced_glayout.addWidget(passphrase_msg, 4, 0, 1, 5)
         advanced_glayout.addWidget(passphrase_warning, 5, 0, 1, 5)
 
-        # Advanced tab - wipe device
+                                    
         wipe_device_button = QPushButton(_("Wipe Device"))
         wipe_device_button.clicked.connect(wipe_device)
         wipe_device_msg = QLabel(
@@ -794,7 +794,7 @@ class SettingsDialog(WindowModalDialog):
         dialog_vbox.addWidget(tabs)
         dialog_vbox.addLayout(Buttons(CloseButton(self)))
 
-        # Update information
+                            
         invoke_client(None)
 
 
@@ -843,7 +843,7 @@ class WCTrezorInitMethod(WalletWizardComponent, Logger):
 
         message = _('Choose how you want to initialize your {}.').format(_info.model_name)
         choices = [
-            # Must be short as QT doesn't word-wrap radio button text
+                                                                     
             ChoiceItem(key=TIM_NEW, label=_("Let the device generate a completely new seed randomly")),
             ChoiceItem(key=TIM_RECOVER, label=_("Recover from a seed you have previously written down")),
         ]
@@ -906,7 +906,7 @@ class WCTrezorInit(WalletWizardComponent, Logger):
                 self.plugin._initialize_device(settings, method, device_id, handler)
                 self.logger.info('Done initialize device')
                 self.valid = True
-                self.wizard.requestNext.emit()  # triggers Next GUI thread from event loop
+                self.wizard.requestNext.emit()                                            
             except Exception as e:
                 self.valid = False
                 self.error = repr(e)

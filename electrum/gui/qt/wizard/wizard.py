@@ -1,4 +1,5 @@
 import copy
+import os
 import threading
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Optional
@@ -6,11 +7,12 @@ from typing import TYPE_CHECKING, Optional
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, pyqtSlot, QSize, QMetaObject
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtWidgets import (QDialog, QPushButton, QWidget, QLabel, QVBoxLayout, QScrollArea,
-                             QHBoxLayout, QLayout)
+                             QHBoxLayout, QLayout, QFrame, QSizePolicy)
 
 from electrum.i18n import _
 from electrum.logging import get_logger
 from electrum.gui.qt.util import Buttons, icon_path, MessageBoxMixin, WWLabel, ResizableStackedWidget, AbstractQWidget
+from electrum import constants
 
 if TYPE_CHECKING:
     from electrum.simple_config import SimpleConfig
@@ -18,11 +20,11 @@ if TYPE_CHECKING:
     from electrum.wizard import WizardViewState
 
 
+APP_NAME = getattr(constants.net, "APP_NAME", "405 Lite Wallet")
+
+
 class QEAbstractWizard(QDialog, MessageBoxMixin):
-    """ Concrete subclasses of QEAbstractWizard must also inherit from a concrete AbstractWizard subclass.
-        QEAbstractWizard forms the base for all QtWidgets GUI based wizards, while AbstractWizard defines
-        the base for non-gui wizard flow navigation functionality.
-    """
+
     _logger = get_logger(__name__)
 
     requestNext = pyqtSignal()
@@ -33,12 +35,15 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.app = app
         self.config = config
 
-        # compat
+
         self.gui_thread = threading.current_thread()
 
-        self.setMinimumSize(600, 400)
+        self.setMinimumSize(1320, 900)
+        self.setObjectName("WizardWindow")
 
         self.title = QLabel()
+        self.title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.title.setObjectName("WizardTitle")
         self.window_title = ''
         self.finish_label = _('Finish')
 
@@ -49,11 +54,13 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.back_button.setEnabled(False)
         self.back_button.setDefault(False)
         self.back_button.setAutoDefault(False)
+        self.back_button.setProperty("class", "WizardGhostButton")
         self.next_button = QPushButton(_("Next"), self)
         self.next_button.clicked.connect(self.on_next_button_clicked)
         self.next_button.setEnabled(False)
         self.next_button.setDefault(True)
         self.next_button.setAutoDefault(True)
+        self.next_button.setProperty("class", "WizardPrimaryButton")
         self.requestPrev.connect(self.on_back_button_clicked)
         self.requestNext.connect(self.on_next_button_clicked)
         self.logo = QLabel()
@@ -82,7 +89,6 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.error.setVisible(False)
         self.error.setLayout(error_layout)
 
-        outer_vbox = QVBoxLayout(self)
         inner_vbox = QVBoxLayout()
         inner_vbox.addWidget(self.title)
         inner_vbox.addWidget(self.main_widget)
@@ -90,34 +96,49 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         inner_vbox.addWidget(self.error)
 
         scroll_widget = QWidget()
+        scroll_widget.setObjectName("WizardScrollContent")
+        scroll_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         scroll_widget.setLayout(inner_vbox)
         scroll = QScrollArea()
         scroll.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         scroll.setWidget(scroll_widget)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setWidgetResizable(True)
-        icon_vbox = QVBoxLayout()
-        icon_vbox.addWidget(self.logo)
-        icon_vbox.addStretch(1)
-        hbox = QHBoxLayout()
-        hbox.addLayout(icon_vbox)
-        hbox.addSpacing(5)
-        hbox.addWidget(scroll)
-        hbox.setStretchFactor(scroll, 1)
-        outer_vbox.addLayout(hbox)
+
+        self.logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.logo.setMinimumHeight(140)
+
+        self.card = QFrame()
+        self.card.setObjectName("WizardCard")
+        self.card.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        card_layout = QVBoxLayout(self.card)
+        card_layout.setContentsMargins(48, 32, 48, 40)
+        card_layout.setSpacing(14)
+        card_layout.addWidget(self.logo, alignment=Qt.AlignmentFlag.AlignCenter)
+        card_layout.addWidget(scroll)
+
+        outer_vbox = QVBoxLayout(self)
+        outer_vbox.setContentsMargins(40, 16, 40, 32)
+        outer_vbox.setSpacing(16)
+        outer_vbox.addWidget(self.card, stretch=1)
         outer_vbox.addLayout(Buttons(self.back_button, self.next_button))
 
         self.setTabOrder(self.back_button, self.next_button)
 
-        self.icon_filename = None
-        self.set_icon('electrum.png')
+        self.icon_spec = (None, None)
+        self.default_icon = 'electrum.png'
+        self.set_icon(self.default_icon)
 
         self.start_viewstate = start_viewstate
 
+        self._apply_stylesheet()
         self.show()
         self.raise_()
 
-        QMetaObject.invokeMethod(self, 'strt', Qt.ConnectionType.QueuedConnection)  # call strt after subclass constructor(s)
+        QMetaObject.invokeMethod(self, 'strt', Qt.ConnectionType.QueuedConnection)
 
     def sizeHint(self) -> QSize:
         return QSize(600, 400)
@@ -128,11 +149,11 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.load_next_component(viewstate.view, viewstate.wizard_data, viewstate.params)
         self.set_default_focus()
 
-        # TODO: re-test if needed on macOS
-        self.refresh_gui()  # Need for QT on MacOSX.  Lame.
+
+        self.refresh_gui()
 
     def refresh_gui(self):
-        # For some reason, to refresh the GUI this needs to be called twice
+
         self.app.processEvents()
         self.app.processEvents()
 
@@ -151,11 +172,11 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
             raise e
         page.wizard_data = copy.deepcopy(wdata)
         page.params = params
-        page.on_ready()  # call before component emits any signals
+        page.on_ready()
 
         page.updated.connect(self.on_page_updated)
 
-        # add to stack and update wizard
+
         page.apply()
         self.main_widget.setCurrentIndex(self.main_widget.addWidget(page))
         self.update()
@@ -166,11 +187,38 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         if page == self.main_widget.currentWidget():
             self.update()
 
-    def set_icon(self, filename):
-        prior_filename, self.icon_filename = self.icon_filename, filename
-        self.logo.setPixmap(QPixmap(icon_path(filename))
-                            .scaledToWidth(60, mode=Qt.TransformationMode.SmoothTransformation))
-        return prior_filename
+    def set_icon(self, filename, target_width=None):
+        prior_spec = getattr(self, 'icon_spec', (None, None))
+        self.icon_spec = (filename, target_width)
+        if not filename:
+            self.logo.clear()
+            self.logo.setMinimumHeight(0)
+            self.logo.setVisible(False)
+            return prior_spec
+
+        path = filename if os.path.isabs(filename) else icon_path(filename)
+        pixmap = QPixmap(path)
+        if pixmap.isNull():
+            self.logo.clear()
+            self.logo.setMinimumHeight(0)
+            self.logo.setVisible(False)
+            return prior_spec
+
+        if target_width is None:
+            target_width = int(self.width() * 0.35)
+            if target_width <= 0:
+                target_width = 260
+            target_width = max(200, min(420, target_width))
+        scaled = pixmap.scaled(
+            target_width,
+            target_width,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.logo.setPixmap(scaled)
+        self.logo.setMinimumHeight(scaled.height())
+        self.logo.setVisible(True)
+        return prior_spec
 
     def set_default_focus(self):
         page = self.main_widget.currentWidget()
@@ -196,13 +244,12 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         self.please_wait_l.setText(page.busy_msg if page.busy_msg else _("Please wait..."))
         self.error_msg.setText(str(page.error))
         self.error.setVisible(not page.busy and bool(page.error))
-        icon = page.params.get('icon', icon_path('electrum.png'))
-        if icon:
-            if icon != self.icon_filename:
-                self.set_icon(icon)
-            self.logo.setVisible(True)
+        icon = page.params.get('icon', self.default_icon)
+        icon_width = page.params.get('icon_width') if getattr(page, 'params', None) else None
+        if (icon, icon_width) != self.icon_spec:
+            self.set_icon(icon, icon_width)
         else:
-            self.logo.setVisible(False)
+            self.logo.setVisible(bool(icon))
 
     def on_back_button_clicked(self):
         if self.can_go_back():
@@ -223,14 +270,14 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
             if self.is_finalized(wd):
                 self.accept()
             else:
-                self.prev()  # rollback the submit above
+                self.prev()
         else:
             view = self.submit(wd)
             try:
                 self.load_next_component(view.view, view.wizard_data, view.params)
                 self.set_default_focus()
             except Exception as e:
-                self.prev()  # rollback the submit above
+                self.prev()
                 raise e
 
     def start_wizard(self, *, start_viewstate: Optional['WizardViewState'] = None) -> 'WizardViewState':
@@ -254,8 +301,89 @@ class QEAbstractWizard(QDialog, MessageBoxMixin):
         return self.is_last_view(self._current.view, wdata)
 
     def is_finalized(self, wizard_data: dict) -> bool:
-        ''' Final check before closing the wizard. '''
+
         return True
+
+    def _apply_stylesheet(self):
+        self.setStyleSheet("""
+            #WizardWindow {
+                background-color: #0b1024;
+            }
+            QFrame#WizardCard {
+                background-color: #141b3b;
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 20px;
+            }
+            QLabel#WizardTitle {
+                color: rgba(244,246,255,0.95);
+                font-size: 22px;
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+            QLabel#WizardHeroTitle {
+                font-size: 26px;
+                font-weight: 700;
+                color: rgba(244,246,255,0.95);
+            }
+            QLabel#WizardHeroSubtitle {
+                color: rgba(159,176,255,0.95);
+                font-size: 14px;
+            }
+            QLabel#WizardUnlockTitle {
+                font-size: 18px;
+                font-weight: 600;
+                color: rgba(244,246,255,0.95);
+            }
+            QLabel#WizardWalletLabel {
+                color: rgba(189,201,255,0.94);
+                font-size: 14px;
+            }
+            QLabel#WizardPathHint {
+                color: rgba(143,154,200,0.9);
+                font-size: 13px;
+            }
+            QScrollArea {
+                background: transparent;
+            }
+            QWidget#WizardScrollContent {
+                background-color: transparent;
+            }
+            QPushButton {
+                border-radius: 14px;
+                padding: 12px 22px;
+                font-weight: 600;
+                color: rgba(244,246,255,0.95);
+            }
+            QPushButton[class="WizardPrimaryButton"] {
+                background-color: #2f6bff;
+                border: none;
+            }
+            QPushButton[class="WizardPrimaryButton"]:disabled {
+                background-color: rgba(47, 107, 255, 0.3);
+                color: rgba(255,255,255,0.4);
+            }
+            QPushButton[class="WizardGhostButton"] {
+                background-color: transparent;
+                color: rgba(244,246,255,0.75);
+                border: 1px solid rgba(255,255,255,0.2);
+            }
+            QPushButton[class="WizardGhostButton"]:hover {
+                border-color: rgba(255,255,255,0.35);
+            }
+            QLineEdit, QTextEdit, QPlainTextEdit {
+                background-color: rgba(0,0,0,0.35);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 14px;
+                padding: 10px 14px;
+                color: #f4f6ff;
+            }
+            QCheckBox {
+                color: rgba(244,246,255,0.95);
+            }
+            QLabel {
+                color: rgba(244,246,255,0.95);
+            }
+        """)
 
 
 class WizardComponent(AbstractQWidget):
@@ -305,11 +433,11 @@ class WizardComponent(AbstractQWidget):
 
     @abstractmethod
     def apply(self):
-        # called to apply UI component values to wizard_data
+
         pass
 
     def on_ready(self):
-        # called when wizard_data is available
+
         pass
 
     @pyqtSlot()
@@ -320,5 +448,5 @@ class WizardComponent(AbstractQWidget):
             pass
 
     def initialFocus(self) -> Optional[QWidget]:
-        """Override to specify a control that should receive initial focus"""
+
         return None

@@ -1,0 +1,24 @@
+
+
+
+
+[Desktop Entry]
+Comment=405 Lite Wallet
+Exec=405litewallet %u
+GenericName[en_US]=Bitcoin Wallet
+GenericName=Bitcoin Wallet
+Icon=405litewallet
+Name[en_US]=405 Lite Wallet
+Name=405 Lite Wallet
+Categories=Finance;Network;
+StartupNotify=true
+StartupWMClass=405litewallet
+Terminal=false
+Type=Application
+MimeType=x-scheme-handler/bitcoin;x-scheme-handler/lightning;
+Actions=Testnet;
+Keywords=crypto;currency;BTC
+
+[Desktop Action Testnet]
+Exec=405litewallet --testnet %u
+Name=Testnet mode

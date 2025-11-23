@@ -22,7 +22,7 @@ class TestLnurl(TestCase):
         self.assertEqual("https://jhoenicke.de/.well-known/lnurlp/mempool", url)
 
     def test_parse_lnurl3_response(self):
-        # Test successful parsing with all fields
+                                                 
         sample_response = {
             'callback': 'https://service.io/withdraw?sessionid=123',
             'k1': 'abcdef1234567890',
@@ -39,7 +39,7 @@ class TestLnurl(TestCase):
         self.assertEqual(10_000, result.min_withdrawable_sat)
         self.assertEqual(100_000, result.max_withdrawable_sat)
 
-        # Test with .onion URL
+                              
         onion_response = {
             'callback': 'http://robosatsy56bwqn56qyadmcxkx767hnabg4mihxlmgyt6if5gnuxvzad.onion/withdraw?sessionid=123',
             'k1': 'abcdef1234567890',
@@ -50,9 +50,9 @@ class TestLnurl(TestCase):
         result = lnurl._parse_lnurl3_response(onion_response)
         self.assertEqual('http://robosatsy56bwqn56qyadmcxkx767hnabg4mihxlmgyt6if5gnuxvzad.onion/withdraw?sessionid=123',
                          result.callback_url)
-        self.assertEqual('', result.default_description)  # Missing defaultDescription uses empty string
+        self.assertEqual('', result.default_description)                                                
 
-        # Test missing callback (should raise error)
+                                                    
         no_callback_response = {
             'k1': 'abcdef1234567890',
             'minWithdrawable': 10_000_000,
@@ -62,9 +62,9 @@ class TestLnurl(TestCase):
         with self.assertRaises(lnurl.LNURLError):
             lnurl._parse_lnurl3_response(no_callback_response)
 
-        # Test unsafe callback URL
+                                  
         unsafe_response = {
-            'callback': 'http://service.io/withdraw?sessionid=123',  # HTTP URL
+            'callback': 'http://service.io/withdraw?sessionid=123',            
             'k1': 'abcdef1234567890',
             'minWithdrawable': 10_000_000,
             'maxWithdrawable': 100_000_000
@@ -73,7 +73,7 @@ class TestLnurl(TestCase):
         with self.assertRaises(lnurl.LNURLError):
             lnurl._parse_lnurl3_response(unsafe_response)
 
-        # Test missing k1 (should raise error)
+                                              
         no_k1_response = {
             'callback': 'https://service.io/withdraw?sessionid=123',
             'minWithdrawable': 10_000_000,
@@ -83,7 +83,7 @@ class TestLnurl(TestCase):
         with self.assertRaises(lnurl.LNURLError):
             lnurl._parse_lnurl3_response(no_k1_response)
 
-        # Test missing withdrawable amounts (should raise error)
+                                                                
         no_amounts_response = {
             'callback': 'https://service.io/withdraw?sessionid=123',
             'k1': 'abcdef1234567890',
@@ -92,7 +92,7 @@ class TestLnurl(TestCase):
         with self.assertRaises(lnurl.LNURLError):
             lnurl._parse_lnurl3_response(no_amounts_response)
 
-        # Test malformed withdrawable amounts (should raise error)
+                                                                  
         bad_amounts_response = {
             'callback': 'https://service.io/withdraw?sessionid=123',
             'k1': 'abcdef1234567890',
